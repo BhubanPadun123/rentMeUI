@@ -1,39 +1,38 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import React from 'react';
+import { NativeBaseProvider } from 'native-base';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Signup from "@/src/component/Signup";
+import OTP_Verification from '@/src/component/OtpVerification';
+import Login from '@/src/component/Login';
+import Home from '@/src/component/Home';
+import CContainer from '@/src/component/CConatiner';
+import { Provider } from "react-redux"
+import Store from '@/src/Redux/Srore';
+import ResetPassword from '@/src/component/ResetPassword';
+import RegisterProperty from '@/src/component/AddProduct/add';
+import ViewProduct from '@/src/component/Cart/ViewRoom';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+const Stack = createNativeStackNavigator();
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
+export default function App() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Provider store={Store}>
+      <NativeBaseProvider>
+        <CContainer
+          navItem={
+            <Stack.Navigator initialRouteName='Home'>
+              <Stack.Screen name='Home' component={Home} options={{ headerShown: false }} />
+              <Stack.Screen name='Signup' component={Signup} options={{ headerShown: false }} />
+              <Stack.Screen name='OTP_Verification' component={OTP_Verification} options={{ headerShown: false }} />
+              <Stack.Screen name='Login' component={Login} options={{ headerShown: false }} />
+              <Stack.Screen name='reset_password' component={ResetPassword} options={{headerShown:false}} />
+              <Stack.Screen name='AddProperty' component={RegisterProperty} options={{headerShown:false}} />
+              <Stack.Screen name='Products' component={ViewProduct} options={{headerShown:false}} />
+            </Stack.Navigator>
+          }
+        />
+      </NativeBaseProvider>
+    </Provider>
   );
 }
