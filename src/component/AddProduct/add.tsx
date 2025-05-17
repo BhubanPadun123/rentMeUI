@@ -40,19 +40,17 @@ const RegisterProperty = () => {
 
     React.useEffect(() => {
         const uploadImage = async () => {
-            if (image && Array.isArray(image)) {
-                const galleryData = new FormData();
-                for (let i = 0; i < image.length; i++) {
-                    galleryData.append('images', {
-                        uri: image[i].uri || image[i],
-                        name: `image_${i}.jpg`,
-                        type: 'image/jpeg',
-                    } as any);
-                }
-
-                await dispatch(uploadPropertyImagesAction(galleryData));
+            if (image) {
+                const formData = new FormData();
+                formData.append('image', {
+                    uri: image.uri,
+                    name: image.fileName || 'photo.jpg',
+                    type: image.type || 'image/jpeg',
+                } as any);
+                await dispatch(uploadPropertyImagesAction(formData));
             }
         };
+
         uploadImage();
         return () => {
             setImage(null);
@@ -90,19 +88,22 @@ const RegisterProperty = () => {
     };
 
     const pickImage = async () => {
+        let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (permissionResult.granted === false) {
+            alert("Permission to access camera roll is required!");
+            return;
+        }
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsMultipleSelection: true,
-            quality: 1,
-            selectionLimit: 5
+            quality: 1
         });
 
         if (!result.canceled) {
             let data: any = []
             if (result.assets && Array.isArray(result.assets)) {
-                result.assets.map((item) => {
+                result.assets.map((item, index) => {
                     data.push(item.uri)
-                })
+                });
             }
             setImage(data)
         }
