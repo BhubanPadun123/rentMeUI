@@ -102,4 +102,15 @@ export interface ActionBookingProperty{
     payload:BookingPayload
 }
 
+export type PrivillagesType={
+    roles:string[],
+    privillages:{
+        "supper_admin":string[],
+        "customer":string[],
+        "vendor":string[],
+        "audit":string[],
+        "admin":string[]
+    }
+}
+
 export type status="started" | "success" | "failed" | null

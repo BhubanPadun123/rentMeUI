@@ -5,7 +5,9 @@ import {
     ActionLogin,
     userLoginType,
     forgetPasswordType,
-    ActionForgetPassword
+    ActionForgetPassword,
+    PrivillagesType,
+    status
 } from "../actionTypes/dataType"
 
 interface userState{
@@ -22,6 +24,11 @@ interface userState{
     forgetPassword:{
         status:'started' | 'success' | 'failed' | null,
         data:forgetPasswordType | null,
+        error:any
+    },
+    privillages:{
+        status:status,
+        data:any,
         error:any
     }
 }
@@ -41,6 +48,11 @@ const initialState:userState = {
         status:null,
         data:null,
         error:null
+    },
+    privillages:{
+        status:null,
+        data:[],
+        error:""
     }
 }
 
@@ -148,6 +160,35 @@ export const UserReducer=(state=initialState,action:Action)=>{
                 }
             }
             return state
+        case actionType.GET_USER_PRIVILLAGES_STATUS:
+            state = {
+                ...state,
+                privillages:{
+                    status:'started',
+                    data:[],
+                    error:""
+                }
+            }
+            return state
+        case actionType.GET_USER_PRIVILLAGES_RESPONSE:
+            state={
+                ...state,
+                privillages:{
+                    status:'success',
+                    data:action.payload,
+                    error:""
+                }
+            }
+            return state
+        case actionType.GET_USER_PRIVILLAGES_ERROR:
+            state={
+                ...state,
+                privillages:{
+                    status:'failed',
+                    data:[],
+                    error:action.payload
+                }
+            }
         default:
             return state
     }

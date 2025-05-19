@@ -96,3 +96,26 @@ export const ResetForgetPasswordResponse=()=>{
         })
     }
 }
+
+export const getUserPrivillages=()=>{
+    return async(dispatch:Dispatch)=>{
+        dispatch({
+            type:actionType.GET_USER_PRIVILLAGES_STATUS,
+            payload:{}
+        })
+
+        const {response,error} = await apiService('get','/auth/privilages')
+        if(response){
+            dispatch({
+                type:actionType.GET_USER_PRIVILLAGES_RESPONSE,
+                payload:response
+            })
+        }
+        if(error){
+            dispatch({
+                type:actionType.GET_USER_PRIVILLAGES_ERROR,
+                payload:error
+            })
+        }
+    }
+}

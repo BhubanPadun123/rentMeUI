@@ -11,6 +11,7 @@ import Store from '@/src/Redux/Srore';
 import ResetPassword from '@/src/component/ResetPassword';
 import RegisterProperty from '@/src/component/AddProduct/add';
 import ViewProduct from '@/src/component/Cart/ViewRoom';
+import ProfileScreen from '@/src/component/Profile';
 
 
 const Stack = createNativeStackNavigator();
@@ -28,7 +29,8 @@ export default function App() {
               <Stack.Screen name='Login' component={Login} options={{ headerShown: false }} />
               <Stack.Screen name='reset_password' component={ResetPassword} options={{headerShown:false}} />
               <Stack.Screen name='AddProperty' component={RegisterProperty} options={{headerShown:false}} />
-              <Stack.Screen name='Products' component={ViewProduct} options={{headerShown:false}} />
+              <Stack.Screen name='Products' component={ViewProduct} options={{headerShown:true,contentStyle:{backgroundColor:"ped"}}} />
+              <Stack.Screen name='Profile' component={ProfileScreen} options={{headerShown:false}} />
             </Stack.Navigator>
           }
         />

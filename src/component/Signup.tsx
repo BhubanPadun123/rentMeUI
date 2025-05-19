@@ -8,7 +8,10 @@ import {
     Stack,
     Pressable,
     Box,
-    FormControl
+    FormControl,
+    VStack,
+    Checkbox,
+    useToast
 } from "native-base";
 import { Dimensions, StyleSheet } from "react-native";
 import React from "react";
@@ -18,14 +21,20 @@ import {
     Foundation,
     Entypo
 } from "@expo/vector-icons"
-import { 
+import {
     validateEmail,
     validateConfirmPassword,
     validateContactNumber,
     validatePassword,
-    validateUserName 
+    validateUserName
 } from "@/utils/helper";
-import {useNavigation} from "@react-navigation/native"
+import { useNavigation } from "@react-navigation/native"
+import Loader_1 from "./Loader/PrimaryLoader";
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch } from "../Redux/Srore";
+import { RootState } from "../Redux/Srore";
+import { getUserPrivillages, userRegisteredAction } from "../Redux/actions/user";
+import { user } from "../Redux/actionTypes/dataType";
 
 const { height, width } = Dimensions.get('screen')
 
@@ -37,18 +46,21 @@ interface stateData {
     contactNumber: string,
     password: string,
     cPassword: string,
-    validation:{
-        isUserNameValid:boolean,
-        isEmailValid:boolean,
-        isContactNumberValid:boolean,
-        isPasswordValid:boolean,
-        isCPasswordValid:boolean
+    userType: string,
+    validation: {
+        isUserNameValid: boolean,
+        isEmailValid: boolean,
+        isContactNumberValid: boolean,
+        isPasswordValid: boolean,
+        isCPasswordValid: boolean
     }
 }
 
 
 export default function Signup() {
     const navigation = useNavigation();
+    const dispacth = useDispatch<AppDispatch>()
+    const toast = useToast()
     const [state, setState] = React.useState<stateData>({
         passShow: false,
         cPassShow: false,
@@ -57,17 +69,71 @@ export default function Signup() {
         contactNumber: "",
         cPassword: "",
         password: "",
-        validation:{
-            isUserNameValid:true,
-            isEmailValid:true,
-            isContactNumberValid:true,
-            isPasswordValid:true,
-            isCPasswordValid:true
+        userType: "",
+        validation: {
+            isUserNameValid: true,
+            isEmailValid: true,
+            isContactNumberValid: true,
+            isPasswordValid: true,
+            isCPasswordValid: true
         }
     })
 
+    const {
+        privillages,
+        register
+    } = useSelector((state: RootState) => state.user)
+    console.log(register)
+
+    const fetchProvillages = async () => {
+        await dispacth(getUserPrivillages())
+    }
+    const handleRegister = () => {
+        const userData: user = {
+            userContactNumber: state.contactNumber,
+            userEmail: state.email,
+            userName: state.userName,
+            userType: state.userType,
+            isVerifyed: false,
+            password: state.password
+        }
+        Object.entries(userData).map(([key, val]) => {
+            if (!val) {
+                toast.show({
+                    description: `${key} value is missing!`
+                })
+                return
+            }
+        })
+        dispacth(userRegisteredAction(userData))
+    }
+    React.useEffect(() => {
+        fetchProvillages()
+    }, [])
+
+    if (privillages.status === 'failed') {
+        return (
+            <View
+                minHeight={height}
+                justifyContent={'center'}
+                alignItems={"center"}
+            >
+                <Text
+                    color={"white"}
+                    fontSize={20}
+                >
+                    Something went wrong
+                </Text>
+            </View>
+        )
+    }
+
     return (
-        <Center mt={100}>
+        <View
+            minHeight={height}
+            justifyContent={'center'}
+            alignItems={"center"}
+        >
             <Stack space={4} w="75%" maxW="300px" mx="auto">
                 <FormControl isInvalid={!state.validation.isUserNameValid}>
                     <FormControl.Label>User Name *</FormControl.Label>
@@ -77,14 +143,14 @@ export default function Signup() {
                         InputLeftElement={<AntDesign style={{ padding: 2 }} name="user" size={24} color="gray" />}
                         color={'white'}
                         value={state.userName}
-                        onChangeText={(e)=>{
+                        onChangeText={(e) => {
                             let isValidUserName = validateUserName(e)
-                            setState((prevState)=>({
+                            setState((prevState) => ({
                                 ...prevState,
-                                userName:e.toUpperCase(),
-                                validation:{
+                                userName: e.toUpperCase(),
+                                validation: {
                                     ...prevState.validation,
-                                    isUserNameValid:isValidUserName
+                                    isUserNameValid: isValidUserName
                                 }
                             }))
                         }}
@@ -101,14 +167,14 @@ export default function Signup() {
                         InputLeftElement={<Fontisto style={{ padding: 2 }} name="email" size={24} color="gray" />}
                         color={'white'}
                         value={state.email}
-                        onChangeText={(e)=>{
+                        onChangeText={(e) => {
                             let isValidUserName = validateEmail(e)
-                            setState((prevState)=>({
+                            setState((prevState) => ({
                                 ...prevState,
-                                email:e,
-                                validation:{
+                                email: e,
+                                validation: {
                                     ...prevState.validation,
-                                    isEmailValid:isValidUserName
+                                    isEmailValid: isValidUserName
                                 }
                             }))
                         }}
@@ -125,14 +191,14 @@ export default function Signup() {
                         InputLeftElement={<Foundation style={{ padding: 2 }} name="telephone" size={24} color="gray" />}
                         color={'white'}
                         value={state.contactNumber}
-                        onChangeText={(e)=>{
+                        onChangeText={(e) => {
                             let isValidUserName = validateContactNumber(e)
-                            setState((prevState)=>({
+                            setState((prevState) => ({
                                 ...prevState,
-                                contactNumber:e,
-                                validation:{
+                                contactNumber: e,
+                                validation: {
                                     ...prevState.validation,
-                                    isContactNumberValid:isValidUserName
+                                    isContactNumberValid: isValidUserName
                                 }
                             }))
                         }}
@@ -156,15 +222,15 @@ export default function Signup() {
                         type={state.passShow ? "text" : 'password'}
                         color={'white'}
                         value={state.password}
-                        onChangeText={(e)=>{
+                        onChangeText={(e) => {
                             let isValidUserName = validatePassword(e)
                             console.log(isValidUserName)
-                            setState((prevState)=>({
+                            setState((prevState) => ({
                                 ...prevState,
-                                password:e,
-                                validation:{
+                                password: e,
+                                validation: {
                                     ...prevState.validation,
-                                    isPasswordValid:isValidUserName ? false : true
+                                    isPasswordValid: isValidUserName ? false : true
                                 }
                             }))
                         }}
@@ -188,25 +254,78 @@ export default function Signup() {
                         type={state.cPassShow ? 'text' : 'password'}
                         color={'white'}
                         value={state.cPassword}
-                        onChangeText={(e)=>{
-                            let isValidUserName = validateConfirmPassword(state.password,e)
-                            setState((prevState)=>({
+                        onChangeText={(e) => {
+                            let isValidUserName = validateConfirmPassword(state.password, e)
+                            setState((prevState) => ({
                                 ...prevState,
-                                cPassword:e,
-                                validation:{
+                                cPassword: e,
+                                validation: {
                                     ...prevState.validation,
-                                    isCPasswordValid:isValidUserName ? false : true
+                                    isCPasswordValid: isValidUserName ? false : true
                                 }
                             }))
                         }}
                     />
                     <FormControl.ErrorMessage leftIcon={<AntDesign name="warning" size={24} color="red" />}>
-                        {validateConfirmPassword(state.password,state.cPassword)}
+                        {validateConfirmPassword(state.password, state.cPassword)}
                     </FormControl.ErrorMessage>
                 </FormControl>
-                <Button onPress={()=> navigation.navigate('OTP_Verification' as never)}>Register</Button>
+                <FormControl isRequired>
+                    <FormControl.Label>
+                        Select User Type
+                    </FormControl.Label>
+                    <VStack>
+                        <Checkbox.Group
+                            value={[state.userType]}
+                            onChange={(e) => {
+                                let val = Array.isArray(e) && e.filter(i => i && i !== state.userType)
+                                if (val && val.length)
+                                    setState((prevState) => ({ ...prevState, userType: val[0] }))
+                            }}
+                        >
+                            <Checkbox value="vendor">
+                                <Text
+                                    color={"white"}
+                                    fontSize={16}
+                                >
+                                    Property Owner
+                                </Text>
+                            </Checkbox>
+                            <Checkbox value="customer">
+                                <Text
+                                    color={"white"}
+                                    fontSize={16}
+                                >
+                                    Property Owner
+                                </Text>
+                            </Checkbox>
+                        </Checkbox.Group>
+                    </VStack>
+                </FormControl>
+                <Button onPress={handleRegister}>Register</Button>
+                <Pressable
+                    onPress={() => {
+                        navigation.navigate('Login' as never)
+                    }}
+                >
+                    <Text
+                        color={"white"}
+                        textAlign={'center'}
+                        fontSize={18}
+                    >
+                        Already have account ?
+                    </Text>
+                </Pressable>
             </Stack>;
-        </Center>
+            {
+                (
+                    privillages.status === "started" ||
+                    register.status === "started"
+                ) && (
+                    <Loader_1 />
+                )
+            }
+        </View>
     )
 }
 

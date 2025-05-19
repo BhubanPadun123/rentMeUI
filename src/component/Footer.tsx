@@ -9,6 +9,9 @@ import {useNavigation} from "@react-navigation/native"
 
 export const Footer = () => {
     const navigator = useNavigation()
+    const onPressProfile=()=>{
+        navigator.navigate("Profile" as never)
+    }
     return (
         <Box
             position="absolute"
@@ -27,7 +30,7 @@ export const Footer = () => {
             <Button onPress={()=> navigator.navigate('Home' as never)}>
                 <Feather name="home" size={24} color="white" />
             </Button>
-            <Button>
+            <Button onPress={onPressProfile} >
                 <AntDesign name="user" size={24} color="white" />
             </Button>
         </Box>

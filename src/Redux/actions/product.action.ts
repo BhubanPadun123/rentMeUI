@@ -44,7 +44,7 @@ export const clearAddProduct=()=>{
     }
 }
 
-export const getProductListAction=(start:number,end:number)=>{
+export const getProductListAction=(start:number,end:number,userId:string)=>{
     return async(dispatch:Dispatch)=>{
         dispatch({
             type:actionTypes.GET_PRODUCT_LIST_STATUS,
@@ -53,7 +53,7 @@ export const getProductListAction=(start:number,end:number)=>{
         const {
             response,
             error
-        } = await apiService('get',`/v1/product/property/list?start=${start}&end=${end}`)
+        } = await apiService('get',`/v1/product/property/list?start=${start}&end=${end}&userId=${userId}`)
         if(response){
             dispatch({
                 type:actionTypes.GET_PRODUCT_LIST_RESPONSE,

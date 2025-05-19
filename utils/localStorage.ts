@@ -15,3 +15,10 @@ export const getLocalData=async(key:string)=>{
         return null
     }
 }
+export const removedLocalValue=async(key:string)=>{
+    try {
+        await AsyncStorage.removeItem(key)
+    } catch (error) {
+        console.log(error)
+    }
+}

@@ -14,7 +14,8 @@ import { AppDispatch } from "@/src/Redux/Srore";
 import { RootState } from "@/src/Redux/Reducer";
 import { useNavigation } from "@react-navigation/native";
 import Loader_1 from "../Loader/PrimaryLoader";
-import { productType } from "@/src/Redux/actionTypes/dataType";
+import { productType, user } from "@/src/Redux/actionTypes/dataType";
+import { getLocalData } from "@/utils/localStorage";
 
 const { height, width } = Dimensions.get('screen')
 
@@ -26,14 +27,21 @@ export default function Home() {
 
     React.useEffect(()=>{
         const fetchProductList=async()=>{
-            dispacth(getProductListAction(0,6))
+            const userData = await getLocalData("currentUser")
+            if(userData){
+                const userInfo:user = JSON.parse(userData)
+                if(userInfo?._id){
+                    dispacth(getProductListAction(0,6,userInfo._id))
+                }
+            }else{
+                navigation.navigate("Login" as never)
+            }
         }
         fetchProductList()
     },[])
     const {
         productList
     } = useSelector((state:RootState)=> state.product)
-    console.log(productList)
    
     React.useEffect(()=>{
         const checkData=()=>{
