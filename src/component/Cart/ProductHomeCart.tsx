@@ -13,13 +13,33 @@ import {
     MaterialCommunityIcons
 } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
+import { productType } from "@/src/Redux/actionTypes/dataType"
+import { formatDateTime } from "@/utils/helper"
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 
-export default function ProductCartHome() {
-    const navigation = useNavigation()
-    const handleClickCart=()=>{
-        navigation.navigate("Products" as never);
+
+type RootStackParamList = {
+    Products: productType
+}
+type ProductsNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Products'>;
+
+export default function ProductCartHome(props: productType) {
+    const navigation = useNavigation<ProductsNavigationProp>()
+    const {
+        productTitle,
+        productType,
+        postAt,
+        propertyOccupancy,
+        metaData
+    } = props
+    const handleClickCart = () => {
+        navigation.navigate("Products",{...props});
     }
+    const {
+        date,
+        time
+    } = formatDateTime(postAt)
     return (
         <Card
             alignItems="center"
@@ -31,7 +51,7 @@ export default function ProductCartHome() {
             // onPointerEnter={()=>{
             //     handleClickCart()
             // }}
-            onPointerDown={()=>{
+            onPointerDown={() => {
                 handleClickCart()
             }}
         >
@@ -47,15 +67,17 @@ export default function ProductCartHome() {
                 }}
             />
             <Text className="text-sm font-normal mb-2 text-typography-700">
-                May 15, 2023
+                {
+                    `${date} - ${time}`
+                }
             </Text>
             <Heading size="md" className="mb-4">
-                The Power of Positive Thinking
+                {productTitle}
             </Heading>
             <Link href="https://gluestack.io/" isExternal>
                 {/* Link content here */}
             </Link>
-            <Text>Some short blog description...</Text>
+            <Text>{metaData.description}</Text>
             <View style={{
                 display: 'flex',
                 flexDirection: 'row',
