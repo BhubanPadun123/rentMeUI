@@ -30,6 +30,11 @@ interface userState{
         status:status,
         data:any,
         error:any
+    },
+    vendorCustomer:{
+        status:status,
+        data:user | [],
+        error:any
     }
 }
 
@@ -50,6 +55,11 @@ const initialState:userState = {
         error:null
     },
     privillages:{
+        status:null,
+        data:[],
+        error:""
+    },
+    vendorCustomer:{
         status:null,
         data:[],
         error:""
@@ -184,6 +194,51 @@ export const UserReducer=(state=initialState,action:Action)=>{
             state={
                 ...state,
                 privillages:{
+                    status:'failed',
+                    data:[],
+                    error:action.payload
+                }
+            }
+            return state
+        case actionType.CLEAR_USER_STORE_DATA:
+            state={
+                ...state,
+                login:{
+                    status:null,
+                    data:null,
+                    error:""
+                },
+                register:{
+                    status:null,
+                    data:[],
+                    error:""
+                }
+            }
+            return state;
+        case actionType.GET_VENDOR_ORDERED_PRODUCTS:
+            state={
+                ...state,
+                vendorCustomer:{
+                    status:"started",
+                    data:[],
+                    error:""
+                }
+            }
+            return state;
+        case actionType.GET_VENDOR_ORDERED_RESPONSE:
+            state={
+                ...state,
+                vendorCustomer:{
+                    status:"success",
+                    data:action.payload,
+                    error:""
+                }
+            }
+            return state;
+        case actionType.GET_VENDOR_ORDERED_ERROR:
+            state={
+                ...state,
+                vendorCustomer:{
                     status:'failed',
                     data:[],
                     error:action.payload

@@ -28,13 +28,14 @@ import {
     validatePassword,
     validateUserName
 } from "@/utils/helper";
-import { useNavigation } from "@react-navigation/native"
+import { useNavigation,useRoute } from "@react-navigation/native"
 import Loader_1 from "./Loader/PrimaryLoader";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch } from "../Redux/Srore";
 import { RootState } from "../Redux/Srore";
 import { getUserPrivillages, userRegisteredAction } from "../Redux/actions/user";
 import { user } from "../Redux/actionTypes/dataType";
+import { useAppContext } from "./AppContex";
 
 const { height, width } = Dimensions.get('screen')
 
@@ -61,6 +62,9 @@ export default function Signup() {
     const navigation = useNavigation();
     const dispacth = useDispatch<AppDispatch>()
     const toast = useToast()
+    const routeName = useRoute().name
+    const {updateRouteName} = useAppContext()
+    updateRouteName(routeName)
     const [state, setState] = React.useState<stateData>({
         passShow: false,
         cPassShow: false,
@@ -296,14 +300,14 @@ export default function Signup() {
                                     color={"white"}
                                     fontSize={16}
                                 >
-                                    Property Owner
+                                    Customer
                                 </Text>
                             </Checkbox>
                         </Checkbox.Group>
                     </VStack>
                 </FormControl>
                 <Button onPress={handleRegister}>Register</Button>
-                <Pressable
+                <Button
                     onPress={() => {
                         navigation.navigate('Login' as never)
                     }}
@@ -315,7 +319,7 @@ export default function Signup() {
                     >
                         Already have account ?
                     </Text>
-                </Pressable>
+                </Button>
             </Stack>;
             {
                 (

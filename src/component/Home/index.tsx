@@ -12,10 +12,11 @@ import {
 import { useSelector,useDispatch } from "react-redux";
 import { AppDispatch } from "@/src/Redux/Srore";
 import { RootState } from "@/src/Redux/Reducer";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation,useRoute } from "@react-navigation/native";
 import Loader_1 from "../Loader/PrimaryLoader";
 import { productType, user } from "@/src/Redux/actionTypes/dataType";
 import { getLocalData } from "@/utils/localStorage";
+import { useAppContext } from "../AppContex";
 
 const { height, width } = Dimensions.get('screen')
 
@@ -23,6 +24,11 @@ const { height, width } = Dimensions.get('screen')
 export default function Home() {
     const dispacth = useDispatch<AppDispatch>()
     const navigation = useNavigation()
+    const routeName = useRoute().name
+    const {
+        updateRouteName
+    } = useAppContext()
+    updateRouteName(routeName)
     
 
     React.useEffect(()=>{
@@ -84,7 +90,8 @@ export default function Home() {
                         return(
                             <ProductCartHome 
                                key={index}
-                               {...item} 
+                               callingType='vendor'
+                               product={item}
                             />
                         )
                     })

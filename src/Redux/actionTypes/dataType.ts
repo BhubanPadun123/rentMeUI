@@ -17,7 +17,8 @@ export type token={
 }
 export type userLoginType={
     userEmail:string;
-    password:string
+    password:string;
+    userData?:user
 }
 export interface ActionLogin{
     type:string;
@@ -92,6 +93,7 @@ export type BookingPayload={
     vendorRef:string;
     customerRef:string;
     bookingStatus:string;
+    productRef:string;
     message:string;
     rating:string;
     review:string;

@@ -78,7 +78,7 @@ export const bookingProperty=(data:BookingPayload)=>{
         const {
             response,
             error
-        } = await apiService("post",'/v1/product/property/booking',data)
+        } = await apiService("post",`/v1/product/property/booking?userId=${data.customerRef}`,data)
         if(response){
             dispatch({
                 type:actionTypes.PLACE_BOOKING_RESPONSE,
@@ -88,6 +88,65 @@ export const bookingProperty=(data:BookingPayload)=>{
         if(error){
             dispatch({
                 type:actionTypes.PLACE_BOOKING_ERROR,
+                payload:error
+            })
+        }
+    }
+}
+
+export const clearBookingStorage=()=>{
+    return async(dispatch:Dispatch)=>{
+        dispatch({
+            type:actionTypes.CLEAR_BookING_DATA,
+            payload:{}
+        })
+    }
+}
+
+export const getVendorProduct=(_id:string)=>{
+    return async(dispatch:Dispatch)=>{
+        dispatch({
+            type:actionTypes.GET_VENDOR_PRODUCT_STATUS,
+            payload:{}
+        })
+        const {
+            response,
+            error
+        } = await apiService('get',`/v1/manage/vender/product?userId=${_id}`)
+        if(response){
+            dispatch({
+                type:actionTypes.GET_VENDOR_PRODUCT_RESPONSE,
+                payload:response
+            })
+        }
+        if(error){
+            dispatch({
+                type:actionTypes.GET_VENDOR_PRODUCT_ERROR,
+                payload:error
+            })
+        }
+    }
+}
+
+export const getVendorOrderPlaceList=(vendorId:string)=>{
+    return async(dispatch:Dispatch)=>{
+        dispatch({
+            type:actionTypes.GET_VENDOR_PRODUCT_PLACE_ORDER_STATUS,
+            payload:{}
+        })
+        const {
+            response,
+            error
+        } = await apiService('get',`/v1/manage/vendor/booking?vendorRef=${vendorId}`)
+        if(response){
+            dispatch({
+                type:actionTypes.GET_VENDOR_PRODUCT_PLACE_ORDER_RESPONSE,
+                payload:response
+            })
+        }
+        if(error){
+            dispatch({
+                type:actionTypes.GET_VENDOR_PRODUCT_PLACE_ORDER_ERROR,
                 payload:error
             })
         }

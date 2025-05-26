@@ -119,3 +119,37 @@ export const getUserPrivillages=()=>{
         }
     }
 }
+
+export const getVendorProductOrderedUser=(vendorRef:string,productRef:string)=>{
+    return async(dispatch:Dispatch)=>{
+        dispatch({
+            type:actionType.GET_VENDOR_ORDERED_PRODUCTS,
+            payload:{}
+        })
+        const {
+            response,
+            error
+        } = await apiService('get',`/v1/manage/vendor/order_details?vendorRef=${vendorRef}&productRef=${productRef}`)
+        if(response){
+            dispatch({
+                type:actionType.GET_VENDOR_ORDERED_RESPONSE,
+                payload:response
+            })
+        }
+        if(error){
+            dispatch({
+                type:actionType.GET_VENDOR_ORDERED_ERROR,
+                payload:error
+            })
+        }
+    }
+}
+
+export const clearUserStore=()=>{
+    return async(dispatch:Dispatch)=>{
+        dispatch({
+            type:actionType.CLEAR_USER_STORE_DATA,
+            payload:{}
+        })
+    }
+}

@@ -35,9 +35,10 @@ import {
     clearAddProduct
 } from '@/src/Redux/actions/product.action';
 import { RootState } from '@/src/Redux/Reducer';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation,useRoute } from '@react-navigation/native';
 import * as constant from "@/utils/constant"
 import * as Location from "expo-location"
+import { useAppContext } from '../AppContex';
 import {
     FontAwesome6
 } from "@expo/vector-icons"
@@ -93,6 +94,9 @@ const RegisterProperty = () => {
     const dispatch = useDispatch<AppDispatch>()
     const navigate = useNavigation()
     const toast = useToast()
+    const routeName = useRoute().name
+    const {updateRouteName} = useAppContext()
+    updateRouteName(routeName)
     const [formData, setFormData] = useState<peropertyForm>({
         productTitle: "",
         productType: "",

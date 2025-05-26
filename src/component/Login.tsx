@@ -26,13 +26,14 @@ import {
     validatePassword,
     validateUserName
 } from "@/utils/helper";
-import { useNavigation } from "@react-navigation/native"
-import { UserLoginAction } from "../Redux/actions/user";
+import { useNavigation,useRoute } from "@react-navigation/native"
+import { UserLoginAction,clearUserStore } from "../Redux/actions/user";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, } from "../Redux/Reducer";
 import { userLoginType } from "../Redux/actionTypes/dataType";
 import { AppDispatch } from "../Redux/Srore";
 import Loader_1 from "./Loader/PrimaryLoader";
+import { useAppContext } from "./AppContex";
 
 
 const { height, width } = Dimensions.get('screen')
@@ -58,6 +59,11 @@ interface stateData {
 export default function Login() {
     const navigation = useNavigation();
     const dispatch = useDispatch<AppDispatch>()
+    const routeName = useRoute().name
+    const {
+        userName,
+        updateRouteName
+    } = useAppContext()
     const [state, setState] = React.useState<stateData>({
         passShow: false,
         cPassShow: false,
@@ -74,19 +80,23 @@ export default function Login() {
             isCPasswordValid: true
         }
     })
-
+    updateRouteName(routeName)
     const {
         status,
         data,
         error
     } = useSelector((state: RootState) => state.user.login)
     React.useEffect(()=>{
-        const handleRedirect=()=>{
+        const handleRedirect=async()=>{
             if(status==="success"){
-                navigation.goBack()
+                await dispatch(clearUserStore())
+                navigation.navigate("Home" as never)
             }
         }
         handleRedirect()
+        return()=>{
+            dispatch(clearUserStore())
+        }
     },[status,error,data])
     const handleLogin = () => {
         const data: userLoginType = {
@@ -99,6 +109,7 @@ export default function Login() {
         <View
           height={height}
           justifyContent={'center'}
+          alignItems={"center"}
         >
             <Box safeArea p="4" w="100%" maxW="500" py="8">
                 <Stack space={4} w="75%" maxW="300px" mx="auto" position={"relative"} >
@@ -161,6 +172,9 @@ export default function Login() {
                     <Button onPress={handleLogin}>LOGIN</Button>
                     <Pressable onPress={() => navigation.navigate("reset_password" as never)}>
                         <Text style={styles.forgetPassword}>Forget password ?</Text>
+                    </Pressable>
+                    <Pressable onPress={() => navigation.navigate("Signup" as never)}>
+                        <Text style={styles.forgetPassword}>Don't have account yet ?</Text>
                     </Pressable>
                 </Stack>
             </Box>

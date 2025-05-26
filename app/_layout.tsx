@@ -12,6 +12,8 @@ import ResetPassword from '@/src/component/ResetPassword';
 import RegisterProperty from '@/src/component/AddProduct/add';
 import ViewProduct from '@/src/component/Cart/ViewRoom';
 import ProfileScreen from '@/src/component/Profile';
+import { getLocalData } from '@/utils/localStorage';
+import { AppProvider } from '@/src/component/AppContex';
 
 
 const Stack = createNativeStackNavigator();
@@ -20,20 +22,28 @@ export default function App() {
   return (
     <Provider store={Store}>
       <NativeBaseProvider>
-        <CContainer
-          navItem={
-            <Stack.Navigator initialRouteName='Home'>
-              <Stack.Screen name='Home' component={Home} options={{ headerShown: false }} />
-              <Stack.Screen name='Signup' component={Signup} options={{ headerShown: false }} />
-              <Stack.Screen name='OTP_Verification' component={OTP_Verification} options={{ headerShown: false }} />
-              <Stack.Screen name='Login' component={Login} options={{ headerShown: false }} />
-              <Stack.Screen name='reset_password' component={ResetPassword} options={{headerShown:false}} />
-              <Stack.Screen name='AddProperty' component={RegisterProperty} options={{headerShown:false}} />
-              <Stack.Screen name='Products' component={ViewProduct} options={{headerShown:true,contentStyle:{backgroundColor:"ped"}}} />
-              <Stack.Screen name='Profile' component={ProfileScreen} options={{headerShown:false}} />
-            </Stack.Navigator>
-          }
-        />
+        <AppProvider>
+          <CContainer
+            navItem={
+              <Stack.Navigator initialRouteName='Home'>
+                <Stack.Screen name='Home' component={Home} options={{ headerShown: false }} />
+                <Stack.Screen name='Signup' component={Signup} options={{ headerShown: false }} />
+                <Stack.Screen name='OTP_Verification' component={OTP_Verification} options={{ headerShown: false }} />
+                <Stack.Screen name='Login' component={Login} options={{ headerShown: false }} />
+                <Stack.Screen name='reset_password' component={ResetPassword} options={{ headerShown: false }} />
+                <Stack.Screen name='AddProperty' component={RegisterProperty} options={{ headerShown: false }} />
+                <Stack.Screen name='Products' component={ViewProduct} options={{ headerShown: true, contentStyle: { backgroundColor: "ped" } }} />
+                <Stack.Screen name='Profile' component={ProfileScreen} options={{ headerShown: false }} />
+              </Stack.Navigator>
+            }
+            loginNav={
+              <Stack.Navigator initialRouteName='Login'>
+                <Stack.Screen name='Login' component={Login} options={{ headerShown: false }} />
+                <Stack.Screen name='Signup' component={Signup} options={{ headerShown: false }} />
+              </Stack.Navigator>
+            }
+          />
+        </AppProvider>
       </NativeBaseProvider>
     </Provider>
   );

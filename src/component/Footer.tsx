@@ -7,7 +7,11 @@ import {
 } from '@expo/vector-icons'
 import {useNavigation} from "@react-navigation/native"
 
-export const Footer = () => {
+type propTypes={
+    updateRouteName:(name:string)=> void
+}
+
+export const Footer = (props:propTypes) => {
     const navigator = useNavigation()
     const onPressProfile=()=>{
         navigator.navigate("Profile" as never)

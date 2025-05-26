@@ -14,8 +14,15 @@ import {
     removedLocalValue
 } from "@/utils/localStorage";
 import { useNavigation } from "@react-navigation/native";
+import { user } from "@/src/Redux/actionTypes/dataType";
 
-function UserAbout() {
+
+interface PropTypes {
+    updateCurrentUser: (data: user | null) => void;
+    currentUser: user | null
+}
+
+function UserAbout(props: PropTypes) {
     const navigation = useNavigation()
     const [modalVisible, setModalVisible] = React.useState(false);
     const initialRef = React.useRef(null);
@@ -25,43 +32,89 @@ function UserAbout() {
         await removedLocalValue("currentUser")
         await removedLocalValue("token")
         setModalVisible(false)
+        props.updateCurrentUser(null)
         navigation.navigate("Login" as never)
     }
 
     return <>
         <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)} initialFocusRef={initialRef} finalFocusRef={finalRef}>
-            <Modal.Content>
-                <Modal.CloseButton />
-                <Modal.Header>Bhuban Padun</Modal.Header>
-                <Modal.Body>
-                    <FormControl>
-                        <FormControl.Label>Name</FormControl.Label>
-                        <Input ref={initialRef} readOnly />
-                    </FormControl>
-                    <FormControl mt="3">
-                        <FormControl.Label>Email</FormControl.Label>
-                        <Input readOnly />
-                    </FormControl>
-                    <VStack>
-                        <Text>
+            {
+                props.currentUser ? (
+                    <Modal.Content>
+                        <Modal.CloseButton />
+                        <Modal.Header>UserName: {props.currentUser.userName}</Modal.Header>
+                        <Modal.Body>
+                            <FormControl>
+                                <FormControl.Label>Conatct Number</FormControl.Label>
+                                <Input ref={initialRef} readOnly value={props.currentUser.userContactNumber} />
+                            </FormControl>
+                            <FormControl mt="3">
+                                <FormControl.Label>Email</FormControl.Label>
+                                <Input readOnly value={props.currentUser.userEmail} />
+                            </FormControl>
+                            <FormControl mt="3">
+                                <FormControl.Label>User Type</FormControl.Label>
+                                <Input readOnly value={props.currentUser.userType} />
+                            </FormControl>
+                            <FormControl mt="3">
+                                <FormControl.Label>User Verified Status</FormControl.Label>
+                                <Input readOnly value={props.currentUser.isVerifyed ? "Yes" : "No"} />
+                            </FormControl>
+                            <VStack>
+                                <Text>
 
-                        </Text>
-                    </VStack>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button.Group space={2}>
-                        <Button color={'primary.100'} onPress={()=> {
-                            setModalVisible(false)
-                            navigation.navigate('Signup' as never)
-                        }} >
-                            SignIn
-                        </Button>
-                        <Button onPress={handleLogout} >
-                            Logout
-                        </Button>
-                    </Button.Group>
-                </Modal.Footer>
-            </Modal.Content>
+                                </Text>
+                            </VStack>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button.Group space={2}>
+                                <Button color={'primary.100'} onPress={() => {
+                                    setModalVisible(false)
+                                    navigation.navigate('Signup' as never)
+                                }} >
+                                    SignIn
+                                </Button>
+                                <Button onPress={handleLogout} >
+                                    Logout
+                                </Button>
+                            </Button.Group>
+                        </Modal.Footer>
+                    </Modal.Content>
+                ) : (
+                    <Modal.Content>
+                        <Modal.CloseButton />
+                        <Modal.Header>Bhuban Padun</Modal.Header>
+                        <Modal.Body>
+                            <FormControl>
+                                <FormControl.Label>Name</FormControl.Label>
+                                <Input ref={initialRef} readOnly />
+                            </FormControl>
+                            <FormControl mt="3">
+                                <FormControl.Label>Email</FormControl.Label>
+                                <Input readOnly />
+                            </FormControl>
+                            <VStack>
+                                <Text>
+
+                                </Text>
+                            </VStack>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button.Group space={2}>
+                                <Button color={'primary.100'} onPress={() => {
+                                    setModalVisible(false)
+                                    navigation.navigate('Signup' as never)
+                                }} >
+                                    SignIn
+                                </Button>
+                                <Button onPress={handleLogout} >
+                                    Logout
+                                </Button>
+                            </Button.Group>
+                        </Modal.Footer>
+                    </Modal.Content>
+                )
+            }
         </Modal>
         <HStack
             p={0}

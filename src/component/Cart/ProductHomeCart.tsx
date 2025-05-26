@@ -16,15 +16,20 @@ import { useNavigation } from "@react-navigation/native"
 import { productType } from "@/src/Redux/actionTypes/dataType"
 import { formatDateTime } from "@/utils/helper"
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useAppContext } from "../AppContex"
 
 
 
 type RootStackParamList = {
-    Products: productType
+    Products: productType,
 }
 type ProductsNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Products'>;
+type PropTypes={
+    callingType:"home" | "vendor" | "confirm" | "customer",
+    product:productType
+}
 
-export default function ProductCartHome(props: productType) {
+export default function ProductCartHome(props: PropTypes) {
     const navigation = useNavigation<ProductsNavigationProp>()
     const {
         productTitle,
@@ -32,9 +37,15 @@ export default function ProductCartHome(props: productType) {
         postAt,
         propertyOccupancy,
         metaData
-    } = props
+    } = props.product
+    const {
+        updateUserCallingType
+    } = useAppContext()
+
+
     const handleClickCart = () => {
-        navigation.navigate("Products",{...props});
+        updateUserCallingType(props.callingType)
+        navigation.navigate("Products",{...props.product});
     }
     const {
         date,

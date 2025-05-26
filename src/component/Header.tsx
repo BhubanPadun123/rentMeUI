@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Text, Button, VStack } from "native-base";
-import { useNavigation } from "@react-navigation/native"
+import { useNavigation,useRoute } from "@react-navigation/native"
 import {
     MaterialCommunityIcons,
     SimpleLineIcons,
@@ -16,12 +16,14 @@ import {
 import { Dimensions, ImageBackground } from "react-native";
 
 type propsTypes={
-    handleClickFilter:()=> void
+    handleClickFilter:()=> void;
+    updateRouteName:(name:string)=> void
 }
 
 export const Header = (props:propsTypes) => {
     const navigator = useNavigation()
     const [currentUser, setCurrentUser] = React.useState<user | null>(null)
+    // const routeName = useRoute().name
 
     React.useEffect(() => {
         const fetchData = async () => {
@@ -46,23 +48,6 @@ export const Header = (props:propsTypes) => {
                 backgroundColor: 'white'
             }}
         >
-            {/* <ImageBackground
-                source={require("@/assets/images/bg_4.jpg")}
-                resizeMode='stretch'
-                style={{
-                    width:"100%"
-                }}
-            > */}
-            {/* {
-                !currentUser && (
-                    <Button color={'yellow.600'} rounded={'2xl'} onPress={() => navigator.navigate('Login' as never)} >
-                        <MaterialCommunityIcons name="login" size={20} color="white" />
-                    </Button>
-                )
-            }
-            <Button color={'yellow.600'} rounded={'2xl'} onPress={() => navigator.navigate('Signup' as never)} >
-                <SimpleLineIcons name="logout" size={20} color="white" />
-            </Button> */}
             {
                 currentUser && (currentUser.userType === "supper_admin" || currentUser.userType === "vendor") && (
                     <Button color={'yellow.600'} rounded={'2xl'} onPress={() => {
@@ -75,9 +60,6 @@ export const Header = (props:propsTypes) => {
             <Button onPress={props.handleClickFilter} >
                 <Feather name="filter" size={24} color="white" />
             </Button>
-            {/* </ImageBackground> */}
         </Box>
-        // </ImageBackground>
-
     );
 };
