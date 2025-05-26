@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Text, Button, VStack } from "native-base";
-import { useNavigation,useRoute } from "@react-navigation/native"
+import { useNavigation, useRoute } from "@react-navigation/native"
 import {
     MaterialCommunityIcons,
     SimpleLineIcons,
@@ -14,15 +14,19 @@ import {
     user
 } from "@/src/Redux/actionTypes/dataType"
 import { Dimensions, ImageBackground } from "react-native";
+import { useAppContext } from "./AppContex";
 
-type propsTypes={
-    handleClickFilter:()=> void;
-    updateRouteName:(name:string)=> void
+type propsTypes = {
+    handleClickFilter: () => void;
+    updateRouteName: (name: string) => void
 }
 
-export const Header = (props:propsTypes) => {
+export const Header = (props: propsTypes) => {
     const navigator = useNavigation()
     const [currentUser, setCurrentUser] = React.useState<user | null>(null)
+    const {
+        routeName
+    } = useAppContext()
     // const routeName = useRoute().name
 
     React.useEffect(() => {
@@ -57,9 +61,13 @@ export const Header = (props:propsTypes) => {
                     </Button>
                 )
             }
-            <Button onPress={props.handleClickFilter} >
-                <Feather name="filter" size={24} color="white" />
-            </Button>
+            {
+                routeName && routeName === "Home" && (
+                    <Button onPress={props.handleClickFilter} >
+                        <Feather name="filter" size={24} color="white" />
+                    </Button>
+                )
+            }
         </Box>
     );
 };
