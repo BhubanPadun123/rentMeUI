@@ -1,50 +1,39 @@
-# Welcome to your Expo app 👋
+# Online Appointment Application for Mobile Devices
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+The Online Appointment Application aims to address the inefficiencies in appointment processes by making scheduling and managing appointments with service providers easier. Designed to minimize the time waste and congested phone traffic caused by traditional phone-based communication, the project seeks to digitize modern appointment processes. Users can view service provider working hours, make appointments, track past appointments, and manage them, redefining productivity in appointment scheduling.
 
-## Get started
+![AppUI](/assets/appUI.jpg)
 
-1. Install dependencies
+![Gif](https://github.com/zhrgns/appointmentAppwithReactNative/blob/main/assets/appGif.gif)
 
-   ```bash
-   npm install
-   ```
 
-2. Start the app
+## Technologies Used:
 
-   ```bash
-    npx expo start
-   ```
+* Backend: Firebase Realtime Database, and Firebase Authentication with Firebase JS SDK
 
-In the output, you'll find options to open the app in a
+* Frontend: React Native, Expo, Expo Go App, React Navigation
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+* Installed Packages: Expo Vector Icons, Expo Notifications, React Native Flash Message, React Native Popup Menu, Formik, Moment, Expo-Image Picker, React Native Reanimated, React Native Maps, Expo Location, React Native Share
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+## Key Features in the Project:
 
-When you're ready, run:
+* Categorized list of services with detailed provider information
 
-```bash
-npm run reset-project
-```
+* Real-time availability status for booking appointments
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+* Notifications, view of upcoming and past appointments
 
-## Learn more
+* GPS integration for locating nearby services
 
-To learn more about developing your project with Expo, look at the following resources:
+* Share services with others.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-## Join the community
+## Requirements and Installation:
 
-Join our community of developers creating universal apps.
+* Ensure Node.js and Expo CLI are installed.
+* Open the terminal in the project folder and run `npm install` to install dependencies.
+* Create a Firebase account and add the Firebase configuration to the project.
+* Start the project by running the `npx expo start` command in the terminal. To try the application live an emulator needed also.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
