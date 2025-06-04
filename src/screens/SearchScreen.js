@@ -19,6 +19,7 @@ export default function SearchScreen({ navigation, route }) {
 
     const category = route.params?.category
     const type = route.params?.type
+    const placegolderName = SearchPlaceholderName(type)
 
     useEffect(() => {
         const dbRef = ref(getDatabase());
@@ -122,7 +123,7 @@ export default function SearchScreen({ navigation, route }) {
                     <View style={styles.search_container}>
                         <SearchBar
                             onSearch={handleSearch}
-                            placeholder_text={ type ? type.toUpperCase() : ""}
+                            placeholder_text={ placegolderName ? placegolderName.toUpperCase() : ""}
                         />
                     </View>
 
@@ -174,3 +175,16 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
 });
+
+
+function SearchPlaceholderName(name){
+    switch(name){
+        case "catagoryClick":
+            return "Search Catagory"
+        case "cardClick":
+            return "Search Product"
+
+        default:
+            return name
+    }
+}

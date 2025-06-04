@@ -72,7 +72,7 @@ function SearchStack() {
             <Stack.Screen
                 name="SearchScreen"
                 component={SearchScreen}
-                options={{ headerShown: true }}
+                options={{ headerShown: false }}
             />
             <Stack.Screen
                 name="ServiceDetailScreen"
@@ -167,18 +167,21 @@ export default Navigation = () => {
         <>
             <Tab.Navigator screenOptions={iconPref} initialRouteName="Anasayfa" >
                 <Tab.Screen name="Anasayfa" component={HomeStack} />
-                <Tab.Screen name="Ara" component={SearchStack} />
+                <Tab.Screen name="Search" component={SearchStack} options={{
+                    headerShown:true,
+                    title:"Search"
+                }} />
                 <Tab.Screen
-                    name="Harita"
+                    name="Map"
                     component={MapStack}
                     options={{ tabBarButton: customTabButton }}
                 />
                 <Tab.Screen
-                    name="Randevularım"
+                    name="Calander"
                     component={getTabScreen(CalendarScreen, AuthStack)}
                 />
                 <Tab.Screen
-                    name="Profil"
+                    name="Profile"
                     component={getTabScreen(UserProfileScreen, AuthStack)}
                 />
             </Tab.Navigator>

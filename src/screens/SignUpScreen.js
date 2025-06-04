@@ -6,6 +6,7 @@ import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import app from "../../firebaseConfig";
 import { Formik } from "formik";
 import ErrorHandler, { showTopMessage } from "../utils/ErrorHandler";
+import { colors } from "../styles/Theme";
 
 const initialFormValues = {
     usermail: "",
@@ -23,7 +24,7 @@ export default function SignUpScreen() {
 
         if (formValues.password != formValues.passwordre) {
             showTopMessage(
-                "Parola tekrarı uyuşmuyor, tekrar deneyin!",
+                "Providing password is not same!",
                 "warning"
             );
             setLoading(false);
@@ -35,13 +36,15 @@ export default function SignUpScreen() {
             )
                 .then(
                     (res) => {
-                        showTopMessage(" Kayıt Başarılı !", "success");
+                        showTopMessage(" Register successfull!", "success");
                         setLoading(false);
                     }
                     //buradan home screene gitmeli veya go back
                 )
-                .catch((err) =>
+                .catch((err) =>{
+                    console.log(err)
                     showTopMessage(ErrorHandler(err.code), "danger")
+                }
                 );
 
             setLoading(false);
@@ -51,7 +54,7 @@ export default function SignUpScreen() {
     return (
         <KeyboardAvoidingView
             style={styles.container}
-            behavior="padding"
+            // behavior="padding"
         >
             <ScrollView style={styles.container}>
                 <Text style={styles.text}>HomeKart Signup </Text>
@@ -62,18 +65,10 @@ export default function SignUpScreen() {
                     {({ values, handleChange, handleSubmit }) => (
                         <>
                             <View style={styles.input_container}>
-                                <InputBar placeholder={"UserName"} />
-                                <InputBar placeholder={"First Name"} />
-                                <InputBar placeholder={"Last Name"} />
                                 <InputBar
                                     onType={handleChange("usermail")}
                                     value={values.usermail}
                                     placeholder={"Email address"}
-                                />
-                                <InputBar
-                                    onType={handleChange("phoneNumber")}
-                                    value={values.phoneNumber}
-                                    placeholder={"Phone Number"}
                                 />
                                 <InputBar
                                     onType={handleChange("password")}
@@ -106,12 +101,14 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: 48,
+        marginTop: 40
     },
     text: {
         marginHorizontal: 24,
         marginVertical: 32,
         fontSize: 30,
+        textAlign:'center',
+        color:colors.color_primary
         //fontFamily: "Mulish-Medium",
     },
     input_container: {

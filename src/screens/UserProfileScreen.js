@@ -12,9 +12,9 @@ import UploadImage from "../components/UploadImage";
 export default function UserProfileScreen({ navigation }) {
     const userInfo = {
         id: 0,
-        firstName: "Zehra",
-        lastName: "Güneş",
-        district: "Ataşehir",
+        firstName: "First Name",
+        lastName: "+Last Name",
+        district: "District",
     };
     //sing out user
     function handleSignOut() {
@@ -40,7 +40,7 @@ export default function UserProfileScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.header_text}>Profilim</Text>
+            <Text style={styles.header_text}>Update user info</Text>
 
             <View style={styles.section_container}>
 
@@ -62,28 +62,12 @@ export default function UserProfileScreen({ navigation }) {
                 <CardSmall
                     // onSelect={goToBookingHistory}
                     iconName={"list"}
-                    text={"Geçmiş Randevularım"}
+                    text={"Geçmiş Calander"}
                 />
                 <CardSmall
                     iconName={"message-square"}
                     text={"Geri Bildirim"}
                 />
-
-                <View style={styles.logo_container}>
-                    <Text style={styles.logo_text}>AppointMe</Text>
-                    <TouchableOpacity
-                        style={styles.logout_container}
-                        onPress={handleSignOut}
-                    >
-                        <Text style={styles.text}>Çıkış Yap </Text>
-                        <Feather
-                            style={styles.icon}
-                            name="log-out"
-                            size={24}
-                            color="black"
-                        />
-                    </TouchableOpacity>
-                </View>
             </View>
         </View>
     );
@@ -132,6 +116,8 @@ const styles = StyleSheet.create({
         marginHorizontal: 24,
         marginVertical: 16,
         fontSize: 30,
+        textAlign:'center',
+        color:colors.color_primary
         //fontFamily: "Mulish-Medium",
     },
     logo_container: {

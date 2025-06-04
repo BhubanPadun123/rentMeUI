@@ -27,7 +27,7 @@ LocaleConfig.locales["tr"] = {
         "Eyl",
         "Eki",
         "Kas",
-        "Ara",
+        "Search",
     ],
     dayNames: [
         "Pazartesi",

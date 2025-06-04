@@ -6,7 +6,7 @@ export default function (errorCode) {
             return "Geçersiz e-posta adresi";
 
         case "auth/email-already-in-use":
-            return "Kullanıcı zaten kayıtlı";
+            return "Email already register with other user!";
 
         case "auth/user-not-found":
             return "Kullanıcı bulunamadı";
@@ -18,12 +18,12 @@ export default function (errorCode) {
             return "Parola çok zayıf";
 
         case "auth/admin-restricted-operation":
-            return "Form boş bırakılamaz";
+            return "Form data should not be empty!";
 
         case "auth/missing-password":
-            return "Parola boş bırakılamaz";
+            return "Please Provide Password";
         case "auth/missing-email":
-            return "Email boş bırakılamaz";
+            return "Please Provide Email Address!";
         default:
             return errorCode;
     }

@@ -34,7 +34,7 @@ export default function UploadImage() {
                     style={styles.upload_button}
                 >
                     <Text style={styles.desc}>
-                        {image ? "Düzenle" : "Yükle"}
+                        {image ? "profile" : "Profile"}
                     </Text>
                 </TouchableOpacity>
             </View>

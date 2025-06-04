@@ -134,7 +134,7 @@ export default function CalendarScreen() {
 
     return (
         <ScrollView style={styles.container}>
-            <Text style={styles.header_text}>Randevularım</Text>
+            <Text style={styles.header_text}>Calander</Text>
             {loading ? (
                 <ActivityIndicator
                     style={styles.loading_container}

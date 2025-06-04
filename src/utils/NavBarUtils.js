@@ -1,39 +1,42 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { colors } from "../styles/Theme";
-import { Feather, Ionicons,EvilIcons } from "@expo/vector-icons";
+import { Feather, Ionicons, EvilIcons } from "@expo/vector-icons";
 
 //ICONS
 const iconPref = ({ route }) => {
-    console.log("---->",route)
+    const hiddenRoutes = ["Search","Profile","LoginScreen", "SignUpScreen", "UserProfileScreen", "ServiceBookingScreen", "BookingHistoryScreen", "UserInfosScreen", "FeedBackScreen"]
+    const isTabHidden = hiddenRoutes.includes(route.name)
     return {
         tabBarIcon: ({ color }) => {
             let iconName;
 
             if (route.name === "Anasayfa") {
                 iconName = "home";
-            } else if (route.name === "Profil") {
+            } else if (route.name === "Profile") {
                 iconName = "user";
-            } else if (route.name === "Randevularım") {
+            } else if (route.name === "Calander") {
                 iconName = "calendar";
-            } else if (route.name === "Ara") {
+            } else if (route.name === "Search") {
                 iconName = "search";
             }
             //returns in each icon
             return <Feather name={iconName} size={30} color={color} />;
         },
-        tabBarStyle: {
-            ...styles.shadow,
-            position: "absolute",
-            bottom: 10,
-            left: 20,
-            right: 20,
-            borderRadius: 20,
-            height: 80,
-            justifyContent: "center",
-            alignItems: "center",
-            paddingBottom: 0,
-            backgroundColor:'pink'
-        },
+        tabBarStyle: isTabHidden
+            ? { display: 'none' } // Hide the tab bar
+            : {
+                ...styles.shadow,
+                position: "absolute",
+                bottom: 10,
+                left: 20,
+                right: 20,
+                borderRadius: 20,
+                height: 80,
+                justifyContent: "center",
+                alignItems: "center",
+                paddingBottom: 0,
+                backgroundColor: 'pink',
+            },
         tabBarActiveTintColor: colors.color_primary,
         tabBarInactiveTintColor: colors.color_gray,
         headerShown: false,
