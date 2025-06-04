@@ -3,19 +3,19 @@ import { showMessage } from "react-native-flash-message";
 export default function (errorCode) {
     switch (errorCode) {
         case "auth/invalid-email":
-            return "Geçersiz e-posta adresi";
+            return "Invalid email entered!";
 
         case "auth/email-already-in-use":
             return "Email already register with other user!";
 
         case "auth/user-not-found":
-            return "Kullanıcı bulunamadı";
+            return "User not found!";
 
         case "auth/wrong-password":
-            return "Parola geçersiz";
+            return "Entered password invalid!";
 
         case "auth/weak-password":
-            return "Parola çok zayıf";
+            return "Please Provide strong password";
 
         case "auth/admin-restricted-operation":
             return "Form data should not be empty!";

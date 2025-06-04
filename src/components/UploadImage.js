@@ -4,8 +4,10 @@ import { colors } from "../styles/Theme";
 import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 
-export default function UploadImage() {
-    const [image, setImage] = useState(null);
+export default function UploadImage({
+    photoURL
+}) {
+    const [image, setImage] = useState(photoURL);
 
     const addImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({

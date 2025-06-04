@@ -27,7 +27,7 @@ const LoginScreen = ({ navigation }) => {
             formValues.password
         )
             .then((res) => {
-                showTopMessage("Giriş Başarılı !", "success");
+                showTopMessage("Login successfull !", "success");
                 setLoading(false); // İşlem tamamlandığında yüklemeyi devre dışı bırak
                 goToUserProfile();
             })
@@ -51,7 +51,7 @@ const LoginScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.text}> Giriş Yapın </Text>
+            <Text style={styles.text}> HomeKart Login </Text>
             <Formik
                 initialValues={{ initialFormValues }}
                 onSubmit={handleFormSubmit}
@@ -62,29 +62,29 @@ const LoginScreen = ({ navigation }) => {
                             <InputBar
                                 onType={handleChange("usermail")}
                                 value={values.usermail}
-                                placeholder={"E-posta adresi"}
+                                placeholder={"Email Address"}
                             />
                             <InputBar
                                 onType={handleChange("password")}
                                 value={values.password}
-                                placeholder={"Parola"}
+                                placeholder={"Password"}
                                 isSecure
                             />
                             <TouchableOpacity style={styles.button}>
-                                <Text style={styles.detail}>Parolamı Unuttum?</Text>
+                                <Text style={styles.detail}>Forget password?</Text>
                             </TouchableOpacity>
                         </View>
                         <View style={styles.button_container}>
                             <View style={styles.button}>
                                 <Button
-                                    text="Giriş Yap"
+                                    text="Login"
                                     onPress={handleSubmit}
                                     loading={loading}
                                 />
                             </View>
                             <View style={styles.button}>
                                 <Button
-                                    text="Kaydol"
+                                    text="Signup"
                                     onPress={goToMemberSignUp}
                                     theme="secondary"
                                 />
@@ -107,6 +107,8 @@ const styles = StyleSheet.create({
     text: {
         marginVertical: 32,
         fontSize: 30,
+        textAlign:'center',
+        color:colors.color_primary
         // //fontFamily: "Mulish-Medium",
     },
     detail: {
