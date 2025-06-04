@@ -159,15 +159,15 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 24,
-        fontFamily: "Mulish-Medium",
+        //fontFamily: "Mulish-Medium",
     },
     about: {
         fontSize: 20,
-        fontFamily: "Mulish-Light",
+        //fontFamily: "Mulish-Light",
     },
     desc: {
         fontSize: 14,
-        fontFamily: "Mulish-Light",
+        //fontFamily: "Mulish-Light",
     },
     detail_container: {
         flex: 1,
@@ -195,12 +195,12 @@ const styles = StyleSheet.create({
     detail_text: {
         textAlign: "center",
         fontSize: 20,
-        fontFamily: "Mulish-SemiBold",
+        //fontFamily: "Mulish-SemiBold",
         color: colors.color_primary,
     },
     chips: {
         alignSelf: "flex-start",
-        fontFamily: "Mulish-Light",
+        //fontFamily: "Mulish-Light",
         color: colors.color_white,
     },
     chip_container: {
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     },
     location: {
         fontSize: 16,
-        fontFamily: "Mulish-Light",
+        //fontFamily: "Mulish-Light",
         flex: 1,
         color: colors.color_primary,
         justifyContent: "center",

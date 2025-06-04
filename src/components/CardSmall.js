@@ -51,6 +51,6 @@ const styles = StyleSheet.create({
     },
     section_text: {
         fontSize: 14,
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
     },
 });

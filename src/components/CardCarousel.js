@@ -22,7 +22,7 @@ export const CardCarousel = ({ list, onSelectCategory }) => {
         <FlatList
             data={list}
             horizontal
-            snapToInterval={CARD_WIDTH + 24}
+            snapToInterval={CARD_WIDTH + 10}
             decelerationRate={"fast"}
             showsHorizontalScrollIndicator={false}
             initialNumToRender={3}
@@ -35,7 +35,7 @@ export const CardCarousel = ({ list, onSelectCategory }) => {
                             marginRight: index === list.length - 1 ? 24 : 0,
                             marginVertical: 16,
                         }}
-                        onPress={() => onSelectCategory(item)}
+                        onPress={() => onSelectCategory(item,"catagoryClick")}
                     >
                         <View style={styles.card}>
                             <View style={styles.button_box}>
@@ -44,7 +44,7 @@ export const CardCarousel = ({ list, onSelectCategory }) => {
                                     onPress={() => onSelectCategory(item)}
                                 >
                                     <Text style={styles.button_text}>
-                                        İncele
+                                        Explore
                                     </Text>
                                 </TouchableOpacity>
                             </View>
@@ -61,7 +61,7 @@ export const CardCarousel = ({ list, onSelectCategory }) => {
                                 <View style={styles.countDetail_container}>
                                     <Text style={styles.detail}>
                                         {item.count}
-                                        {" Danışman "}
+                                        {" + and More"}
                                     </Text>
                                 </View>
                             </View>
@@ -89,11 +89,11 @@ const styles = StyleSheet.create({
     },
     image_box: {
         flex: 1,
-        paddingVertical: 24,
+        paddingVertical: 30,
     },
     category_image: {
         flex: 1,
-        resizeMode: "contain",
+        resizeMode: 'center',
     },
     title_box: {
         left: 24,
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     },
     category: {
         fontSize: 20,
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
         color: colors.color_primary,
     },
     countDetail_container: {
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     },
     detail: {
         fontSize: 14,
-        fontFamily: "Mulish-Light",
+        // //fontFamily: "Mulish-Light",
         color: colors.color_primary,
     },
     button_box: {
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     },
     button_text: {
         fontSize: 16,
-        fontFamily: "Mulish-Bold",
+        // //fontFamily: "Mulish-Bold",
         color: colors.color_white,
     },
 });

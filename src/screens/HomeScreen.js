@@ -25,9 +25,9 @@ import Category from "../components/Category";
 
 const userInfo = {
     id: 0,
-    firstName: "Zehra",
-    lastName: "Güneş",
-    district: "Ataşehir",
+    firstName: "Bhuban",
+    lastName: "Padun",
+    district: "Dhemaji",
 };
 
 export default function HomeScreen({ navigation }) {
@@ -123,8 +123,8 @@ export default function HomeScreen({ navigation }) {
         navigation.navigate("SearchScreen");
     };
 
-    const handleCategorySelect = (selectedCategory) => {
-        navigation.navigate("SearchScreen", { category: selectedCategory });
+    const handleCategorySelect = (selectedCategory,type) => {
+        navigation.navigate("SearchScreen", { category: {...selectedCategory},type:type });
     };
 
     return (
@@ -192,14 +192,14 @@ export default function HomeScreen({ navigation }) {
                                 </View>
                             </View>
                         )}
-                        <Text style={styles.text}>Tüm Hizmetler</Text>
+                        <Text style={styles.text}>Recently Uploaded Properties</Text>
                         <View style={styles.category_container}>
                             {categories.map((category) => (
                                 <Category
                                     category={category}
                                     key={category.name}
                                     onPress={() =>
-                                        handleCategorySelect(category)
+                                        handleCategorySelect(category,"cardClick")
                                     }
                                 />
                             ))}
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
     },
     card_container: {
-        marginVertical: 16,
+        marginVertical: 10,
         padding: 16,
     },
     header_container: {
@@ -259,10 +259,11 @@ const styles = StyleSheet.create({
         marginVertical:8,
         flexDirection: "row",
         flexWrap: "wrap",
+        justifyContent:'center'
     },
     header_text: {
         fontSize: 34,
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
         color: colors.color_primary,
         flex: 1,
     },
@@ -270,12 +271,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         fontSize: 24,
         color: colors.color_white,
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
     },
     text: {
         flex: 1,
         fontSize: 18,
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
     },
     detail_text: {
         flex: 1,
@@ -284,12 +285,12 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         paddingHorizontal: 8,
         color: colors.color_white,
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
     },
     welcome_text_bold: {
         color: colors.color_white,
         fontSize: 24,
-        fontFamily: "Mulish-Bold",
+        // //fontFamily: "Mulish-Bold",
     },
     icon: {
         color: colors.color_primary,

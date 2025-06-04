@@ -54,7 +54,7 @@ export default function SignUpScreen() {
             behavior="padding"
         >
             <ScrollView style={styles.container}>
-                <Text style={styles.text}> Kayıt Olun </Text>
+                <Text style={styles.text}>HomeKart Signup </Text>
                 <Formik
                     initialValues={{ initialFormValues }}
                     onSubmit={handleFormSubmit}
@@ -62,34 +62,35 @@ export default function SignUpScreen() {
                     {({ values, handleChange, handleSubmit }) => (
                         <>
                             <View style={styles.input_container}>
-                                <InputBar placeholder={"Ad"} />
-                                <InputBar placeholder={"Soyad"} />
+                                <InputBar placeholder={"UserName"} />
+                                <InputBar placeholder={"First Name"} />
+                                <InputBar placeholder={"Last Name"} />
                                 <InputBar
                                     onType={handleChange("usermail")}
                                     value={values.usermail}
-                                    placeholder={"E-posta adresi"}
+                                    placeholder={"Email address"}
                                 />
                                 <InputBar
                                     onType={handleChange("phoneNumber")}
                                     value={values.phoneNumber}
-                                    placeholder={"Telefon Numarası"}
+                                    placeholder={"Phone Number"}
                                 />
                                 <InputBar
                                     onType={handleChange("password")}
                                     value={values.password}
-                                    placeholder={"Parola"}
+                                    placeholder={"Password"}
                                     isSecure
                                 />
                                 <InputBar
                                     onType={handleChange("passwordre")}
                                     value={values.passwordre}
-                                    placeholder={"Parola Tekrar"}
+                                    placeholder={"Confirm Password"}
                                     isSecure
                                 />
                             </View>
                             <View style={styles.button_container}>
                                 <Button
-                                    text="Kaydı Tamamla"
+                                    text="Signup"
                                     onPress={handleSubmit}
                                     loading={loading}
                                 />
@@ -111,7 +112,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 24,
         marginVertical: 32,
         fontSize: 30,
-        fontFamily: "Mulish-Medium",
+        //fontFamily: "Mulish-Medium",
     },
     input_container: {
         marginHorizontal: 24,

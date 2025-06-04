@@ -107,11 +107,11 @@ const styles = StyleSheet.create({
     text: {
         marginVertical: 32,
         fontSize: 30,
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
     },
     detail: {
         fontSize: 14,
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
         color:colors.color_gray
     },
     button_container: {

@@ -107,21 +107,21 @@ const styles = StyleSheet.create({
     },
     chips: {
         alignSelf: "flex-start",
-        fontFamily: "Mulish-Light",
+        // //fontFamily: "Mulish-Light",
         color: colors.color_white,
     },
     title: {
         fontSize: 18,
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
     },
     desc: {
         fontSize: 16,
-        fontFamily: "Mulish-Light",
+        // //fontFamily: "Mulish-Light",
         color: colors.color_gray,
     },
     location: {
         fontSize: 16,
-        fontFamily: "Mulish-Light",
+        // //fontFamily: "Mulish-Light",
         flex: 1,
         color: colors.color_primary,
         justifyContent: "center",

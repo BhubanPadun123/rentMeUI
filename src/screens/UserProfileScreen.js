@@ -116,11 +116,11 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 18,
-        fontFamily: "Mulish-Medium",
+        //fontFamily: "Mulish-Medium",
     },
     desc: {
         fontSize: 14,
-        fontFamily: "Mulish-Light",
+        //fontFamily: "Mulish-Light",
         color: colors.color_gray,
     },
     logout_container: {
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 24,
         marginVertical: 16,
         fontSize: 30,
-        fontFamily: "Mulish-Medium",
+        //fontFamily: "Mulish-Medium",
     },
     logo_container: {
         flex: 1,
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     },
     logo_text: {
         fontSize: 34,
-        fontFamily: "Mulish-Medium",
+        //fontFamily: "Mulish-Medium",
         color: colors.color_light_gray,
     },
     icon: {
@@ -150,6 +150,6 @@ const styles = StyleSheet.create({
     text: {
         padding: 8,
         fontSize: 18,
-        fontFamily: "Mulish-Medium",
+        //fontFamily: "Mulish-Medium",
     },
 });

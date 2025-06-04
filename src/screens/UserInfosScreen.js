@@ -20,12 +20,12 @@ const styles = StyleSheet.create({
         marginHorizontal: 24,
         marginVertical: 32,
         fontSize: 30,
-        fontFamily: "Mulish-Medium",
+        //fontFamily: "Mulish-Medium",
     },
     text: {
         flex: 1,
         fontSize: 18,
         paddingVertical: 16,
-        fontFamily: "Mulish-Medium",
+        //fontFamily: "Mulish-Medium",
     },
 });

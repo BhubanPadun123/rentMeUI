@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     timeText: {
         color: colors.color_primary,
         fontSize: 14,
-        fontFamily: "Mulish-Light",
+        // //fontFamily: "Mulish-Light",
     },
     bookedButton: {
         borderColor: colors.color_light_gray,

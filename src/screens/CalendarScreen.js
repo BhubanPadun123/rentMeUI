@@ -176,14 +176,14 @@ const styles = StyleSheet.create({
         marginHorizontal: 24,
         marginVertical: 16,
         fontSize: 30,
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
     },
     list_container: {
         flex: 1,
         justifyContent: "center",
     },
     emptyViewText: {
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
         fontSize: 24,
         alignItems: "center",
         marginHorizontal: 24,

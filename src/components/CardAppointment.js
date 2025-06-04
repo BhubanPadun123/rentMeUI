@@ -99,22 +99,22 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
     },
     date_text: {
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
         fontSize: 34,
         color: colors.color_white,
     },
     month_text: {
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
         fontSize: 18,
         color: colors.color_white,
     },
     appType: {
-        fontFamily: "Mulish-Medium",
+        //fontFamily: "Mulish-Medium",
         fontSize: 18,
         padding: 8,
     },
     time: {
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
         fontSize: 14,
         padding: 8,
         color: colors.color_gray,

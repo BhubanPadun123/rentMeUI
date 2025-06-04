@@ -7,7 +7,7 @@ export default function InputBar(props) {
 
     return (
         <View style={styles.container}>
-            <TextInput style= {{fontSize:14, fontFamily: "Mulish-Medium"}} 
+            <TextInput style= {{fontSize:14}} 
             placeholder={props.placeholder}
             placeholderTextColor={colors.color_gray}
             onChangeText={props.onType}

@@ -152,12 +152,12 @@ const styles = StyleSheet.create({
         paddingLeft: 8,
     },
     callout_title: {
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
         paddingBottom: 12,
         fontSize: 18,
     },
     callout_text: {
-        fontFamily: "Mulish-Light",
+        // //fontFamily: "Mulish-Light",
         fontSize: 13,
     },
     callout_button: {

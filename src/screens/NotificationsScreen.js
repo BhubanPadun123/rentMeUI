@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     header_text: {
         marginVertical: 16,
         fontSize: 30,
-        fontFamily: "Mulish-Medium",
+        //fontFamily: "Mulish-Medium",
     },
     loading_container: {
         flex: 1,

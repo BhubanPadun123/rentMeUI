@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     },
     desc: {
         fontSize: 12,
-        fontFamily: "Mulish-Light",
+        // //fontFamily: "Mulish-Light",
         color: colors.color_white,
     },
     image: {

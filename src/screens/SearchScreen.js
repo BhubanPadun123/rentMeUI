@@ -17,7 +17,8 @@ export default function SearchScreen({ navigation, route }) {
     const [filteredServiceList, setFilteredServiceList] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("");
 
-    const category = route.params?.category;
+    const category = route.params?.category
+    const type = route.params?.type
 
     useEffect(() => {
         const dbRef = ref(getDatabase());
@@ -121,15 +122,15 @@ export default function SearchScreen({ navigation, route }) {
                     <View style={styles.search_container}>
                         <SearchBar
                             onSearch={handleSearch}
-                            placeholder_text={"Arama"}
+                            placeholder_text={ type ? type.toUpperCase() : ""}
                         />
                     </View>
 
                     <View style={styles.category_container}>
                         <FlatList
-                            horizontal
+                            horizontal={false}
                             showsHorizontalScrollIndicator={false}
-                            snapToInterval={sizes.width + 24}
+                            snapToInterval={sizes.width}
                             decelerationRate={"fast"}
                             data={categories}
                             keyExtractor={(category) => category.name}
@@ -139,6 +140,7 @@ export default function SearchScreen({ navigation, route }) {
 
                     <View style={styles.list_container}>
                         <FlatList
+                            horizontal={false}
                             data={filteredServiceList}
                             renderItem={renderService}
                             keyExtractor={(item) => item.id.toString()}
@@ -156,12 +158,12 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     search_container: {
-        marginTop: 56,
+        marginTop: 10,
         marginBottom: 12,
         marginHorizontal: 24,
     },
     category_container: {
-        marginHorizontal: 24,
+        marginHorizontal: 4,
     },
     list_container: {
         marginBottom: 32,

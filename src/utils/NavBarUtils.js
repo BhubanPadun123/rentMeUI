@@ -1,9 +1,10 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { colors } from "../styles/Theme";
-import { Feather, Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons,EvilIcons } from "@expo/vector-icons";
 
 //ICONS
 const iconPref = ({ route }) => {
+    console.log("---->",route)
     return {
         tabBarIcon: ({ color }) => {
             let iconName;
@@ -23,14 +24,15 @@ const iconPref = ({ route }) => {
         tabBarStyle: {
             ...styles.shadow,
             position: "absolute",
-            bottom: 25,
+            bottom: 10,
             left: 20,
             right: 20,
             borderRadius: 20,
             height: 80,
             justifyContent: "center",
             alignItems: "center",
-            paddingBottom: 0
+            paddingBottom: 0,
+            backgroundColor:'pink'
         },
         tabBarActiveTintColor: colors.color_primary,
         tabBarInactiveTintColor: colors.color_gray,

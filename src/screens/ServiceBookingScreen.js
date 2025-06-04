@@ -375,12 +375,12 @@ const styles = StyleSheet.create({
     },
     about: {
         fontSize: 20,
-        fontFamily: "Mulish-Light",
+        //fontFamily: "Mulish-Light",
     },
 
     title: {
         fontSize: 24,
-        fontFamily: "Mulish-Medium",
+        //fontFamily: "Mulish-Medium",
     },
     subTitle: {
         fontSize: 18,
@@ -388,11 +388,11 @@ const styles = StyleSheet.create({
     },
     desc: {
         fontSize: 14,
-        fontFamily: "Mulish-Light",
+        //fontFamily: "Mulish-Light",
     },
     location: {
         fontSize: 16,
-        fontFamily: "Mulish-Light",
+        //fontFamily: "Mulish-Light",
         flex: 1,
         color: colors.color_primary,
         justifyContent: "center",

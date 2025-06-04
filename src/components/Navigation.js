@@ -72,7 +72,7 @@ function SearchStack() {
             <Stack.Screen
                 name="SearchScreen"
                 component={SearchScreen}
-                options={{ headerShown: false }}
+                options={{ headerShown: true }}
             />
             <Stack.Screen
                 name="ServiceDetailScreen"
@@ -115,7 +115,7 @@ function HomeStack() {
             <Stack.Screen
                 name="SearchScreen"
                 component={SearchScreen}
-                options={{ headerShown: false }}
+                options={{ headerShown: true, title: "Catagory Search" }}
             />
             <Stack.Screen
                 name="ServiceDetailScreen"
@@ -165,7 +165,7 @@ export default Navigation = () => {
 
     return (
         <>
-            <Tab.Navigator screenOptions={iconPref} initialRouteName="Anasayfa">
+            <Tab.Navigator screenOptions={iconPref} initialRouteName="Anasayfa" >
                 <Tab.Screen name="Anasayfa" component={HomeStack} />
                 <Tab.Screen name="Ara" component={SearchStack} />
                 <Tab.Screen

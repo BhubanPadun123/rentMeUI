@@ -48,12 +48,12 @@ const styles = StyleSheet.create({
     },
 
     appType: {
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
         fontSize: 14,
         padding: 4,
     },
     time: {
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
         fontSize: 14,
         padding: 4,
         color: colors.color_gray,

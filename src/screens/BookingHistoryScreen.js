@@ -34,14 +34,14 @@ const styles = StyleSheet.create({
     header_text: {
         marginVertical: 16,
         fontSize: 30,
-        fontFamily: "Mulish-Medium",
+        // //fontFamily: "Mulish-Medium",
     },
     historyContainer: {
         marginHorizontal: 24,
     },
     historyTitle: {
         fontSize: 20,
-        fontFamily: "Mulish-Bold",
+        // //fontFamily: "Mulish-Bold",
         marginBottom: 16,
     },
     bookingItem: {
