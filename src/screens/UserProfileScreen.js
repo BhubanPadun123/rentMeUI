@@ -66,11 +66,13 @@ export default function UserProfileScreen({ navigation }) {
                 }))
                 fetchUserDataInfo()
             }).catch((err) => {
+                showTopMessage('Please Login!',"danger")
                 console.log(err)
             })
         }
         fetchData()
     }, [])
+    console.log(state.user,"<<<<<<<,")
     //sing out user
     function handleSignOut() {
         const auth = getAuth(app);
@@ -158,6 +160,9 @@ export default function UserProfileScreen({ navigation }) {
                 <TouchableOpacity onPress={goToHome} >
                     <Image source={tabsImages.Home} style={{ height: 26, width: 26 }} />
                 </TouchableOpacity>
+                <TouchableOpacity onPress={handleSignOut} >
+                    <Image source={Icons.logout} style={{ height: 26, width: 26 }} />
+                </TouchableOpacity>
             </View>
 
             <View style={styles.section_container}>
@@ -174,6 +179,18 @@ export default function UserProfileScreen({ navigation }) {
                     </View>
                     <UploadImage
                         photoURL={state.user.photoURL}
+                        handleUpdateToDb={(img)=>{
+                            const data={
+                                displayName:state.user.displayName,
+                                phoneNumber:state.user.phoneNumber,
+                                photoURL:img
+                            }
+                            updateUser(data,"info").then((result)=>{
+                                showTopMessage("Profile updated successfully!","success")
+                            }).catch((err)=>{
+                                showTopMessage(err.message?err.message : "something went wrong!","danger")
+                            })
+                        }}
                     />
                 </View>
                 {

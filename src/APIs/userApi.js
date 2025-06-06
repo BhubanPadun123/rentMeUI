@@ -49,9 +49,9 @@ export const updateUser = (updateData,type) => {
             if (user && type !== "info") {
                 updateProfile(user, {
                     appName: "HomeKart",
-                    displayName: "Bhuban Padun",
-                    phoneNumber: "9387220065",
-                    photoURL: "https://example.com/bhuban-photo.jpg",
+                    displayName: updateData.displayName,
+                    phoneNumber: updateData.phoneNumber,
+                    photoURL: updateData.photoURL,
                 }).then((res) => {
                     resolved(res)
                 }).catch((err) => {

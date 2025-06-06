@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { colors } from "../styles/Theme";
 import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
+import { uploadImagesToCloudinary } from "../APIs/uploadImage";
 
 export default function UploadImage({
-    photoURL
+    photoURL,
+    handleUpdateToDb
 }) {
     const [image, setImage] = useState(photoURL);
 
@@ -17,6 +19,11 @@ export default function UploadImage({
             quality: 1,
         });
         if (!result.canceled) {
+            uploadImagesToCloudinary(result.assets[0].uri).then((res)=>{
+                handleUpdateToDb(res)
+            }).catch((err)=>{
+                console.log(err)
+            })
             setImage(result.assets[0].uri);
         } else {
             alert("You did not select any image.");
