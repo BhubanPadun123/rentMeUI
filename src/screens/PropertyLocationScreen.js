@@ -14,8 +14,11 @@ import { Feather } from "@expo/vector-icons";
 import parseContentData from "../utils/ParseContentData";
 import { showMessage } from "react-native-flash-message";
 import districtCoordinates from "../utils/MapScreenUtils";
+import { showTopMessage } from "../utils/ErrorHandler";
 
-export default function MapScreen({ navigation }) {
+export default function PropertyLocationScreen({ route, navigation }) {
+
+    let { geoLocation, title } = route.params
     const [loading, setLoading] = useState(true);
     const [serviceList, setServiceList] = useState([
         { id: 1, title: "Bhuban Padun", latitude: 28.6139, longitude: 77.2090, color: 'red' },
@@ -27,48 +30,64 @@ export default function MapScreen({ navigation }) {
 
     useEffect(() => {
         async function getLocationAsync() {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== "granted") {
-                return;
-            }
+            try {
+                let { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== "granted") return;
 
-            let location = await Location.getCurrentPositionAsync({});
-            const { latitude, longitude } = location.coords;
-            setInitialRegion({
-                latitude,
-                longitude,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-            });
+                let location = await Location.getCurrentPositionAsync({});
+                const { latitude, longitude } = location.coords;
+
+                let parsedGeoLocation = geoLocation;
+                if (geoLocation && typeof geoLocation === "string") {
+                    try {
+                        parsedGeoLocation = JSON.parse(geoLocation);
+                    } catch (e) {
+                        console.warn("Invalid JSON format in geoLocation");
+                        parsedGeoLocation = null;
+                    }
+                }
+
+                if (
+                    parsedGeoLocation &&
+                    parsedGeoLocation.coords &&
+                    typeof parsedGeoLocation.coords.latitude === "number" &&
+                    typeof parsedGeoLocation.coords.longitude === "number"
+                ) {
+                    setInitialRegion({
+                        latitude: latitude,
+                        longitude: longitude,
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
+                    });
+
+                    setServiceList([
+                        {
+                            id: 1,
+                            title: title,
+                            latitude: parsedGeoLocation.coords.latitude,
+                            longitude: parsedGeoLocation.coords.longitude,
+                            color: "red",
+                        },
+                    ]);
+                } else {
+                    setInitialRegion({
+                        latitude,
+                        longitude,
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
+                    });
+                }
+
+                setLoading(false);
+            } catch (error) {
+                console.error("Location error:", error);
+                setLoading(false);
+            }
         }
 
         getLocationAsync();
     }, []);
 
-    //get serviceList
-    useEffect(() => {
-        const dbRef = ref(getDatabase());
-
-        get(child(dbRef, "services"))
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    const serviceList = parseContentData(snapshot.val());
-                    setServiceList(serviceList);
-                } else {
-                    showMessage("Gösterecek veri yok", "info");
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    }, []);
-
-    const getCoordinatesForDistrict = (district) => {
-        return districtCoordinates[district] || { latitude: 0, longitude: 0 };
-    };
 
     //Navigate to detail
     const handleServiceSelect = (item) => {
@@ -101,7 +120,7 @@ export default function MapScreen({ navigation }) {
                     {serviceList.map((service) => (
                         <Marker
                             key={service.id}
-                            coordinate={{latitude:service.latitude,longitude:service.longitude}}
+                            coordinate={{ latitude: service.latitude, longitude: service.longitude }}
                             title={`${service.title}`}
                             pinColor={service.color}
                         >
@@ -118,12 +137,6 @@ export default function MapScreen({ navigation }) {
                                             {service.title}
                                         </Text>
                                     </View>
-
-                                    {/* <Feather
-                                        name="chevron-right"
-                                        size={24}
-                                        color={colors.color_primary}
-                                    /> */}
                                 </TouchableOpacity>
                             </Callout>
                         </Marker>

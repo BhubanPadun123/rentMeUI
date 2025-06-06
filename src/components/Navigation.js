@@ -15,6 +15,7 @@ import UserInfosScreen from "../screens/UserInfosScreen";
 import BookingHistoryScreen from "../screens/BookingHistoryScreen";
 import FeedBackScreen from "../screens/FeedBackScreen";
 import PropertyRegisterScreen from "../screens/PropertyRegisterScreen";
+import PropertyLocationScreen from "../screens/PropertyLocationScreen";
 
 import app from "../../firebaseConfig";
 import iconPref, { customTabButton } from "../utils/NavBarUtils";
@@ -132,6 +133,11 @@ function HomeStack() {
                 name="PropertyRegisterScreen"
                 component={PropertyRegisterScreen}
                 options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="PropertyLocationScreen"
+                component={PropertyLocationScreen}
+                options={{headerShown:true,title:"Property Location"}}
             />
         </Stack.Navigator>
     );

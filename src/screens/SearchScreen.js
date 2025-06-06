@@ -10,9 +10,14 @@ import Category from "../components/Category";
 import { showTopMessage } from "../utils/ErrorHandler";
 import parseContentData from "../utils/ParseContentData";
 import userImages from "../utils/UserImageUtils"
+import { getFirstProducts } from "../APIs/product";
+import ProductCart from "../components/ProductCart";
+import Button from "../components/Button/Button";
+import { paymentGatway } from "../APIs/paymentGateway";
 
 export default function SearchScreen({ navigation, route }) {
     const [loading, setLoading] = useState(true);
+    const [product, setProduct] = useState([])
     const [serviceList, setServiceList] = useState([]);
     const [filteredServiceList, setFilteredServiceList] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("");
@@ -21,50 +26,31 @@ export default function SearchScreen({ navigation, route }) {
     const type = route.params?.type
     const placegolderName = SearchPlaceholderName(type)
 
+    console.log(placegolderName)
+
+    function getFirstProduct() {
+        setLoading(true)
+        getFirstProducts().then((res) => {
+            setLoading(false)
+            setProduct(res.data)
+        }).catch((err) => {
+            setLoading(false)
+            showTopMessage("Error occured to get propetys!", "danger")
+        })
+    }
     useEffect(() => {
-        const dbRef = ref(getDatabase());
-
-        get(child(dbRef, "services"))
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    const serviceList = parseContentData(snapshot.val());
-                    setServiceList(serviceList);
-
-                    if (category) {
-                        const filteredList = filterServicesByCategory(
-                            category.name,
-                            serviceList
-                        );
-                        setSelectedCategory(category.name);
-                        setFilteredServiceList(filteredList);
-                    } else {
-                        setFilteredServiceList(serviceList);
-                    }
-                } else {
-                    showTopMessage("Gösterecek veri yok", "info");
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            })
-            .finally(() => {
-                setLoading(false); // Veriler çekildikten sonra yükleme durumunu kapat
-            });
-    }, []);
-
-    //filtering by category name
-    const handleCategoryFilter = (category) => {
-        if (selectedCategory === category) {
-            setSelectedCategory(""); // Eğer zaten seçiliyse, seçili kategoriyi temizle
-            setFilteredServiceList(serviceList); // Filtrelemeyi kaldır, tüm hizmetleri göster
-        } else {
-            const filteredList = filterServicesByCategory(
-                category,
-                serviceList
-            );
-            setSelectedCategory(category);
-            setFilteredServiceList(filteredList);
+        if (!type) return
+        switch (type) {
+            case "product":
+                getFirstProduct();
+                break;
+            default:
+                return
         }
+    }, [type])
+
+    const goToProductDatils = (category) => {
+        navigation.navigate("ServiceDetailScreen",{item:category})
     };
 
     //Render to flatlist
@@ -78,11 +64,11 @@ export default function SearchScreen({ navigation, route }) {
     );
 
     const renderCategory = ({ item }) => (
-        <Category
+        <ProductCart
             category={item}
-            isSelected={selectedCategory === item.name}
-            onPress={() => handleCategoryFilter(item.name)}
-            key={item.name}
+            isSelected={selectedCategory === item.title}
+            onPress={() => goToProductDatils(item)}
+            key={item.title}
         />
     );
 
@@ -123,11 +109,25 @@ export default function SearchScreen({ navigation, route }) {
                     <View style={styles.search_container}>
                         <SearchBar
                             onSearch={handleSearch}
-                            placeholder_text={ placegolderName ? placegolderName.toUpperCase() : ""}
+                            placeholder_text={placegolderName ? placegolderName.toUpperCase() : ""}
                         />
                     </View>
-
-                    <View style={styles.category_container}>
+                    {
+                        type && type === "product" && product.length > 0 && (
+                            <View style={styles.category_container}>
+                                <FlatList
+                                    horizontal={false}
+                                    showsHorizontalScrollIndicator={false}
+                                    snapToInterval={sizes.width}
+                                    decelerationRate={"normal"}
+                                    data={product}
+                                    keyExtractor={(category) => category.title}
+                                    renderItem={renderCategory}
+                                />
+                            </View>
+                        )
+                    }
+                    {/* <View style={styles.category_container}>
                         <FlatList
                             horizontal={false}
                             showsHorizontalScrollIndicator={false}
@@ -137,9 +137,9 @@ export default function SearchScreen({ navigation, route }) {
                             keyExtractor={(category) => category.name}
                             renderItem={renderCategory}
                         />
-                    </View>
+                    </View> */}
 
-                    <View style={styles.list_container}>
+                    {/* <View style={styles.list_container}>
                         <FlatList
                             horizontal={false}
                             data={filteredServiceList}
@@ -147,7 +147,7 @@ export default function SearchScreen({ navigation, route }) {
                             keyExtractor={(item) => item.id.toString()}
                             contentContainerStyle={{ paddingBottom: 330 }} //scroll viewdan dolayı flatlist gömülüyordu
                         />
-                    </View>
+                    </View> */}
                 </View>
             )}
         </View>
@@ -165,6 +165,7 @@ const styles = StyleSheet.create({
     },
     category_container: {
         marginHorizontal: 4,
+        marginBottom:100
     },
     list_container: {
         marginBottom: 32,
@@ -177,8 +178,8 @@ const styles = StyleSheet.create({
 });
 
 
-function SearchPlaceholderName(name){
-    switch(name){
+function SearchPlaceholderName(name) {
+    switch (name) {
         case "catagoryClick":
             return "Search Catagory"
         case "cardClick":

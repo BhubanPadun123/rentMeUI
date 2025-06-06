@@ -176,7 +176,7 @@ export default function HomeScreen({ navigation }) {
                                     category={category}
                                     key={category.name}
                                     onPress={() =>
-                                        handleCategorySelect(category, "cardClick")
+                                        handleCategorySelect(category, "product")
                                     }
                                 />
                             ))}

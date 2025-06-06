@@ -7,7 +7,8 @@ import { uploadImagesToCloudinary } from "../APIs/uploadImage";
 
 export default function UploadImage({
     photoURL,
-    handleUpdateToDb
+    handleUpdateToDb,
+    imgUrl
 }) {
     const [image, setImage] = useState(photoURL);
 
@@ -32,8 +33,8 @@ export default function UploadImage({
 
     return (
         <View style={styles.container}>
-            {image ? (
-                <Image source={{ uri: image }} style={styles.image} />
+            {imgUrl || image ? (
+                <Image source={{ uri: imgUrl || image }} style={styles.image} />
             ) : (
                 <Image source={require("../../assets/user-profile.png")} style={styles.image} />
             )}

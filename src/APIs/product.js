@@ -8,9 +8,34 @@ import {
     setDoc,
     query,
     where,
-    getDoc
+    getDoc,
+    orderBy,
+    limit,
+    getDocs
 } from "firebase/firestore"
 import {generateRandomId} from "../utils/RandomId"
+
+export const getFirstProducts=()=>{
+    return new Promise(async(resolved,rejected)=>{
+        try {
+            const productRef = collection(db,"products")
+            const q = query(productRef,orderBy('createdAt'),limit(10))
+            const querySnapshot = await getDocs(q)
+            const lastVisit = querySnapshot.docs[querySnapshot.docs.length - 1]
+            const data = querySnapshot.docs.map((doc)=>({
+                id:doc.id,
+                ...doc.data()
+            }))
+            resolved({
+                lastVisit,
+                data
+            })
+
+        } catch (error) {
+            rejected(error)
+        }
+    })
+}
 
 export const addProduct=(productData)=>{
     return new Promise(async(resolved,rejected)=>{

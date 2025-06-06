@@ -5,6 +5,7 @@ import { Feather } from "@expo/vector-icons";
 import { colors } from "../styles/Theme";
 import Icons from "../utils/Icons";
 import { showTopMessage } from "../utils/ErrorHandler";
+import {uploadImagesToCloudinary} from "../APIs/uploadImage"
 
 export default function ImagePickerBar({ value = [], onType, placeholder }) {
     const [loading, setLoading] = React.useState(false);
@@ -28,8 +29,12 @@ export default function ImagePickerBar({ value = [], onType, placeholder }) {
             });
             if (result.assets) {
                 const selectedUris = result.assets.map((asset) => asset.uri)
-                onType(JSON.stringify(selectedUris))
-                setImages(selectedUris)
+                const uploadPromises = selectedUris.map(uri => uploadImagesToCloudinary(uri));
+                const uploadedUrls = await Promise.all(uploadPromises);
+
+                onType(JSON.stringify(uploadedUrls))
+                setImages(uploadedUrls)
+                showTopMessage("uploaded all selected images","success")
             }
         } catch (error) {
             showTopMessage("Image select failed","danger")

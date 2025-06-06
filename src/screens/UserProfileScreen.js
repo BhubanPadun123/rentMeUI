@@ -41,38 +41,37 @@ export default function UserProfileScreen({ navigation }) {
         loading: false,
         isUserInfoAvailable: false
     })
-    React.useEffect(() => {
-        const fetchData = async () => {
-            getUser().then((res) => {
-                const {
+    const fetchUserData = async () => {
+        getUser().then((res) => {
+            const {
+                email,
+                createdAt,
+                emailVerified,
+                phoneNumber,
+                displayName,
+                photoURL
+            } = res
+            setState((prevState) => ({
+                ...prevState,
+                user: {
+                    ...prevState.user,
                     email,
                     createdAt,
                     emailVerified,
                     phoneNumber,
                     displayName,
                     photoURL
-                } = res
-                setState((prevState) => ({
-                    ...prevState,
-                    user: {
-                        ...prevState.user,
-                        email,
-                        createdAt,
-                        emailVerified,
-                        phoneNumber,
-                        displayName,
-                        photoURL
-                    }
-                }))
-                fetchUserDataInfo()
-            }).catch((err) => {
-                showTopMessage('Please Login!',"danger")
-                console.log(err)
-            })
-        }
-        fetchData()
+                }
+            }))
+            fetchUserDataInfo()
+        }).catch((err) => {
+            showTopMessage('Please Login!', "danger")
+            console.log(err)
+        })
+    }
+    React.useEffect(() => {
+        fetchUserData()
     }, [])
-    console.log(state.user,"<<<<<<<,")
     //sing out user
     function handleSignOut() {
         const auth = getAuth(app);
@@ -97,16 +96,30 @@ export default function UserProfileScreen({ navigation }) {
     function goToHome() {
         navigation.navigate("Home");
     }
-    function goToAddProperty(){
+    function goToAddProperty() {
         navigation.navigate("PropertyRegisterScreen");
     }
     function handleUpdateUser(formValues) {
-        Object.entries(formValues).map((item) => {
+        const data = {
+            firstName: formValues.firstName,
+            lastName: formValues.lastName,
+            displayName: `${formValues.firstName} ${formValues.lastName}`,
+            state: formValues.state,
+            district: formValues.district,
+            pinCode: formValues.pinCode,
+            localAddress: formValues.localAddress,
+            town: formValues.town,
+            userType: formValues.userType,
+            photoURL: state.user.photoURL,
+            phoneNumber: formValues.phoneNumber
+        }
+        Object.entries(data).map((item) => {
             if (!item[1]) {
                 showTopMessage(`${item[0]} is mandatory*`, "danger")
                 return
             }
         })
+
         updateUser(formValues, "info").then((res) => {
             showTopMessage("User data updated successfully!", "success")
             setTimeout(() => {
@@ -140,8 +153,8 @@ export default function UserProfileScreen({ navigation }) {
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap:8,
-                justifyContent:"space-around"
+                gap: 8,
+                justifyContent: "space-around"
             }}>
                 <Text style={styles.header_text}>user info</Text>
                 <TouchableOpacity
@@ -154,9 +167,13 @@ export default function UserProfileScreen({ navigation }) {
                 >
                     <Image source={Icons.edit} style={{ height: 20, width: 20 }} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={goToAddProperty} >
-                    <Image source={Icons.add} style={{ height: 26, width: 26 }} />
-                </TouchableOpacity>
+                {
+                    state.user && state.user.hasOwnProperty('userType') && state.user.userType === "owner" && (
+                        <TouchableOpacity onPress={goToAddProperty} >
+                            <Image source={Icons.add} style={{ height: 26, width: 26 }} />
+                        </TouchableOpacity>
+                    )
+                }
                 <TouchableOpacity onPress={goToHome} >
                     <Image source={tabsImages.Home} style={{ height: 26, width: 26 }} />
                 </TouchableOpacity>
@@ -179,18 +196,20 @@ export default function UserProfileScreen({ navigation }) {
                     </View>
                     <UploadImage
                         photoURL={state.user.photoURL}
-                        handleUpdateToDb={(img)=>{
-                            const data={
-                                displayName:state.user.displayName,
-                                phoneNumber:state.user.phoneNumber,
-                                photoURL:img
+                        handleUpdateToDb={(img) => {
+                            const data = {
+                                displayName: state.user.displayName,
+                                phoneNumber: state.user.phoneNumber,
+                                photoURL: img
                             }
-                            updateUser(data,"info").then((result)=>{
-                                showTopMessage("Profile updated successfully!","success")
-                            }).catch((err)=>{
-                                showTopMessage(err.message?err.message : "something went wrong!","danger")
+                            updateUser(data, "profile").then((result) => {
+                                showTopMessage("Profile updated successfully!", "success")
+                                fetchUserData()
+                            }).catch((err) => {
+                                showTopMessage(err.message ? err.message : "something went wrong!", "danger")
                             })
                         }}
+                        imgUrl={state.user.photoURL}
                     />
                 </View>
                 {

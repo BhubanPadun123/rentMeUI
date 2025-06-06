@@ -46,7 +46,7 @@ export const updateUser = (updateData,type) => {
         try {
             const auth = getAuth(app)
             const user = auth.currentUser
-            if (user && type !== "info") {
+            if (user && type == "profile") {
                 updateProfile(user, {
                     appName: "HomeKart",
                     displayName: updateData.displayName,
