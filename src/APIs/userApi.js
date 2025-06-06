@@ -2,13 +2,24 @@ import {
     ref,
     get,
     child,
-    getDatabase
+    getDatabase,
+    set
 } from "firebase/database"
 import {
     getAuth,
-    updateProfile
+    updateProfile,
 } from "firebase/auth"
 import app from "../../firebaseConfig"
+import { db } from "../../firebaseConfig"
+import {
+    collection,
+    doc,
+    setDoc,
+    query,
+    where,
+    getDocs,
+    getDoc
+} from "firebase/firestore"
 
 import { showTopMessage } from "../utils/ErrorHandler"
 import parseContentData from "../utils/ParseContentData"
@@ -30,12 +41,12 @@ export const getUser = () => {
         }
     })
 }
-export const updateUser = () => {
-    return new Promise((resolved, rejected) => {
+export const updateUser = (updateData,type) => {
+    return new Promise(async(resolved, rejected) => {
         try {
             const auth = getAuth(app)
             const user = auth.currentUser
-            if (user) {
+            if (user && type !== "info") {
                 updateProfile(user, {
                     appName: "HomeKart",
                     displayName: "Bhuban Padun",
@@ -46,9 +57,45 @@ export const updateUser = () => {
                 }).catch((err) => {
                     rejected(err)
                 })
-            } else {
+            }else if(user && type === "info"){
+                const userRef = doc(db,"users",user.uid)
+                await setDoc(userRef,{
+                    ...updateData,
+                    userRef:user.uid
+                }).then((res)=>{
+                    resolved(res)
+                }).catch((err)=>{
+                    rejected(err)
+                })
+            }
+            if(!user) {
                 rejected({
                     message: "user not found"
+                })
+            }
+        } catch (error) {
+            rejected(error)
+        }
+    })
+}
+export const getUserInfo=()=>{
+    return new Promise(async(resolved,rejected)=>{
+        try {
+            const auth = getAuth(app)
+            const user = auth.currentUser
+            if(!user){
+                rejected({
+                    message:"user does not exist!"
+                })
+            }
+            const userRef = doc(db,"users",user.uid)
+            const userSnap = await getDoc(userRef)
+            if(userSnap.exists()){
+                const userData = userSnap.data()
+                resolved(userData)
+            }else{
+                rejected({
+                    message:"user does not exist"
                 })
             }
         } catch (error) {

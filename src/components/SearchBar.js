@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TextInput, TouchableOpacity, View,Image } from "react-native";
 import { colors } from "../styles/Theme";
-import { Feather } from "@expo/vector-icons";
+import tabsImages from "../utils/TabsImages";
 
 export default function SearchBar(props) {
     const [isSearchFocused, setSearchFocused] = useState(false);
@@ -16,11 +16,9 @@ export default function SearchBar(props) {
     };
     return (
         <TouchableOpacity style={styles.container}>
-            <Feather
-                name="search"
-                size={20}
-                color={colors.color_light_gray}
-                style={styles.icon}
+            <Image 
+               source={tabsImages.Search}
+               style={{height:24,width:24}}
             />
             <TextInput
                 style={styles.input_line}

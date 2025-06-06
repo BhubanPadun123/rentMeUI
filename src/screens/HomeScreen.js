@@ -1,6 +1,7 @@
 import { getAuth } from "firebase/auth";
 import React from "react";
 import { useEffect, useState } from "react";
+import tabsImages from "../utils/TabsImages";
 import {
     View,
     Text,
@@ -8,11 +9,9 @@ import {
     ScrollView,
     ActivityIndicator,
     ImageBackground,
+    Image,
+    TouchableOpacity
 } from "react-native";
-import { 
-    Feather,
-    AntDesign
-} from "@expo/vector-icons";
 import { colors } from "../styles/Theme";
 import SearchBar from "../components/SearchBar";
 import { child, get, getDatabase, ref } from "firebase/database";
@@ -22,19 +21,18 @@ import { sortAppointmentsByDateAndTime } from "../utils/CalendarUtils";
 import categories from "../utils/Categories";
 import { CardCarousel } from "../components/CardCarousel";
 import Category from "../components/Category";
+import Icons from "../utils/Icons";
+import {
+    getUserInfo
+} from "../APIs/userApi"
 
-const userInfo = {
-    id: 0,
-    firstName: "Bhuban",
-    lastName: "Padun",
-    district: "Dhemaji",
-};
 
 export default function HomeScreen({ navigation }) {
     const [appointmentList, setAppointmentList] = useState([]);
 
     const [userAuth, setUserAuth] = useState(null);
     const [isReady, setIsReady] = useState(false);
+    const [userInfo, setUserInfo] = useState(null)
 
     const auth = getAuth();
     const user = auth.currentUser;
@@ -48,42 +46,13 @@ export default function HomeScreen({ navigation }) {
     //randevu listesi getirme
     useEffect(() => {
         if (userAuth) {
-            const dbRef = ref(getDatabase());
-
-            get(child(dbRef, "userAppointments/" + user.uid))
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        const getList = parseContentData(snapshot.val());
-
-                        const servicePromises = getList.map((appointment) =>
-                            fetchServiceInfo(appointment.serviceId)
-                        );
-
-                        // Tüm promise'ların sonuçlarını bekle
-                        Promise.all(servicePromises)
-                            // Randevu verilerine sağlayıcı bilgilerini ekle
-                            .then((serviceInfos) => {
-                                const updateAppointmentList = getList.map(
-                                    (appointment, index) => ({
-                                        ...appointment,
-                                        serviceInfo: serviceInfos[index],
-                                    })
-                                );
-                                // Tarih ve saatine göre sıralanmış randevu listesini güncelle
-                                setAppointmentList(
-                                    sortAppointmentsByDateAndTime(
-                                        updateAppointmentList
-                                    )
-                                );
-
-                                setIsReady(true);
-                            });
-                    }
-                })
-                .catch((error) => {
-                    console.error(error);
-                })
-                .finally(() => {});
+            getUserInfo().then((res) => {
+                console.log(res);
+                setUserInfo(res)
+                setTimeout(() => {
+                    setIsReady(true);
+                }, 2000)
+            })
         } else {
             setAppointmentList([]);
             setTimeout(() => {
@@ -123,10 +92,15 @@ export default function HomeScreen({ navigation }) {
         navigation.navigate("SearchScreen");
     };
 
-    const handleCategorySelect = (selectedCategory,type) => {
-        navigation.navigate("SearchScreen", { category: {...selectedCategory},type:type });
+    const handleCategorySelect = (selectedCategory, type) => {
+        navigation.navigate("SearchScreen", { category: { ...selectedCategory }, type: type });
     };
-
+    const goToLogin = () => {
+        navigation.navigate("LoginScreen");
+    }
+    const goToPropertyRegister = () => {
+        navigation.navigate("PropertyRegisterScreen")
+    }
     return (
         <ScrollView>
             {isReady && (
@@ -134,19 +108,22 @@ export default function HomeScreen({ navigation }) {
                     <View style={styles.top_container}>
                         <View style={styles.header_container}>
                             <Text style={styles.header_text}>HomeKart</Text>
-                            <AntDesign name="user" size={40} color='white' />
+                            {/* {
+                                userInfo && userInfo.hasOwnProperty('userType') && userInfo.userType === "owner" && (
+                                    <TouchableOpacity onPress={goToPropertyRegister}>
+                                        <Image source={Icons.add} style={{ height: 26, width: 26 }} />
+                                    </TouchableOpacity>
+                                )
+                            } */}
                         </View>
                         <ImageBackground
                             style={styles.card_container}
-                            imageStyle={{ borderRadius: 20 , overflow: "hidden"}}
+                            imageStyle={{ borderRadius: 20, overflow: "hidden" }}
                             source={require("../../assets/backgroundsearch.png")}
                         >
                             <View style={styles.welcome_container}>
                                 <Text style={styles.welcome_text}>
                                     Find Your Comfort place one
-                                </Text>
-                                <Text style={styles.welcome_text_bold}>
-                                    {user ? ", " + userInfo.firstName : ""}
                                 </Text>
                             </View>
                             <Text style={styles.detail_text}>
@@ -199,7 +176,7 @@ export default function HomeScreen({ navigation }) {
                                     category={category}
                                     key={category.name}
                                     onPress={() =>
-                                        handleCategorySelect(category,"cardClick")
+                                        handleCategorySelect(category, "cardClick")
                                     }
                                 />
                             ))}
@@ -231,14 +208,16 @@ const styles = StyleSheet.create({
     card_container: {
         marginVertical: 10,
         padding: 16,
+        overflow: 'hidden'
     },
     header_container: {
         marginVertical: 16,
         flexDirection: "row",
         alignItems: "center",
+        justifyContent: 'center'
     },
     welcome_container: {
-        marginTop:8,
+        marginTop: 8,
         marginBottom: 64,
         flexDirection: "row",
         alignItems: "center",
@@ -256,10 +235,10 @@ const styles = StyleSheet.create({
         marginVertical: 8,
     },
     category_container: {
-        marginVertical:8,
+        marginVertical: 8,
         flexDirection: "row",
         flexWrap: "wrap",
-        justifyContent:'center'
+        justifyContent: 'center'
     },
     header_text: {
         fontSize: 34,

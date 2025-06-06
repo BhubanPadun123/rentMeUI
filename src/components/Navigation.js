@@ -14,6 +14,7 @@ import UserProfileScreen from "../screens/UserProfileScreen";
 import UserInfosScreen from "../screens/UserInfosScreen";
 import BookingHistoryScreen from "../screens/BookingHistoryScreen";
 import FeedBackScreen from "../screens/FeedBackScreen";
+import PropertyRegisterScreen from "../screens/PropertyRegisterScreen";
 
 import app from "../../firebaseConfig";
 import iconPref, { customTabButton } from "../utils/NavBarUtils";
@@ -95,7 +96,7 @@ function SearchStack() {
 
 function HomeStack() {
     return (
-        <Stack.Navigator>
+        <Stack.Navigator screenOptions={iconPref}>
             <Stack.Screen
                 name="HomeScreen"
                 component={HomeScreen}
@@ -125,6 +126,11 @@ function HomeStack() {
             <Stack.Screen
                 name="ServiceBookingScreen"
                 component={ServiceBookingScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="PropertyRegisterScreen"
+                component={PropertyRegisterScreen}
                 options={{ headerShown: false }}
             />
         </Stack.Navigator>
@@ -165,11 +171,11 @@ export default Navigation = () => {
 
     return (
         <>
-            <Tab.Navigator screenOptions={iconPref} initialRouteName="Anasayfa" >
-                <Tab.Screen name="Anasayfa" component={HomeStack} />
+            <Tab.Navigator screenOptions={iconPref} initialRouteName="Home" >
+                <Tab.Screen name="Home" component={HomeStack} />
                 <Tab.Screen name="Search" component={SearchStack} options={{
-                    headerShown:true,
-                    title:"Search"
+                    headerShown: true,
+                    title: "Search"
                 }} />
                 <Tab.Screen
                     name="Map"

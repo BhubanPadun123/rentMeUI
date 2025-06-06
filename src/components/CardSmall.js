@@ -7,19 +7,14 @@ import {
     TouchableOpacity,
 } from "react-native";
 import { colors } from "../styles/Theme";
-import { Feather } from "@expo/vector-icons";
+import Icons from "../utils/Icons";
 
 export default function CardSmall({ text, iconName , onSelect}) {
     return (
         <TouchableOpacity onPress={onSelect}>
             <View style={styles.card}>
                 <View style={styles.icon_container}>
-                    <Feather
-                        style={styles.icon}
-                        name={iconName}
-                        size={24}
-                        color="black"
-                    />
+                    <Image source={Icons.info} style={{height:20,width:20}} />
                 </View>
                 <View style={styles.section_container}>
                     <Text style={styles.section_text}>{text}</Text>

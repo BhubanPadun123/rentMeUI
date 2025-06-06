@@ -1,29 +1,40 @@
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View,Image } from "react-native";
 import { colors } from "../styles/Theme";
-import { Feather, Ionicons, EvilIcons } from "@expo/vector-icons";
+import tabsImages from "./TabsImages";
 
 //ICONS
 const iconPref = ({ route }) => {
-    const hiddenRoutes = ["Search","Profile","LoginScreen", "SignUpScreen", "UserProfileScreen", "ServiceBookingScreen", "BookingHistoryScreen", "UserInfosScreen", "FeedBackScreen"]
+    const hiddenRoutes = [
+        "PropertyRegisterScreen",
+        "Search",
+        "Profile",
+        "LoginScreen",
+        "SignUpScreen", 
+        "UserProfileScreen", 
+        "ServiceBookingScreen", 
+        "BookingHistoryScreen", 
+        "UserInfosScreen", 
+        "FeedBackScreen"
+    ]
     const isTabHidden = hiddenRoutes.includes(route.name)
     return {
         tabBarIcon: ({ color }) => {
             let iconName;
 
-            if (route.name === "Anasayfa") {
-                iconName = "home";
+            if (route.name === "Home") {
+                iconName = tabsImages.Home
             } else if (route.name === "Profile") {
-                iconName = "user";
+                iconName = tabsImages.Profile
             } else if (route.name === "Calander") {
-                iconName = "calendar";
+                iconName = tabsImages.Calander
             } else if (route.name === "Search") {
-                iconName = "search";
+                iconName = tabsImages.Search
             }
             //returns in each icon
-            return <Feather name={iconName} size={30} color={color} />;
+            return <Image source={iconName} style={{height:24,width:24}} />
         },
         tabBarStyle: isTabHidden
-            ? { display: 'none' } // Hide the tab bar
+            ? { display: 'none' }
             : {
                 ...styles.shadow,
                 position: "absolute",
@@ -60,7 +71,7 @@ export const customTabButton = ({ children, onPress }) => (
                 alignItems: "center",
             }}
         >
-            <Feather name="map-pin" size={30} color={colors.color_white} />
+            <Image source={tabsImages.Map} style={{height:30,width:30}} />
         </View>
     </TouchableOpacity>
 );
