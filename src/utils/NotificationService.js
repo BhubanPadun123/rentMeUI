@@ -21,7 +21,7 @@ export const handleNotification = (titleContent, bodyContent) => {
     Notifications.scheduleNotificationAsync({
         content: notificationContent,
         trigger: {
-            seconds: 5, // Kaç saniye sonra bildirimin gösterileceği
+            seconds: 5,
         },
     });
 };

@@ -139,6 +139,11 @@ function HomeStack() {
                 component={PropertyLocationScreen}
                 options={{headerShown:true,title:"Property Location"}}
             />
+            <Stack.Screen
+                name="FeedBackScreen"
+                component={FeedBackScreen}
+                options={{ headerShown: false }}
+            />
         </Stack.Navigator>
     );
 }

@@ -13,6 +13,7 @@ import { child, get, getDatabase, ref } from "firebase/database";
 import parseContentData from "../utils/ParseContentData";
 import CardAppointmentSmall from "../components/CardAppointmentSmall";
 import { sortAppointmentsByDateAndTime } from "../utils/CalendarUtils";
+import Loader from "../components/Loader";
 
 
 export default function NotificationsScreen({ navigation }) {
@@ -29,69 +30,6 @@ export default function NotificationsScreen({ navigation }) {
             setUserAuth(!!userAuth);
         });
     }, []);
-
-    useEffect(() => {
-        if (userAuth) {
-            const dbRef = ref(getDatabase());
-
-            get(child(dbRef, "userAppointments/" + user.uid))
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        const getList = parseContentData(snapshot.val());
-
-                        const servicePromises = getList.map((appointment) =>
-                            fetchServiceInfo(appointment.serviceId)
-                        );
-
-                        // Tüm promise'ların sonuçlarını bekle
-                        Promise.all(servicePromises)
-                            // Randevu verilerine sağlayıcı bilgilerini ekle
-                            .then((serviceInfos) => {
-                                const updateAppointmentList = getList.map(
-                                    (appointment, index) => ({
-                                        ...appointment,
-                                        serviceInfo: serviceInfos[index],
-                                    })
-                                );
-                                // Tarih ve saatine göre sıralanmış randevu listesini güncelle
-                                setAppointmentList(
-                                    sortAppointmentsByDateAndTime(
-                                        updateAppointmentList
-                                    )
-                                );
-
-                                setIsReady(true);
-                            });
-                    }
-                })
-                .catch((error) => {
-                    console.error(error);
-                })
-                .finally(() => {});
-        } else {
-            setAppointmentList([]);
-            setTimeout(() => {
-                setIsReady(true);
-            }, 2000);
-        }
-    }, [userAuth]); // User auth dependecy
-
-    function fetchServiceInfo(id) {
-        const dbRef = ref(getDatabase(), "services/" + id);
-
-        return get(dbRef)
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    return snapshot.val();
-                } else {
-                    return null;
-                }
-            })
-            .catch(() => {
-                console.error(error);
-                return null;
-            });
-    }
 
     //NAVIGATION
     function goToCalendar() {
@@ -129,9 +67,7 @@ export default function NotificationsScreen({ navigation }) {
                 </View>
             )}
             {!isReady && (
-                <View style={styles.loading_container}>
-                    <ActivityIndicator size="large" color={colors.color_primary} />
-                </View>
+                <Loader/>
             )}
         </ScrollView>
     );

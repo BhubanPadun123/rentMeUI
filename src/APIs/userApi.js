@@ -21,9 +21,25 @@ import {
     getDoc
 } from "firebase/firestore"
 
-import { showTopMessage } from "../utils/ErrorHandler"
-import parseContentData from "../utils/ParseContentData"
-
+export const getUserListForProductOrder=(userIds)=>{
+    return new Promise(async(resolved,rejected)=>{
+        try {
+            if (userIds.length === 0) return [];
+            const users = [];
+          
+            userIds.map(async(item)=>{
+                const userRef = doc(db,"users",item)
+                const userSnap = await getDoc(userRef);
+                if(userSnap.exists()){
+                    users.push({id:userSnap.id,...userSnap.data()})
+                }
+            })
+            resolved(users);
+        } catch (error) {
+            rejected(error)
+        }
+    })
+}
 export const getUser = () => {
     return new Promise((resolved, rejected) => {
         try {

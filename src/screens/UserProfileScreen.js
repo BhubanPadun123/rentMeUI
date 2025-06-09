@@ -73,6 +73,12 @@ export default function UserProfileScreen({ navigation }) {
         fetchUserData()
     }, [])
     //sing out user
+    function goToMyBooking() {
+        navigation.navigate("ServiceBookingScreen", { item: {} })
+    }
+    function goToNotification() {
+        navigation.navigate("NotificationsScreen")
+    }
     function handleSignOut() {
         const auth = getAuth(app);
 
@@ -98,6 +104,9 @@ export default function UserProfileScreen({ navigation }) {
     }
     function goToAddProperty() {
         navigation.navigate("PropertyRegisterScreen");
+    }
+    function goToBookingStatusUpdate() {
+        navigation.navigate("FeedBackScreen");
     }
     function handleUpdateUser(formValues) {
         const data = {
@@ -151,35 +160,66 @@ export default function UserProfileScreen({ navigation }) {
             <View style={{
                 marginHorizontal: 20,
                 display: 'flex',
-                flexDirection: 'row',
+                flexDirection: "column",
                 alignItems: 'center',
                 gap: 8,
                 justifyContent: "space-around"
             }}>
-                <Text style={styles.header_text}>user info</Text>
-                <TouchableOpacity
-                    onPress={() => {
-                        setState((prevState) => ({
-                            ...prevState,
-                            isUserInfoAvailable: !prevState.isUserInfoAvailable
-                        }))
+                <View style={{
+                    display: "flex",
+                    flexDirection: 'row',
+                    justifyContent: 'flex-end',
+                    width: "100%",
+                    alignItems: 'center',
+                    gap: 14,
+                    backgroundColor: colors.color_light_gray,
+                    paddingVertical: 4,
+                    paddingRight: 8,
+                    borderRadius: 8
+                }}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            setState((prevState) => ({
+                                ...prevState,
+                                isUserInfoAvailable: !prevState.isUserInfoAvailable
+                            }))
+                        }}
+                    >
+                        <Image source={Icons.edit} style={{ height: 20, width: 20 }} />
+                    </TouchableOpacity>
+                    {
+                        state.user && state.user.hasOwnProperty('userType') && state.user.userType === "owner" && (
+                            <>
+                                <TouchableOpacity onPress={goToAddProperty} >
+                                    <Image source={Icons.add} style={{ height: 26, width: 26 }} />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={goToBookingStatusUpdate} >
+                                    <Image source={Icons.status} style={{ height: 26, width: 26 }} />
+                                </TouchableOpacity>
+                            </>
+                        )
+                    }
+                    <TouchableOpacity onPress={goToHome} >
+                        <Image source={tabsImages.Home} style={{ height: 26, width: 26 }} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleSignOut} >
+                        <Image source={Icons.logout} style={{ height: 26, width: 26 }} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={goToMyBooking} >
+                        <Image source={Icons.cart} style={{ height: 26, width: 26 }} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={goToNotification} >
+                        <Image source={Icons.notification} style={{ height: 26, width: 26 }} />
+                    </TouchableOpacity>
+                </View>
+                <View
+                    style={{
+                        width: "100%",
+                        height: 1,
+                        backgroundColor: colors.color_primary
                     }}
-                >
-                    <Image source={Icons.edit} style={{ height: 20, width: 20 }} />
-                </TouchableOpacity>
-                {
-                    state.user && state.user.hasOwnProperty('userType') && state.user.userType === "owner" && (
-                        <TouchableOpacity onPress={goToAddProperty} >
-                            <Image source={Icons.add} style={{ height: 26, width: 26 }} />
-                        </TouchableOpacity>
-                    )
-                }
-                <TouchableOpacity onPress={goToHome} >
-                    <Image source={tabsImages.Home} style={{ height: 26, width: 26 }} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleSignOut} >
-                    <Image source={Icons.logout} style={{ height: 26, width: 26 }} />
-                </TouchableOpacity>
+                />
+                <Text style={styles.header_text}>user info</Text>
             </View>
 
             <View style={styles.section_container}>

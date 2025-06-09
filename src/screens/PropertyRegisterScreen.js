@@ -31,22 +31,27 @@ export default function PropertyRegisterScreen({navigation}) {
     const [loading, setLoading] = useState(false);
 
     function handleFormSubmit(formValues) {
+        const date = new Date()
         const propertyData={
             title:formValues.title,
             description:formValues.description,
             availableStatus:true,
+            propertyType:formValues.propertyType,
+            createdAt:date,
+            town:formValues.town,
+            total:formValues.totalProperty,
             metaData:JSON.stringify({
                 address:{
                     state:formValues.state,
                     district:formValues.district,
                     pinCode:formValues.pinCode,
-                    town:formValues.pinCode,
+                    town:formValues.town,
                     localAddress:formValues.localAddress
                 },
                 geoLocation:formValues.geoLocation,
                 rent:formValues.rent,
                 deposite:formValues.deposite,
-                images:formValues.images
+                images:formValues.images,
             })
         }
         setLoading(true)

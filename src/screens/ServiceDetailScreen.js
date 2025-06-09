@@ -1,12 +1,20 @@
 import React from "react";
 import { View, StyleSheet, Text, Image, ScrollView, Share, TouchableOpacity } from "react-native";
 import Button from "../components/Button/Button";
-import { Feather, Ionicons } from "@expo/vector-icons";
 import { colors, sizes } from "../styles/Theme";
 import userImages from "../utils/UserImageUtils";
 import ImageSlider from "../components/ImagesViewer";
 import Icons from "../utils/Icons";
 import tabsImages from "../utils/TabsImages";
+import { timeFormate } from "../utils/utils";
+import { generateRandomId } from "../utils/RandomId";
+import {
+    getAuth
+} from "firebase/auth"
+import app from "../../firebaseConfig";
+import { showTopMessage } from "../utils/ErrorHandler";
+import { handleBokingApi } from "../APIs/booking";
+import { getUserInfo } from "../APIs/userApi";
 
 const imageList = [
     'https://picsum.photos/id/10/600/400',
@@ -21,25 +29,60 @@ export default function ServiceDetailScreen({ route, navigation }) {
     const images = metaData && metaData.hasOwnProperty('images') ? JSON.parse(metaData.images) : null
     const address = metaData && metaData.hasOwnProperty('address') ? metaData.address : null
     const geoLocation = metaData && metaData.hasOwnProperty('geoLocation') ? metaData.geoLocation : null
-    console.log(metaData)
+    const propertyType = item && item.hasOwnProperty('propertyType') ? item.propertyType : null
+    const total = item && item.hasOwnProperty('total') ? item.total : null
+    const createdAt = item && item.hasOwnProperty('createdAt') ? item.createdAt : ""
 
-    const shareContent = async () => {
-        try {
-            const result = await Share.share({
-                message: "Şuna bir göz at ...",
-                title: "Uygulama Paylaşımı",
-            });
-        } catch (error) {
-            console.error(error.message);
-        }
-    };
 
-    //NAVIGATION
     const goToBookingScreen = (item) => {
         navigation.navigate("ServiceBookingScreen", { item });
     };
-    const goToPropertyLocation=()=>{
-        navigation.navigate("PropertyLocationScreen",{geoLocation:geoLocation,title:item && item.title ? item.title : "Demo Place"})
+    const goToPropertyLocation = () => {
+        navigation.navigate("PropertyLocationScreen", { geoLocation: geoLocation, title: item && item.title ? item.title : "Demo Place" })
+    }
+    const goToLoginScreen=()=>{
+        navigation.navigate("LoginScreen")
+    }
+
+    const handlePlaceOrder=async()=>{
+        const auth = getAuth(app)
+        const user = auth.currentUser
+        let cunstomerInfo = null
+        await getUserInfo().then((res)=>{
+            cunstomerInfo = res
+        }).catch((err)=>{
+            
+        })
+        if(!user || !cunstomerInfo){
+            showTopMessage("User Does not login!","info")
+            setTimeout(()=>{
+                goToLoginScreen()
+            },5000)
+            return
+        }
+        const data = {
+            orderId:generateRandomId(),
+            vendorRef:item.vendorRef,
+            bookingStatus:"1",
+            customerRef:user.uid,
+            productRef:item.id,
+            customer:JSON.stringify(cunstomerInfo)
+        }
+        Object.entries(data).map((item)=>{
+            if(!item[1]){
+                showTopMessage(`${item[0]} is data is missing!`,"info")
+                return
+            }
+        })
+        handleBokingApi(data).then((res)=>{
+            showTopMessage(res.message,"success")
+            setTimeout(()=>{
+                goToBookingScreen(item)
+            },5000)
+        }).catch((err)=>{
+            console.log(err)
+            showTopMessage("Error while booking.Please try after sometime","danger")
+        })
     }
 
     return (
@@ -54,6 +97,13 @@ export default function ServiceDetailScreen({ route, navigation }) {
                 <View style={styles.body_container}>
                     <View style={styles.about_container}>
                         <Text style={styles.about}>{item && item.title && item.title}</Text>
+                        {
+                            createdAt && (
+                                <Text style={[styles.desc,{padding:6,fontSize:14,backgroundColor:colors.color_light_gray,textAlign:'center',borderRadius:20}]}>
+                                    Posted At : {timeFormate(createdAt)}
+                                </Text>
+                            )
+                        }
                         <Text style={styles.desc}>{item && item.description && item.description}</Text>
                     </View>
                 </View>
@@ -67,9 +117,15 @@ export default function ServiceDetailScreen({ route, navigation }) {
                                         source={Icons.info}
                                         style={{ height: 24, width: 24 }}
                                     />
+                                    {
+                                        propertyType && (
+                                           <Text style={[styles.text_content,{fontSize:14}]} >Property For : {propertyType}</Text> 
+                                        )
+                                    }
                                     <Text style={styles.text_content}>{address.state && address.state}</Text>
                                     <Text style={styles.text_content}>{address.district && address.district}</Text>
                                     <Text style={styles.text_content}>{address.localAddress && address.localAddress}</Text>
+                                    <Text style={styles.text_content}>{address.town && address.town}</Text>
                                     <TouchableOpacity onPress={goToPropertyLocation} style={{
                                         backgroundColor: colors.color_gray,
                                         marginVertical: 4,
@@ -118,6 +174,24 @@ export default function ServiceDetailScreen({ route, navigation }) {
                 </View>
 
                 <View style={[styles.detail_container, { flexDirection: 'column', gap: 4 }]}>
+                    {
+                        total && (
+                            <View style={styles.detail}>
+                                <Image
+                                    source={Icons.info}
+                                    style={{ height: 24, width: 24 }}
+                                />
+                                <Text style={[styles.text_content, { fontSize: 12 }]}>Total Numer Of Posted Property</Text>
+                                <Text style={styles.text_content}>{total}</Text>
+                                <Text style={[styles.text_content, { fontSize: 12, padding: 4, color: colors.color_secondary }]}>
+                                    This represents the total count of all properties you've submitted for rent.
+                                </Text>
+                                <Text style={[styles.text_content, { fontSize: 12, padding: 4, color: colors.color_secondary }]}>
+                                    4 out of {total} properties booked.
+                                </Text>
+                            </View>
+                        )
+                    }
                     <View style={styles.detail}>
                         {
                             metaData && (
@@ -212,11 +286,11 @@ export default function ServiceDetailScreen({ route, navigation }) {
             <View style={styles.button_container}>
                 <Button
                     text={"Add To cart"}
-                    onPress={() => goToBookingScreen(item)}
+                    onPress={() => {}}
                 />
                 <Button
                     text={"Booking"}
-                    onPress={() => goToBookingScreen(item)}
+                    onPress={handlePlaceOrder}
                 />
             </View>
         </View>

@@ -23,6 +23,15 @@ import {
     handleNotification,
 } from "../utils/NotificationService";
 import userImages from "../utils/UserImageUtils";
+import Loader from "../components/Loader";
+import { getCustomerBookingList } from "../APIs/booking";
+import { getProductByIds } from "../APIs/product";
+import ImageSlider from "../components/ImagesViewer";
+import {
+    timeFormate,
+    bookingStatus
+} from "../utils/utils";
+import { paymentGatway } from "../APIs/paymentGateway";
 
 export default function ServiceBookingScreen({ route, navigation }) {
     const { item } = route.params;
@@ -30,182 +39,52 @@ export default function ServiceBookingScreen({ route, navigation }) {
     const scrollViewRef = useRef(null);
 
     const [loading, setLoading] = useState(true);
-    const [selectedDate, setSelectedDate] = useState(null);
-    const [selectedTime, setSelectedTime] = useState(null);
-    const [timeList, setTimeList] = useState([]);
-    const [serviceTimeList, setServiceTimeList] = useState([]);
-    const [bookedApps, setBookedApps] = useState([]);
-
-    const today = moment().format("YYYY-MM-DD");
-    const threeMonthsLater = moment().add(3, "months").format("YYYY-MM-DD");
+    const [bookingRef, setBookingRef] = useState([])
+    const [product, setProduct] = useState([])
 
     const auth = getAuth();
     const user = auth.currentUser;
 
-    const getTimeListFromDatabase = async () => {
-        setLoading(true);
-        try {
-            const dbRef = ref(getDatabase());
-            const snapshot = await get(child(dbRef, "times"));
-
-            if (snapshot.exists()) {
-                const timeList = parseContentData(snapshot.val());
-                setTimeList(timeList);
-            } else {
-                console.log("Veri yok");
-            }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const getServiceAppointments = async (day) => {
-        setLoading(true);
-        setServiceTimeList([]);
-        try {
-            const appointmentsRef = ref(getDatabase(), "userAppointments");
-            const snapshot = await get(appointmentsRef);
-
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                let serviceBookings = [];
-
-                Object.keys(data).forEach((user) => {
-                    const userAppointments = data[user];
-
-                    Object.keys(userAppointments).forEach((appointmentId) => {
-                        const app = userAppointments[appointmentId];
-
-                        if (
-                            app.serviceId === serviceId &&
-                            app.bookedDate === day
-                        ) {
-                            serviceBookings.push(app);
+    useEffect(() => {
+        const fetchCustomerBookingData = async () => {
+            if (!user) return
+            setLoading(true)
+            getCustomerBookingList(user.uid).then((res) => {
+                if (Array.isArray(res) && res.length > 0) {
+                    console.log(res)
+                    const ids = []
+                    res.map((item) => {
+                        if (item.productRef) {
+                            !ids.includes(item.productRef) && ids.push(item.productRef)
                         }
-                    });
-                });
-
-                setBookedApps(serviceBookings);
-                const availableTimes = timeList.map((time) => {
-                    const bookedHour = serviceBookings.some(
-                        (app) => app.bookedTime === time.apptime
-                    );
-
-                    return {
-                        ...time,
-                        isBooked: bookedHour ? true : false,
-                    };
-                });
-
-                setServiceTimeList(availableTimes);
-            } else {
-                console.log("Veri yok");
-            }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-            return true;
-        }
-    };
-
-    useEffect(() => {
-        configureNotifications();
-    }, []);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            await getTimeListFromDatabase();
-        };
-
-        fetchData();
-    }, [selectedDate]);
-
-    const handleBooking = () => {
-        if (selectedDate && selectedTime && user) {
-            Alert.alert(
-                "Randevu Oluşturma",
-                "Randevunuz oluşturulacak, onaylıyor musunuz ?",
-                [
-                    {
-                        text: "Vazgeç",
-                        style: "cancel",
-                    },
-                    {
-                        text: "Tamamla",
-                        onPress: () => {
-                            pushAppointment();
-                        },
-                    },
-                ]
-            );
-        } else {
-            if (!user) {
-                showTopMessage("Kullanıcı girişi yapmadınız", "success");
-                goToLoginScreen();
-            } else if (!selectedDate || !selectedTime) {
-                showTopMessage("Lütfen bir gün ve bir saat seçin.", "info");
-            }
-        }
-    };
-
-    const pushAppointment = () => {
-        const userId = user.uid;
-        const serviceId = item.id;
-        const appType = item.expert_area;
-        const bookedDate = selectedDate;
-        const bookedTime = selectedTime;
-
-        const appointmentsRef = ref(
-            getDatabase(),
-            "userAppointments/" + user.uid
-        );
-
-        push(appointmentsRef, {
-            userId,
-            serviceId,
-            appType,
-            bookedDate,
-            bookedTime,
-        })
-            .then(async () => {
-                showTopMessage("Randevunuz oluşturuldu!", "success");
-
-                handleNotification(
-                    "Yaklaşan randevunuz",
-                    `Randevunuz ${bookedDate} , ${bookedTime} saati için oluşturuldu.`
-                );
-                goToCompletedScreen();
-                setSelectedTime(null);
-                setSelectedDate(null);
+                    })
+                    if (ids.length > 0) {
+                        getProductByIds(ids).then((result) => {
+                            setTimeout(() => {
+                                setLoading(false)
+                                setBookingRef(res)
+                                setProduct(result)
+                            }, 5000)
+                        }).catch((error) => {
+                            console.log(error)
+                            showTopMessage("Error while fetching the user booking list", "danger")
+                            setTimeout(() => {
+                                setLoading(false)
+                            }, 5000)
+                        })
+                    }
+                }
+            }).catch((err) => {
+                console.log(err)
+                showTopMessage("Error while fetching the user booking list", "danger")
+                setTimeout(() => {
+                    setLoading(false)
+                }, 5000)
             })
-            .catch((error) => {
-                showTopMessage("Bir hata oluştu.", "info");
-                console.error(error);
-                setSelectedTime(null);
-                setSelectedDate(null);
-            });
-    };
-
-    const onDateSelect = async (day) => {
-        try {
-            setLoading(true);
-            setSelectedDate(day.dateString);
-
-            const timeListData = await getTimeListFromDatabase();
-            const appsForDay = await getServiceAppointments(day.dateString);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
         }
-    };
+        fetchCustomerBookingData()
+    }, [])
 
-    const onTimeSelect = (time) => {
-        setSelectedTime(time);
-    };
 
     const goToCompletedScreen = () => {
         navigation.navigate("SearchScreen");
@@ -214,6 +93,59 @@ export default function ServiceBookingScreen({ route, navigation }) {
     const goToLoginScreen = () => {
         navigation.navigate("LoginScreen");
     };
+    const payNow=()=>{
+        paymentGatway().then((res)=>{
+            console.log(res)
+        }).catch((err)=>{
+            console.log(err)
+        })
+    }
+
+    const RenderProducts = ({ itemsInfo }) => {
+        const metaData = itemsInfo && itemsInfo.hasOwnProperty('metaData') ? JSON.parse(itemsInfo.metaData) : null;
+        const images = metaData && metaData.hasOwnProperty('images') ? JSON.parse(metaData.images) : []
+        const findBookingCode = itemsInfo && itemsInfo.id && bookingRef.length > 0 && bookingRef.find((item) => item.productRef === itemsInfo.id)
+        const status = findBookingCode && bookingStatus(findBookingCode.bookingStatus)
+        return (
+            <View style={styles.header_container}>
+                <ImageSlider
+                    images={images}
+                />
+                <View>
+                    <Text style={[styles.title, { textAlign: "center", color: colors.color_primary }]}>
+                        {itemsInfo?.title || "Booking Summary"}
+                    </Text>
+
+                    <View
+                        style={{
+                            width: "100%",
+                            height: 1,
+                            backgroundColor: colors.color_secondary,
+                            marginVertical: 8,
+                        }}
+                    />
+                    <Text style={[styles.desc, { color: colors.color_secondary }]}>
+                        Current Status: <Text style={{ fontWeight: 'bold' }}>{status}</Text>
+                    </Text>
+
+                    {
+                        findBookingCode && findBookingCode.bookingStatus === "2" && (
+                            <>
+                                <Text style={[styles.desc, { color: colors.color_secondary, marginVertical: 8 }]}>
+                                    To confirm your booking, please proceed with the payment.
+                                </Text>
+
+                                <Button
+                                    text={"Pay Now Rs:100"}
+                                    onPress={payNow}
+                                />
+                            </>
+                        )
+                    }
+                </View>
+            </View>
+        )
+    }
 
     return (
         <View style={styles.out_container}>
@@ -227,90 +159,21 @@ export default function ServiceBookingScreen({ route, navigation }) {
                     }
                 }}
             >
-                {/* Header */}
-                <View style={styles.header_container}>
-                    <Image
-                        style={styles.image_container}
-                        source={userImages[item.id]}
-                    />
-                    <View>
-                        <View style={styles.title_container}>
-                            <Text style={styles.title}>
-                                {item.firstName} {item.lastName}
-                            </Text>
-                            <Text style={styles.about}>
-                                {item.expert_area} Uzmanı
-                            </Text>
-                        </View>
-                        <View style={styles.location_container}>
-                            <Ionicons
-                                name="ios-location-outline"
-                                size={18}
-                                color={colors.color_primary}
-                            />
-                            <Text style={styles.location}>{item.district}</Text>
-                        </View>
-                    </View>
-                </View>
-
-                <View style={styles.text_container}>
-                    <Text style={styles.subTitle}>Gün Seçin:</Text>
-                </View>
-
-                <Calendar
-                    style={styles.calendar_container}
-                    onDayPress={!loading ? onDateSelect : undefined}
-                    markedDates={{
-                        [selectedDate]: {
-                            selected: true,
-                            disableTouchEvent: true,
-                            selectedColor: colors.color_primary,
-                            selectedTextColor: colors.color_white,
-                        },
-                    }}
-                    customStyle={{
-                        today: {
-                            todayTextColor: colors.color_primary,
-                        },
-                    }}
-                    minDate={today}
-                    maxDate={threeMonthsLater}
-                />
-
-                {selectedDate && (
-                    <View style={styles.bottom_container}>
-                        {loading ? (
-                            <ActivityIndicator
-                                style={styles.loadingIndicator}
-                            />
-                        ) : (
-                            <>
-                                <View style={styles.text_container}>
-                                    <Text style={styles.subTitle}>
-                                        Saat Seçin:
-                                    </Text>
-                                </View>
-                                <View style={styles.time_container}>
-                                    {serviceTimeList.map((time) => (
-                                        <TimeSlot
-                                            key={time.id.toString()}
-                                            time={time}
-                                            onPress={onTimeSelect}
-                                            isSelected={
-                                                selectedTime === time.apptime
-                                            }
-                                            isBooked={time.isBooked}
-                                        />
-                                    ))}
-                                </View>
-                            </>
-                        )}
-                    </View>
-                )}
+                {
+                    product && product.length > 0 &&
+                    product.map((item, index) => (
+                        <RenderProducts
+                            itemsInfo={item}
+                            key={index}
+                        />
+                    ))
+                }
             </ScrollView>
-            <View style={styles.button_container}>
-                <Button text={"Tamamla"} onPress={handleBooking} />
-            </View>
+            {
+                loading && (
+                    <Loader />
+                )
+            }
         </View>
     );
 }
@@ -323,7 +186,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
     },
     header_container: {
-        flexDirection: "row",
+        flexDirection: "column",
         backgroundColor: colors.color_white,
         marginTop: 36,
         padding: 16,
