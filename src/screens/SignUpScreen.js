@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet ,ScrollView,KeyboardAvoidingView} from "react-native";
+import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView } from "react-native";
 import Button from "../components/Button/Button";
 import InputBar from "../components/InputBar";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword,sendEmailVerification } from "firebase/auth";
 import app from "../../firebaseConfig";
 import { Formik } from "formik";
 import ErrorHandler, { showTopMessage } from "../utils/ErrorHandler";
 import { colors } from "../styles/Theme";
+import TermsAndConditions from "../components/TermAndCondition";
 
 const initialFormValues = {
     usermail: "",
@@ -16,9 +17,18 @@ const initialFormValues = {
 
 export default function SignUpScreen() {
     const [loading, setLoading] = useState(false);
+    const [isAggree, setAggree] = useState(false)
 
+    const auth = getAuth(app);
+    function verifyEmail(){
+        const currentUser = auth.currentUser
+        sendEmailVerification(currentUser).then((res)=>{
+            console.log(res)
+        }).catch((err)=>{
+            console.log(err)
+        })
+    }
     function handleFormSubmit(formValues) {
-        const auth = getAuth(app);
 
         setLoading(true);
 
@@ -38,10 +48,11 @@ export default function SignUpScreen() {
                     (res) => {
                         showTopMessage(" Register successfull!", "success");
                         setLoading(false);
+                        verifyEmail()
                     }
                     //buradan home screene gitmeli veya go back
                 )
-                .catch((err) =>{
+                .catch((err) => {
                     console.log(err)
                     showTopMessage(ErrorHandler(err.code), "danger")
                 }
@@ -54,45 +65,55 @@ export default function SignUpScreen() {
     return (
         <KeyboardAvoidingView
             style={styles.container}
-            // behavior="padding"
+        // behavior="padding"
         >
             <ScrollView style={styles.container}>
                 <Text style={styles.text}>HomeKart Signup </Text>
-                <Formik
-                    initialValues={{ initialFormValues }}
-                    onSubmit={handleFormSubmit}
-                >
-                    {({ values, handleChange, handleSubmit }) => (
-                        <>
-                            <View style={styles.input_container}>
-                                <InputBar
-                                    onType={handleChange("usermail")}
-                                    value={values.usermail}
-                                    placeholder={"Email address"}
-                                />
-                                <InputBar
-                                    onType={handleChange("password")}
-                                    value={values.password}
-                                    placeholder={"Password"}
-                                    isSecure
-                                />
-                                <InputBar
-                                    onType={handleChange("passwordre")}
-                                    value={values.passwordre}
-                                    placeholder={"Confirm Password"}
-                                    isSecure
-                                />
-                            </View>
-                            <View style={styles.button_container}>
-                                <Button
-                                    text="Signup"
-                                    onPress={handleSubmit}
-                                    loading={loading}
-                                />
-                            </View>
-                        </>
-                    )}
-                </Formik>
+                {
+                    isAggree ? (
+                        <Formik
+                            initialValues={{ initialFormValues }}
+                            onSubmit={handleFormSubmit}
+                        >
+                            {({ values, handleChange, handleSubmit }) => (
+                                <>
+                                    <View style={styles.input_container}>
+                                        <InputBar
+                                            onType={handleChange("usermail")}
+                                            value={values.usermail}
+                                            placeholder={"Email address"}
+                                        />
+                                        <InputBar
+                                            onType={handleChange("password")}
+                                            value={values.password}
+                                            placeholder={"Password"}
+                                            isSecure
+                                        />
+                                        <InputBar
+                                            onType={handleChange("passwordre")}
+                                            value={values.passwordre}
+                                            placeholder={"Confirm Password"}
+                                            isSecure
+                                        />
+                                    </View>
+                                    <View style={styles.button_container}>
+                                        <Button
+                                            text="Signup"
+                                            onPress={handleSubmit}
+                                            loading={loading}
+                                        />
+                                    </View>
+                                </>
+                            )}
+                        </Formik>
+                    ) : (
+                        <TermsAndConditions 
+                           onAccept={()=>{
+                            setAggree(true)
+                           }}
+                        />
+                    )
+                }
             </ScrollView>
         </KeyboardAvoidingView>
     );
@@ -107,8 +128,8 @@ const styles = StyleSheet.create({
         marginHorizontal: 24,
         marginVertical: 32,
         fontSize: 30,
-        textAlign:'center',
-        color:colors.color_primary
+        textAlign: 'center',
+        color: colors.color_primary
         //fontFamily: "Mulish-Medium",
     },
     input_container: {

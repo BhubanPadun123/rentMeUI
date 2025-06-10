@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Button from "../components/Button/Button";
 import InputBar from "../components/InputBar";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword,sendEmailVerification } from "firebase/auth";
 import app from "../../firebaseConfig";
 import { Formik } from "formik";
 import ErrorHandler, { showTopMessage } from "../utils/ErrorHandler";
@@ -13,11 +13,19 @@ const initialFormValues = {
     password: "",
 };
 
+
 const LoginScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
 
+    const auth = getAuth(app);
+    function verifyEmail(){
+        sendEmailVerification(auth.currentUser).then((res)=>{
+            showTopMessage("Email verification link has been send to your register email address","info")
+        }).catch((err)=>{
+            console.log(err,"<<<err")
+        })
+    }
     function handleFormSubmit(formValues) {
-        const auth = getAuth(app);
 
         setLoading(true); // İşlem başladığında yüklemeyi etkinleştir
 
@@ -27,6 +35,9 @@ const LoginScreen = ({ navigation }) => {
             formValues.password
         )
             .then((res) => {
+                if(!res.user.emailVerified){
+                    verifyEmail()
+                }
                 showTopMessage("Login successfull !", "success");
                 setLoading(false); // İşlem tamamlandığında yüklemeyi devre dışı bırak
                 goToUserProfile();

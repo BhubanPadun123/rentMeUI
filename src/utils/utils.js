@@ -19,3 +19,8 @@ export const bookingStatus=(code)=>{
 
     }
 }
+export const platformFeeTermAndConfition = "A non-refundable platform fee is charged per booking to cover service, support, and maintenance costs."
+export const termAndCondition = `By registering, you agree to our Terms & Privacy Policy.
+You must provide accurate and up-to-date information.
+Your personal data will be kept secure and confidential.
+We do not use your data for marketing or share it without consent.`

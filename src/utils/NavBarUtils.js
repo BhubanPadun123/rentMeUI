@@ -14,7 +14,7 @@ const iconPref = ({ route }) => {
         "ServiceBookingScreen", 
         "BookingHistoryScreen", 
         "UserInfosScreen", 
-        "FeedBackScreen"
+        "FeedBackScreen",
     ]
     const isTabHidden = hiddenRoutes.includes(route.name)
     return {

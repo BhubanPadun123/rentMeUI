@@ -13,6 +13,7 @@ import Icons from "../utils/Icons";
 import DropdownSelect from "../components/SingleSelect";
 import Button from "../components/Button/Button";
 import { bookingStatus } from "../utils/utils"
+import { generateRandomId } from "../utils/RandomId";
 
 const { height, width } = Dimensions.get('window')
 
@@ -22,7 +23,7 @@ export default function FeedBackScreen({ navigation }) {
     const [orderRef, setOrderRef] = useState([])
     const [product, setProduct] = useState([])
     const [customer, setCustomer] = useState([])
-    const [status, setStatus] = useState("2")
+    const [status, setStatus] = useState(null)
 
     function fetchUserData() {
         getUser().then((res) => {
@@ -71,7 +72,7 @@ export default function FeedBackScreen({ navigation }) {
             gotToLogin()
         })
     }
-    // console.log(orderRef, "<<<<")
+
     function gotToLogin() {
         navigation.navigate("LoginScreen")
     }
@@ -104,13 +105,13 @@ export default function FeedBackScreen({ navigation }) {
         const orderStatus = findCustomer && findCustomer.bookingStatus ? findCustomer.bookingStatus : null
         const currentStaus = orderStatus ? bookingStatus(orderStatus) : null
         return (
-            <View key={customerInfo.orderRef} style={{
+            <View key={customerInfo.orderRef + generateRandomId()} style={{
                 width: sizes.width - 20,
                 borderRadius: 10,
                 borderColor: colors.color_primary,
                 borderWidth: 2,
                 overflow: 'hidden',
-                marginVertical:8
+                marginVertical: 8
             }}>
                 <ImageSlider
                     images={images}
@@ -132,9 +133,9 @@ export default function FeedBackScreen({ navigation }) {
                     textAlign: 'center',
                     fontSize: 16,
                     color: colors.color_secondary,
-                    backgroundColor:colors.color_light_gray,
-                    marginHorizontal:4,
-                    borderRadius:4
+                    backgroundColor: colors.color_light_gray,
+                    marginHorizontal: 4,
+                    borderRadius: 4
                 }}>Current Order status:{currentStaus}</Text>
                 <View style={{
                     flexDirection: 'row',
@@ -166,26 +167,30 @@ export default function FeedBackScreen({ navigation }) {
                         `${customerInfo.state},${customerInfo.district},${customerInfo.pinCode},${customerInfo.town},${customerInfo.localAddress}`
                     }</Text>
                 </View>
-                <View style={styles.textContainer}>
-                    <DropdownSelect
-                        options={[
-                            { value: '2', label: "Booking Confirm" },
-                            { value: '3', label: "Booking Denial" }
-                        ]}
-                        placeholder="Select Option"
-                        selectedValue={status}
-                        onValueChange={(e) => {
-                            setStatus(e)
-                        }}
-                    />
-                    <Button
-                        text={"Update"}
-                        onPress={() => {
-                            if (!id) return
-                            updateStatus(findCustomer.orderId, id)
-                        }}
-                    />
-                </View>
+                {
+                    orderStatus != "4" && (
+                        <View style={styles.textContainer}>
+                            <DropdownSelect
+                                options={[
+                                    { value: '2', label: "Booking Confirm" },
+                                    { value: '3', label: "Booking Denial" }
+                                ]}
+                                placeholder="Select Option"
+                                selectedValue={status}
+                                onValueChange={(e) => {
+                                    setStatus(e)
+                                }}
+                            />
+                            <Button
+                                text={"Update"}
+                                onPress={() => {
+                                    if (!id) return
+                                    updateStatus(findCustomer.orderId, id)
+                                }}
+                            />
+                        </View>
+                    )
+                }
             </View>
         )
 
@@ -200,7 +205,7 @@ export default function FeedBackScreen({ navigation }) {
                     snapToInterval={sizes.width}
                     decelerationRate={'normal'}
                     data={product}
-                    keyExtractor={(catagory) => catagory.id}
+                    keyExtractor={(catagory) => catagory.id + generateRandomId()}
                     renderItem={RenderProduct}
                 />
             }
@@ -219,6 +224,7 @@ const styles = StyleSheet.create({
         marginTop: 48,
         justifyContent: 'center',
         alignItems: 'center',
+        marginBottom:100,
     },
     header_text: {
         marginHorizontal: 24,

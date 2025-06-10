@@ -6,6 +6,7 @@ import {
     ScrollView,
     Alert,
     ActivityIndicator,
+    Modal
 } from "react-native";
 import Button from "../components/Button/Button";
 import React, { useState, useEffect, useRef } from "react";
@@ -32,15 +33,22 @@ import {
     bookingStatus
 } from "../utils/utils";
 import { paymentGatway } from "../APIs/paymentGateway";
+import RazorpayWeb from "../components/Payment";
+import { getUserInfo } from "../APIs/userApi";
+import { updateBooking } from "../APIs/booking";
+import {platformFeeTermAndConfition} from "../utils/utils"
 
 export default function ServiceBookingScreen({ route, navigation }) {
     const { item } = route.params;
     const serviceId = item.id;
     const scrollViewRef = useRef(null);
+    var userData = {}
 
     const [loading, setLoading] = useState(true);
     const [bookingRef, setBookingRef] = useState([])
     const [product, setProduct] = useState([])
+    const [openPayment, setOpenPayment] = useState(false)
+    const [userInfo,setUserInfo] = useState(null)
 
     const auth = getAuth();
     const user = auth.currentUser;
@@ -83,7 +91,21 @@ export default function ServiceBookingScreen({ route, navigation }) {
             })
         }
         fetchCustomerBookingData()
+        fetUserInfo()
     }, [])
+
+    const fetUserInfo=()=>{
+        setLoading(true)
+        getUserInfo().then((res)=>{
+            console.log(res)
+            setUserInfo(res)
+            setLoading(false)
+        }).catch((err)=>{
+            console.log(err)
+            setLoading(false)
+            setUserInfo(null)
+        })
+    }
 
 
     const goToCompletedScreen = () => {
@@ -93,21 +115,14 @@ export default function ServiceBookingScreen({ route, navigation }) {
     const goToLoginScreen = () => {
         navigation.navigate("LoginScreen");
     };
-    const payNow=()=>{
-        paymentGatway().then((res)=>{
-            console.log(res)
-        }).catch((err)=>{
-            console.log(err)
-        })
-    }
 
-    const RenderProducts = ({ itemsInfo }) => {
+    const RenderProducts = ({ itemsInfo,identifier }) => {
         const metaData = itemsInfo && itemsInfo.hasOwnProperty('metaData') ? JSON.parse(itemsInfo.metaData) : null;
         const images = metaData && metaData.hasOwnProperty('images') ? JSON.parse(metaData.images) : []
         const findBookingCode = itemsInfo && itemsInfo.id && bookingRef.length > 0 && bookingRef.find((item) => item.productRef === itemsInfo.id)
         const status = findBookingCode && bookingStatus(findBookingCode.bookingStatus)
         return (
-            <View style={styles.header_container}>
+            <View style={styles.header_container} key={identifier}>
                 <ImageSlider
                     images={images}
                 />
@@ -134,15 +149,51 @@ export default function ServiceBookingScreen({ route, navigation }) {
                                 <Text style={[styles.desc, { color: colors.color_secondary, marginVertical: 8 }]}>
                                     To confirm your booking, please proceed with the payment.
                                 </Text>
-
+                                <Text style={[styles.desc,{color:colors.color_secondary,fontSize:18,fontWeight:'bold'}]}>Term & Condition</Text>
+                                <Text style={[styles.calendar_container,{color:colors.color_secondary}]}>{platformFeeTermAndConfition}</Text>
                                 <Button
                                     text={"Pay Now Rs:100"}
-                                    onPress={payNow}
+                                    onPress={() => {
+                                        if(!userInfo || !user) return
+                                        const userData = {
+                                            name:userInfo.firstName+" "+userInfo.lastName,
+                                            email:user.email,
+                                            profileUrl:user.photoURL,
+                                            phone:userInfo.phoneNumber,
+                                            productId:itemsInfo.id,
+                                            orderId:findBookingCode.orderId
+                                        }
+                                        setOpenPayment(true)
+                                        setUserInfo(userData)
+                                    }}
                                 />
                             </>
                         )
                     }
                 </View>
+                <Modal visible={openPayment} animationType='slide' >
+                    <RazorpayWeb
+                        amount={10000}
+                        onPaymentSuccess={(e) => {
+                            const orderId = findBookingCode.orderId
+                            const status = "4"
+                            updateBooking(orderId,status,e.razorpay_payment_id).then((res)=>{
+                                setOpenPayment(false),
+                                showTopMessage("Payment Completed successfully!","success")
+                            })
+                        }}
+                        onPaymentFailed={(e)=>{
+                            setOpenPayment(false)
+                            if(e.status === "dismissed"){
+                                showTopMessage(e.message,"info")
+                            }
+                            if(e.status === "failed"){
+                                showTopMessage(e.description,"danger")
+                            }
+                        }}
+                        customerData={userInfo}
+                    />
+                </Modal>
             </View>
         )
     }
@@ -165,6 +216,7 @@ export default function ServiceBookingScreen({ route, navigation }) {
                         <RenderProducts
                             itemsInfo={item}
                             key={index}
+                            identifier = {`${item.title}+${index}`}
                         />
                     ))
                 }
@@ -179,7 +231,7 @@ export default function ServiceBookingScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-    out_container: { flex: 1 },
+    out_container: { flex: 1,marginBottom:100 },
     container: {
         flexGrow: 1,
         marginTop: 48,

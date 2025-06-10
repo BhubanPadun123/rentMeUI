@@ -15,7 +15,7 @@ import {
     updateDoc
 } from "firebase/firestore"
 
-export const updateBooking=(orderId,status)=>{
+export const updateBooking=(orderId,status,paymentId)=>{
     return new Promise(async(resolved,rejected)=>{
         try {
             if(!orderId){
@@ -23,7 +23,8 @@ export const updateBooking=(orderId,status)=>{
             }
             const bookingRef = doc(db,"booking",orderId)
             await updateDoc(bookingRef,{
-                bookingStatus:status
+                bookingStatus:status,
+                paymentId:paymentId ? paymentId : ""
             })
             resolved({message:"order status updated successfully!"})
         } catch (error) {
