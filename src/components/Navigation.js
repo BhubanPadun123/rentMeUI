@@ -64,6 +64,16 @@ function AuthStack() {
                 component={FeedBackScreen}
                 options={{ headerShown: false }}
             />
+            <Stack.Screen
+                name="SearchScreen"
+                component={SearchScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="ServiceDetailScreen"
+                component={ServiceDetailScreen}
+                options={{ headerShown: false }}
+            />
         </Stack.Navigator>
     );
 }
@@ -182,21 +192,21 @@ export default Navigation = () => {
 
     return (
         <>
-            <Tab.Navigator screenOptions={iconPref} initialRouteName="Home" >
+            <Tab.Navigator screenOptions={iconPref} initialRouteName={user ? "Home" : "Profile"} >
                 <Tab.Screen name="Home" component={HomeStack} />
-                <Tab.Screen name="Search" component={SearchStack} options={{
+                {/* <Tab.Screen name="Search" component={SearchStack} options={{
                     headerShown: true,
                     title: "Search"
-                }} />
+                }} /> */}
                 <Tab.Screen
                     name="Map"
                     component={MapStack}
                     options={{ tabBarButton: customTabButton }}
                 />
-                <Tab.Screen
+                {/* <Tab.Screen
                     name="Calander"
                     component={getTabScreen(CalendarScreen, AuthStack)}
-                />
+                /> */}
                 <Tab.Screen
                     name="Profile"
                     component={getTabScreen(UserProfileScreen, AuthStack)}

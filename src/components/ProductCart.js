@@ -15,7 +15,7 @@ const windowWidth = Dimensions.get("window").width;
 const ProductCart = ({ category, isSelected, onPress }) => {
     const metaData = category.hasOwnProperty('metaData') ? JSON.parse(category.metaData) : null
     const images = metaData && metaData.hasOwnProperty('images') ? JSON.parse(metaData.images) : null
-    console.log("meta--->", category)
+
     return (
         <TouchableOpacity
             style={[styles.button, isSelected ? styles.selectedButton : null]}

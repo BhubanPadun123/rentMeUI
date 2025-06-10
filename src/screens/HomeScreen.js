@@ -9,15 +9,10 @@ import {
     ScrollView,
     ActivityIndicator,
     ImageBackground,
-    Image,
-    TouchableOpacity
+    FlatList
 } from "react-native";
-import { colors } from "../styles/Theme";
+import { colors, sizes } from "../styles/Theme";
 import SearchBar from "../components/SearchBar";
-import { child, get, getDatabase, ref } from "firebase/database";
-import parseContentData from "../utils/ParseContentData";
-import CardAppointmentSmall from "../components/CardAppointmentSmall";
-import { sortAppointmentsByDateAndTime } from "../utils/CalendarUtils";
 import categories from "../utils/Categories";
 import { CardCarousel } from "../components/CardCarousel";
 import Category from "../components/Category";
@@ -25,57 +20,36 @@ import Icons from "../utils/Icons";
 import {
     getUserInfo
 } from "../APIs/userApi"
+import Loader from "../components/Loader";
+import { getFirstProducts } from "../APIs/product";
+import { showTopMessage } from "../utils/ErrorHandler";
+import ProductCart from "../components/ProductCart";
 
 
 export default function HomeScreen({ navigation }) {
-    const [appointmentList, setAppointmentList] = useState([]);
-
     const [userAuth, setUserAuth] = useState(null);
     const [isReady, setIsReady] = useState(false);
-    const [userInfo, setUserInfo] = useState(null)
+    const [userInfo, setUserInfo] = useState(null);
+    const [product, setProduct] = useState([])
 
-    const auth = getAuth();
-    const user = auth.currentUser;
-
-    // //Kullanıcı oturumu
     useEffect(() => {
-        auth.onAuthStateChanged((userAuth) => {
-            setUserAuth(!!userAuth);
-        });
+        getUserInfo().then((res) => {
+            setUserInfo(res)
+            fetchFirstProduct()
+        }).catch((err)=>{
+            showTopMessage("Error app is down please restart after sometime!","info")
+        })
     }, []);
-    //randevu listesi getirme
-    useEffect(() => {
-        if (userAuth) {
-            getUserInfo().then((res) => {
-                console.log(res);
-                setUserInfo(res)
-                setTimeout(() => {
-                    setIsReady(true);
-                }, 2000)
-            })
-        } else {
-            setAppointmentList([]);
-            setTimeout(() => {
-                setIsReady(true);
-            }, 2000);
-        }
-    }, [userAuth]); // User auth dependecy
-
-    async function fetchServiceInfo(id) {
-        const dbRef = ref(getDatabase(), "services/" + id);
-
-        return get(dbRef)
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    return snapshot.val();
-                } else {
-                    return null;
-                }
-            })
-            .catch(() => {
-                console.error(error);
-                return null;
-            });
+    function fetchFirstProduct() {
+        setIsReady(false)
+        getFirstProducts().then((res) => {
+            setProduct(res.data)
+            setTimeout(()=>{
+                setIsReady(true)
+            },5000)
+        }).catch((err) => {
+            showTopMessage("Error while fetch the data.please re-start your application", "info")
+        })
     }
 
     //NAVIGATION
@@ -101,6 +75,15 @@ export default function HomeScreen({ navigation }) {
     const goToPropertyRegister = () => {
         navigation.navigate("PropertyRegisterScreen")
     }
+
+    const renderCategory = ({ item }) => (
+        <ProductCart
+            category={item}
+            isSelected={selectedCategory === item.title}
+            onPress={() => goToProductDatils(item)}
+            key={item.title}
+        />
+    )
     return (
         <ScrollView>
             {isReady && (
@@ -108,13 +91,6 @@ export default function HomeScreen({ navigation }) {
                     <View style={styles.top_container}>
                         <View style={styles.header_container}>
                             <Text style={styles.header_text}>HomeKart</Text>
-                            {/* {
-                                userInfo && userInfo.hasOwnProperty('userType') && userInfo.userType === "owner" && (
-                                    <TouchableOpacity onPress={goToPropertyRegister}>
-                                        <Image source={Icons.add} style={{ height: 26, width: 26 }} />
-                                    </TouchableOpacity>
-                                )
-                            } */}
                         </View>
                         <ImageBackground
                             style={styles.card_container}
@@ -138,59 +114,34 @@ export default function HomeScreen({ navigation }) {
                         </ImageBackground>
                     </View>
                     <View style={styles.app_container}>
-                        <Text style={styles.text}>Your Home Maters</Text>
+                        <Text style={styles.text}>Explore More</Text>
                         <View>
                             <CardCarousel
                                 list={categories}
                                 onSelectCategory={handleCategorySelect}
                             />
                         </View>
-
-                        {appointmentList.length === 0 ? (
-                            ""
-                        ) : (
-                            <View>
-                                <Text style={styles.text}>
-                                    Yaklaşan Randevular
-                                </Text>
-                                <View style={styles.list_container}>
-                                    {appointmentList
-                                        .slice(0, 2)
-                                        .map((appointment) => (
-                                            <CardAppointmentSmall
-                                                appointment={appointment}
-                                                serviceInfo={
-                                                    appointment.serviceInfo
-                                                }
-                                                key={appointment.id}
-                                                onPress={goToCalendar}
-                                            />
-                                        ))}
-                                </View>
-                            </View>
-                        )}
                         <Text style={styles.text}>Recently Uploaded Properties</Text>
-                        <View style={styles.category_container}>
-                            {categories.map((category) => (
-                                <Category
-                                    category={category}
-                                    key={category.name}
-                                    onPress={() =>
-                                        handleCategorySelect(category, "product")
-                                    }
-                                />
-                            ))}
-                        </View>
+                        {
+                            product.length > 0 && (
+                                <View style={styles.category_container}>
+                                    <FlatList
+                                        horizontal={false}
+                                        showsHorizontalScrollIndicator={false}
+                                        snapToInterval={sizes.width}
+                                        decelerationRate={"normal"}
+                                        data={product}
+                                        keyExtractor={(category) => category.title}
+                                        renderItem={renderCategory}
+                                    />
+                                </View>
+                            )
+                        }
                     </View>
                 </View>
             )}
             {!isReady && (
-                <View style={styles.loading_container}>
-                    <ActivityIndicator
-                        size="large"
-                        color={colors.color_primary}
-                    />
-                </View>
+                <Loader />
             )}
         </ScrollView>
     );
@@ -238,7 +189,8 @@ const styles = StyleSheet.create({
         marginVertical: 8,
         flexDirection: "row",
         flexWrap: "wrap",
-        justifyContent: 'center'
+        justifyContent: 'center',
+        height: sizes.height
     },
     header_text: {
         fontSize: 34,

@@ -31,17 +31,17 @@ const iconPref = ({ route }) => {
                 iconName = tabsImages.Search
             }
             //returns in each icon
-            return <Image source={iconName} style={{height:24,width:24}} />
+            return <Image source={iconName} style={{height:40,width:40}} />
         },
         tabBarStyle: isTabHidden
             ? { display: 'none' }
             : {
                 ...styles.shadow,
-                position: "absolute",
-                bottom: 10,
-                left: 20,
-                right: 20,
-                borderRadius: 20,
+                // position: "absolute",
+                // bottom: 10,
+                // left: 20,
+                // right: 20,
+                // borderRadius: 20,
                 height: 80,
                 justifyContent: "center",
                 alignItems: "center",
