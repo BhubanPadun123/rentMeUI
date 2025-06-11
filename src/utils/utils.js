@@ -24,3 +24,10 @@ export const termAndCondition = `By registering, you agree to our Terms & Privac
 You must provide accurate and up-to-date information.
 Your personal data will be kept secure and confidential.
 We do not use your data for marketing or share it without consent.`
+
+export const baseUrl = "https://homekart-fyazhphmembuhnag.centralindia-01.azurewebsites.net"
+export const apiPath = {
+    "auth":"api/auth",
+    "product":"api/product",
+    "manage":"api/manage"
+}

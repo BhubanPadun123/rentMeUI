@@ -176,14 +176,14 @@ function MapStack() {
 }
 
 export default Navigation = () => {
-    const [user, setUser] = useState(getAuth(app).currentUser);
-    const auth = getAuth();
+    const [user, setUser] = useState(null);
+    // const auth = getAuth();
 
     //check authentication
     useEffect(() => {
-        auth.onAuthStateChanged((user) => {
-            setUser(!!user);
-        });
+        // auth.onAuthStateChanged((user) => {
+        //     setUser(!!user);
+        // });
     }, []);
 
     function getTabScreen(authenticatedComponent, defaultComponent) {

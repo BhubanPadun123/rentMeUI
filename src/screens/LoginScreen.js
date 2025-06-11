@@ -7,6 +7,8 @@ import app from "../../firebaseConfig";
 import { Formik } from "formik";
 import ErrorHandler, { showTopMessage } from "../utils/ErrorHandler";
 import { colors } from "../styles/Theme";
+import {useDispatch,useSelector} from "react-redux"
+import { userLoginAction } from "../Redux/action/auth";
 
 const initialFormValues = {
     usermail: "",
@@ -15,37 +17,22 @@ const initialFormValues = {
 
 
 const LoginScreen = ({ navigation }) => {
+    const dispatch = useDispatch()
     const [loading, setLoading] = useState(false);
 
-    const auth = getAuth(app);
-    function verifyEmail(){
-        sendEmailVerification(auth.currentUser).then((res)=>{
-            showTopMessage("Email verification link has been send to your register email address","info")
-        }).catch((err)=>{
-            console.log(err,"<<<err")
-        })
-    }
-    function handleFormSubmit(formValues) {
+    const {
+        loginStatus,
+        loginResponse,
+        loginError
+    } = useSelector((state)=>state.auth)
+    
+    async function handleFormSubmit(formValues) {
+        const data = {
+            userEmail:formValues.usermail,
+            password:formValues.password
+        }
+        dispatch(userLoginAction(data));
 
-        setLoading(true); // İşlem başladığında yüklemeyi etkinleştir
-
-        signInWithEmailAndPassword(
-            auth,
-            formValues.usermail,
-            formValues.password
-        )
-            .then((res) => {
-                if(!res.user.emailVerified){
-                    verifyEmail()
-                }
-                showTopMessage("Login successfull !", "success");
-                setLoading(false); // İşlem tamamlandığında yüklemeyi devre dışı bırak
-                goToUserProfile();
-            })
-            .catch((err) => {
-                setLoading(false);
-                showTopMessage(ErrorHandler(err.code), "danger");
-            });
     }
 
     // Navigation
