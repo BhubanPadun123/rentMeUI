@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "HomeKart",
-    "slug": "HomeKart",
+    "slug": "homekart-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,7 +21,6 @@
         "resizeMode": "cover",
         "backgroundColor": "#ffffff"
       },
-      "bundleIdentifier": "com.padun.AppointmentAppProject",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -35,15 +34,15 @@
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE"
-      ],
-      "package": "com.padun.AppointmentAppProject"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "owner": "padun",
     "extra": {
       "eas": {
-        "projectId": "1d239f5c-cedb-478a-9e3b-653a314271ed"
+        "projectId": "6e65f636-a4df-46af-ada0-48411be9147b"
       }
     }
   }

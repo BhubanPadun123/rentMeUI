@@ -1,5 +1,4 @@
 {
-
   "build": {
     "development": {
       "developmentClient": true,
@@ -21,9 +20,6 @@
     "preview4": {
       "distribution": "internal"
     },
-    "production": {}
-  },
-  "submit": {
     "production": {}
   }
 }
