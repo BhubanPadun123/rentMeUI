@@ -36,17 +36,17 @@ export default function HomeScreen({ navigation }) {
         getUserInfo().then((res) => {
             setUserInfo(res)
             fetchFirstProduct()
-        }).catch((err)=>{
-            showTopMessage("Error app is down please restart after sometime!","info")
+        }).catch((err) => {
+            showTopMessage("Error app is down please restart after sometime!", "info")
         })
     }, []);
     function fetchFirstProduct() {
         setIsReady(false)
         getFirstProducts().then((res) => {
             setProduct(res.data)
-            setTimeout(()=>{
+            setTimeout(() => {
                 setIsReady(true)
-            },5000)
+            }, 5000)
         }).catch((err) => {
             showTopMessage("Error while fetch the data.please re-start your application", "info")
         })
@@ -75,15 +75,29 @@ export default function HomeScreen({ navigation }) {
     const goToPropertyRegister = () => {
         navigation.navigate("PropertyRegisterScreen")
     }
+    const goToProductDatils = (category) => {
+        navigation.navigate("ServiceDetailScreen",{item:category})
+    };
 
-    const renderCategory = ({ item }) => (
-        <ProductCart
-            category={item}
-            isSelected={selectedCategory === item.title}
-            onPress={() => goToProductDatils(item)}
-            key={item.title}
-        />
-    )
+    const RenderProduct = () => {
+        if (product.length === 0) return null
+        return (
+            <React.Fragment>
+                {
+                    product.map((item) => {
+                        return (
+                            <ProductCart
+                                category={item}
+                                isSelected={""}
+                                onPress={() => goToProductDatils(item)}
+                                key={item.title}
+                            />
+                        )
+                    })
+                }
+            </React.Fragment>
+        )
+    }
     return (
         <ScrollView>
             {isReady && (
@@ -122,20 +136,10 @@ export default function HomeScreen({ navigation }) {
                             />
                         </View>
                         <Text style={styles.text}>Recently Uploaded Properties</Text>
+                    </View>
+                    <View>
                         {
-                            product.length > 0 && (
-                                <View style={styles.category_container}>
-                                    <FlatList
-                                        horizontal={false}
-                                        showsHorizontalScrollIndicator={false}
-                                        snapToInterval={sizes.width}
-                                        decelerationRate={"normal"}
-                                        data={product}
-                                        keyExtractor={(category) => category.title}
-                                        renderItem={renderCategory}
-                                    />
-                                </View>
-                            )
+                            product.length > 0 && RenderProduct()
                         }
                     </View>
                 </View>
@@ -190,7 +194,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         flexWrap: "wrap",
         justifyContent: 'center',
-        height: sizes.height
+        alignItems: 'center'
     },
     header_text: {
         fontSize: 34,
