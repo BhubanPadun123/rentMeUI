@@ -197,18 +197,18 @@ export default function FeedBackScreen({ navigation }) {
                         total: 0
                     }
                     dispatch(updateOrderStatusAction(selectedProduct, "3", selectPId, JSON.stringify(metaData)))
-                    registerForPushNotificationAsync().then((token) => {
-                        const notificationData = {
-                            userRef: findOrder.vendorRef,
-                            token: token,
-                            message: "Booking rejected by property owner",
-                            title: "Booking Rejection Alert",
-                            redirectLink: "ServiceBookingScreen"
-                        }
-                        dispatch(createNotificationAction(notificationData))
-                    }).catch((err) => {
-                        console.log("err===>", err)
-                    })
+                    // registerForPushNotificationAsync().then((token) => {
+                    //     const notificationData = {
+                    //         userRef: findOrder.vendorRef,
+                    //         token: token,
+                    //         message: "Booking rejected by property owner",
+                    //         title: "Booking Rejection Alert",
+                    //         redirectLink: "ServiceBookingScreen"
+                    //     }
+                    //     dispatch(createNotificationAction(notificationData))
+                    // }).catch((err) => {
+                    //     console.log("err===>", err)
+                    // })
                 }
             }
         } else {

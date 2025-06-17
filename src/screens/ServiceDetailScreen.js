@@ -149,18 +149,18 @@ export default function ServiceDetailScreen({ route, navigation }) {
         })
         if(error) return
         await dispatch(bookingProductAction(data))
-        registerForPushNotificationAsync().then((token)=>{
-            const notificationData={
-                userRef:data.vendorRef,
-                token:token,
-                message:"Hi,Someone is booking in your property.Please update the status",
-                title:"New Booking Alert",
-                redirectLink:"ServiceBookingScreen"
-            }
-            dispatch(createNotificationAction(notificationData))
-        }).catch((err)=>{
-            console.log("err===>",err)
-        })
+        // registerForPushNotificationAsync().then((token)=>{
+        //     const notificationData={
+        //         userRef:data.vendorRef,
+        //         token:token,
+        //         message:"Hi,Someone is booking in your property.Please update the status",
+        //         title:"New Booking Alert",
+        //         redirectLink:"ServiceBookingScreen"
+        //     }
+        //     dispatch(createNotificationAction(notificationData))
+        // }).catch((err)=>{
+        //     console.log("err===>",err)
+        // })
     }
 
     return (
