@@ -11,12 +11,16 @@ const style_base = StyleSheet.create({
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         elevation: 6,
+        maxHeight:40,
+        display:'flex',
+        flexDirection:'row',
+        justifyContent:'center',
+        alignContent:'center',
+        gap:4
     },
     text: {
         textAlign: "center",
         fontSize: 18,
-        padding: 10,
-        // //fontFamily:"Mulish-Bold"
     },
     activity_icon :{
         padding: 13,

@@ -15,6 +15,7 @@ const iconPref = ({ route }) => {
         "BookingHistoryScreen", 
         "UserInfosScreen", 
         "FeedBackScreen",
+        "ServiceBookingScreen"
     ]
     const isTabHidden = hiddenRoutes.includes(route.name)
     return {
@@ -33,19 +34,17 @@ const iconPref = ({ route }) => {
             //returns in each icon
             return <Image source={iconName} style={{height:40,width:40}} />
         },
-        tabBarStyle: isTabHidden
-            ? { display: 'none' }
-            : {
+        tabBarStyle:  {
                 ...styles.shadow,
                 // position: "absolute",
-                // bottom: 10,
+                // bottom: 40,
                 // left: 20,
                 // right: 20,
                 // borderRadius: 20,
-                height: 80,
-                justifyContent: "center",
-                alignItems: "center",
-                paddingBottom: 0,
+                // height: 80,
+                // justifyContent: "center",
+                // alignItems: "center",
+                // paddingBottom: 0,
                 backgroundColor: 'pink',
             },
         tabBarActiveTintColor: colors.color_primary,

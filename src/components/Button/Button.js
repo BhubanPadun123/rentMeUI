@@ -1,7 +1,7 @@
 import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
 import styles from "./Button.style";
 
-export default function Button({onPress, loading, text, theme = "primary"}) {
+export default function Button({onPress, loading, text, theme = "primary",icon}) {
     return (
         <TouchableOpacity
             style={styles[theme].container}
@@ -13,6 +13,9 @@ export default function Button({onPress, loading, text, theme = "primary"}) {
             ) : (
                 <Text style={styles[theme].text}>{text}</Text>
             )}
+            {
+                icon && icon
+            }
         </TouchableOpacity>
     );
 }

@@ -1,12 +1,12 @@
-import React from "react";
-import { View, StyleSheet, Text, Image, ScrollView, Share, TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, Text, Image, ScrollView, Share, TouchableOpacity,Platform } from "react-native";
 import Button from "../components/Button/Button";
 import { colors, sizes } from "../styles/Theme";
 import userImages from "../utils/UserImageUtils";
 import ImageSlider from "../components/ImagesViewer";
 import Icons from "../utils/Icons";
 import tabsImages from "../utils/TabsImages";
-import { timeFormate } from "../utils/utils";
+import { formatDate } from "../utils/utils";
 import { generateRandomId } from "../utils/RandomId";
 import {
     getAuth
@@ -15,6 +15,14 @@ import app from "../../firebaseConfig";
 import { showTopMessage } from "../utils/ErrorHandler";
 import { handleBokingApi } from "../APIs/booking";
 import { getUserInfo } from "../APIs/userApi";
+import ItemList from "../components/ListItems";
+import {useDispatch,useSelector} from "react-redux"
+import { bookingProductAction,clearBookingAction, createNotificationAction } from "../Redux/action/product";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Loader from "../components/Loader";
+import { configureNotifications } from "../utils/NotificationService";
+import * as Notifications from 'expo-notifications';
+import * as Device from "expo-device"
 
 const imageList = [
     'https://picsum.photos/id/10/600/400',
@@ -23,65 +31,135 @@ const imageList = [
     'https://picsum.photos/id/40/600/400',
 ];
 export default function ServiceDetailScreen({ route, navigation }) {
-
+    const dispatch = useDispatch()
+    const [notification,setNotification] = useState(null)
+    const [userInfo,setUserInfo] = useState(null)
+    const [channels, setChannels] = useState(null)
     const { item } = route.params;
     const metaData = item && item.hasOwnProperty('metaData') ? JSON.parse(item.metaData) : null
     const images = metaData && metaData.hasOwnProperty('images') ? JSON.parse(metaData.images) : null
-    const address = metaData && metaData.hasOwnProperty('address') ? metaData.address : null
+    const address = metaData && metaData.hasOwnProperty('addressInfo') ? metaData.addressInfo : null
     const geoLocation = metaData && metaData.hasOwnProperty('geoLocation') ? metaData.geoLocation : null
-    const propertyType = item && item.hasOwnProperty('propertyType') ? item.propertyType : null
-    const total = item && item.hasOwnProperty('total') ? item.total : null
-    const createdAt = item && item.hasOwnProperty('createdAt') ? item.createdAt : ""
+    const propertyType = item && item.hasOwnProperty('productType') ? item.productType : null
+    const total = metaData && metaData.hasOwnProperty('total') ? metaData.total : null
+    const createdAt = item && item.hasOwnProperty('postAt') ? item.postAt : ""
+    const availableItems = metaData && metaData.hasOwnProperty('availableItems') ? metaData.availableItems : []
+    
+    
+    const {
+        bookingProductStatus,
+        bookingProductError,
+        bookingProductResponse,
+        createNotificationError,
+        createNotificationResponse,
+        createNotificationStatus
+    } = useSelector((state)=> state.product)
+
+
+    useEffect(()=>{
+        if (Platform.OS === 'android') {
+            Notifications.getNotificationChannelsAsync().then(value => setChannels(value ?? []));
+          }
+        const listerner = Notifications.addNotificationReceivedListener((notification)=>{
+            setNotification(notification)
+        })
+        const responseListener = Notifications.addNotificationReceivedListener((response)=>{
+            console.log(response)
+        })
+
+        return()=>{
+            listerner.remove()
+            responseListener.remove()
+        }
+    },[])
+    useEffect(()=>{
+        if(bookingProductStatus === "success"){
+            
+            showTopMessage("Thank you for booking property with us.Your booking is successfully place in booking","success")
+            dispatch(createNotificationAction())
+            goToBookingScreen()
+        }
+        if(bookingProductStatus === "started"){
+
+        }
+        if(bookingProductStatus === "failed"){
+            showTopMessage(typeof(bookingProductError) === "string" ? bookingProductError : "Error while booking the Property,Please Try after sometime","danger")
+        }
+        return()=>{
+            dispatch(clearBookingAction())
+        }
+    },[bookingProductStatus])
+
+    async function registerForPushNotificationAsync(){
+        if(!Device.isDevice){
+            alert("Must use physical device for push Notification")
+        }
+        var {status} = await Notifications.getPermissionsAsync()
+        let finalStatus = status
+        if(status && status !== "granted"){
+            const {status} = await Notifications.requestPermissionsAsync()
+            finalStatus = status
+        }
+        if(finalStatus !== "granted"){
+            alert("Permission not granted!")
+            return
+        }
+        const token = await Notifications.getExpoPushTokenAsync()
+        return token.data
+    }
 
 
     const goToBookingScreen = (item) => {
         navigation.navigate("ServiceBookingScreen", { item });
     };
     const goToPropertyLocation = () => {
-        navigation.navigate("PropertyLocationScreen", { geoLocation: geoLocation, title: item && item.title ? item.title : "Demo Place" })
+        navigation.navigate("PropertyLocationScreen", { geoLocation: geoLocation, title: item && item.productTitle ? item.productTitle : "Demo Place" })
     }
-    const goToLoginScreen=()=>{
+    const goToLoginScreen = () => {
         navigation.navigate("LoginScreen")
     }
 
-    const handlePlaceOrder=async()=>{
-        const auth = getAuth(app)
-        const user = auth.currentUser
+    const handlePlaceOrder = async () => {
+        const user = await AsyncStorage.getItem('currentUser')
         let cunstomerInfo = null
-        await getUserInfo().then((res)=>{
-            cunstomerInfo = res
-        }).catch((err)=>{
-            
-        })
-        if(!user || !cunstomerInfo){
-            showTopMessage("User Does not login!","info")
-            setTimeout(()=>{
+        if(user){
+            cunstomerInfo = JSON.parse(user)
+        }
+        if (!cunstomerInfo) {
+            showTopMessage("User Does not login!", "info")
+            setTimeout(() => {
                 goToLoginScreen()
-            },5000)
+            }, 5000)
             return
         }
         const data = {
-            orderId:generateRandomId(),
-            vendorRef:item.vendorRef,
-            bookingStatus:"1",
-            customerRef:user.uid,
-            productRef:item.id,
-            customer:JSON.stringify(cunstomerInfo)
+            vendorRef: item.vendorRef,
+            bookingStatus: "1",
+            customerRef: cunstomerInfo._id,
+            productRef: item._id,
+            bookingDate: JSON.stringify(cunstomerInfo)
         }
-        Object.entries(data).map((item)=>{
-            if(!item[1]){
-                showTopMessage(`${item[0]} is data is missing!`,"info")
+        let error = false
+        Object.entries(data).map((item) => {
+            if (!item[1]) {
+                showTopMessage(`${item[0]} is data is missing!`, "info")
+                error = true
                 return
             }
         })
-        handleBokingApi(data).then((res)=>{
-            showTopMessage(res.message,"success")
-            setTimeout(()=>{
-                goToBookingScreen(item)
-            },5000)
+        if(error) return
+        await dispatch(bookingProductAction(data))
+        registerForPushNotificationAsync().then((token)=>{
+            const notificationData={
+                userRef:data.vendorRef,
+                token:token,
+                message:"Hi,Someone is booking in your property.Please update the status",
+                title:"New Booking Alert",
+                redirectLink:"ServiceBookingScreen"
+            }
+            dispatch(createNotificationAction(notificationData))
         }).catch((err)=>{
-            console.log(err)
-            showTopMessage("Error while booking.Please try after sometime","danger")
+            console.log("err===>",err)
         })
     }
 
@@ -96,15 +174,15 @@ export default function ServiceDetailScreen({ route, navigation }) {
                 {/* Body */}
                 <View style={styles.body_container}>
                     <View style={styles.about_container}>
-                        <Text style={styles.about}>{item && item.title && item.title}</Text>
+                        <Text style={styles.about}>{item && item.productTitle && item.productTitle}</Text>
                         {
                             createdAt && (
-                                <Text style={[styles.desc,{padding:6,fontSize:14,backgroundColor:colors.color_light_gray,textAlign:'center',borderRadius:20}]}>
-                                    Posted At : {timeFormate(createdAt)}
+                                <Text style={[styles.desc, { padding: 6, fontSize: 14, backgroundColor: colors.color_light_gray, textAlign: 'center', borderRadius: 20 }]}>
+                                    Posted At : {formatDate(createdAt)}
                                 </Text>
                             )
                         }
-                        <Text style={styles.desc}>{item && item.description && item.description}</Text>
+                        <Text style={styles.desc}>{metaData && metaData.description && metaData.description}</Text>
                     </View>
                 </View>
 
@@ -119,12 +197,12 @@ export default function ServiceDetailScreen({ route, navigation }) {
                                     />
                                     {
                                         propertyType && (
-                                           <Text style={[styles.text_content,{fontSize:14}]} >Property For : {propertyType}</Text> 
+                                            <Text style={[styles.text_content, { fontSize: 14,textAlign:'center' }]} >Property For : {propertyType}</Text>
                                         )
                                     }
                                     <Text style={styles.text_content}>{address.state && address.state}</Text>
                                     <Text style={styles.text_content}>{address.district && address.district}</Text>
-                                    <Text style={styles.text_content}>{address.localAddress && address.localAddress}</Text>
+                                    <Text style={styles.text_content}>{address.localAdd && address.localAdd}</Text>
                                     <Text style={styles.text_content}>{address.town && address.town}</Text>
                                     <TouchableOpacity onPress={goToPropertyLocation} style={{
                                         backgroundColor: colors.color_gray,
@@ -171,6 +249,34 @@ export default function ServiceDetailScreen({ route, navigation }) {
                             )
                         }
                     </View>
+                </View>
+                <View style={[styles.detail_container, { flexDirection: 'column', gap: 4 }]}>
+                    {
+                        availableItems && Array.isArray(availableItems) && availableItems.length > 0  && (
+                            <View style={[styles.detail,{width:"90%"}]}>
+                                <Image
+                                    source={Icons.info}
+                                    style={{ height: 24, width: 24 }}
+                                />
+                                <Text style={[styles.text_content, { fontSize: 12 }]}>Available Aminities</Text>
+                                <ItemList 
+                                   data={availableItems}
+                                   renderItem={({item,index})=>{
+                                    return(
+                                        <View style={{
+                                            display:"flex",
+                                            flexDirection:'row',
+                                            gap:8
+                                        }}>
+                                            <Text style={styles.text_content}>{index}.</Text>
+                                            <Text style={styles.text_content}>{item}</Text>
+                                        </View>
+                                    )
+                                   }}
+                                />
+                            </View>
+                        )
+                    }
                 </View>
 
                 <View style={[styles.detail_container, { flexDirection: 'column', gap: 4 }]}>
@@ -281,18 +387,23 @@ export default function ServiceDetailScreen({ route, navigation }) {
 
                     </View>
                 </View>
+                <View style={[styles.button_container,{marginBottom:20,justifyContent:'center',paddingBottom:10}]}>
+                    {/* <Button
+                        text={"Add To cart"}
+                        onPress={() => { }}
+                    /> */}
+                    <Button
+                        text={"Booking"}
+                        onPress={handlePlaceOrder}
+                    />
+                </View>
             </ScrollView>
-
-            <View style={styles.button_container}>
-                <Button
-                    text={"Add To cart"}
-                    onPress={() => {}}
-                />
-                <Button
-                    text={"Booking"}
-                    onPress={handlePlaceOrder}
-                />
-            </View>
+            {
+                bookingProductStatus === "started"||
+                createNotificationStatus === "started" && (
+                    <Loader />
+                )
+            }
         </View>
     );
 }
@@ -301,7 +412,8 @@ const styles = StyleSheet.create({
     out_container: { flex: 1 },
     container: {
         flexGrow: 1,
-        paddingHorizontal: 24,
+        paddingHorizontal: 1,
+        // marginBottom: 120
     },
     share_container: {
         flex: 1,
@@ -343,7 +455,7 @@ const styles = StyleSheet.create({
     },
     button_container: {
         flexDirection: "row",
-        marginBottom: 10,
+        // marginBottom: 10,
         marginHorizontal: 24,
         gap: 2
     },
@@ -353,11 +465,16 @@ const styles = StyleSheet.create({
     },
     about: {
         fontSize: 20,
+        textAlign:'center',
+        paddingVertical:2,
+        fontWeight:'bold',
+        color:colors.color_primary
         //fontFamily: "Mulish-Light",
     },
     desc: {
         fontSize: 14,
-        color: colors.color_primary
+        color: colors.color_primary,
+        textAlign: 'center'
     },
     detail_container: {
         flex: 1,

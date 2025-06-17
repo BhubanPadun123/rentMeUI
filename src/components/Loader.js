@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
-import { colors } from '../styles/Theme';
+import { colors, sizes } from '../styles/Theme';
 
 const Loader = () => {
 
@@ -27,12 +27,12 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 0,
         left: 0,
-        width,
-        height,
+        width:sizes.width,
+        height:sizes.height,
         backgroundColor: 'rgba(0, 0, 0, 0.2)',
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: 9999,
+        zIndex: 1000,
         ...Platform.select({
             android: {
                 elevation: 10,

@@ -6,7 +6,8 @@ import {
     ScrollView,
     Alert,
     ActivityIndicator,
-    Modal
+    Modal,
+    Platform
 } from "react-native";
 import Button from "../components/Button/Button";
 import React, { useState, useEffect, useRef } from "react";
@@ -36,75 +37,145 @@ import { paymentGatway } from "../APIs/paymentGateway";
 import RazorpayWeb from "../components/Payment";
 import { getUserInfo } from "../APIs/userApi";
 import { updateBooking } from "../APIs/booking";
-import {platformFeeTermAndConfition} from "../utils/utils"
+import { platformFeeTermAndConfition } from "../utils/utils"
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useSelector, useDispatch } from "react-redux"
+import {
+    getVendorProductPlaceBookingAction,
+    getOrderStatusAction,
+    cleanUpOrderStatusAction,
+    createNotificationAction
+} from "../Redux/action/product";
+import {
+    getCustomerOrderListAction,
+    paymentAction,
+    getPaymentDataAction,
+    cleanPaymentData
+} from "../Redux/action/customer";
+import PopoverModal from "../components/PopOver";
+import ItemList from "../components/ListItems";
+import * as Notifications from "expo-notifications"
+import * as Device from "expo-device"
 
 export default function ServiceBookingScreen({ route, navigation }) {
+    const dispatch = useDispatch()
     const { item } = route.params;
-    const serviceId = item.id;
     const scrollViewRef = useRef(null);
-    var userData = {}
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [bookingRef, setBookingRef] = useState([])
     const [product, setProduct] = useState([])
     const [openPayment, setOpenPayment] = useState(false)
-    const [userInfo,setUserInfo] = useState(null)
+    const [userInfo, setUserInfo] = useState(null)
+    const [openStatus, setOpenStatus] = useState(false)
+    const [orderList, setOrderList] = useState([])
+    const [findBookingCode, setfindBookingCode] = useState(null)
+    const [status, setStatus] = useState(null)
+    const [itemsInfo, setItemInfo] = useState(null)
+    const [notification,setNotification] = useState(null)
+    const [channel,setChannels] = useState(null)
 
-    const auth = getAuth();
-    const user = auth.currentUser;
+    const {
+        bookingListStatus,
+        bookingListError,
+        bookingListResponse,
+        orderStatus,
+        orderStatusData,
+        orderStatusError
+    } = useSelector((state) => state.product)
+    const {
+        customerOrderListError,
+        customerOrderListResponse,
+        customerOrderListStatus,
+        paymentStatus,
+        paymentStatusResponse,
+        paymentStatusError,
+
+        orderPaymentStatus,
+        orderPaymentError,
+        orderPaymentResponse
+    } = useSelector((state) => state.customer)
+
+    useEffect(()=>{
+        if (Platform.OS === 'android') {
+            Notifications.getNotificationChannelsAsync().then(value => setChannels(value ?? []));
+          }
+        const listerner = Notifications.addNotificationReceivedListener((notification)=>{
+            setNotification(notification)
+        })
+        const responseListener = Notifications.addNotificationReceivedListener((response)=>{
+            console.log(response)
+        })
+
+        return()=>{
+            listerner.remove()
+            responseListener.remove()
+        }
+    },[])
+
+    async function registerForPushNotificationAsync(){
+        if(!Device.isDevice){
+            alert("Must use physical device for push Notification")
+        }
+        var {status} = await Notifications.getPermissionsAsync()
+        let finalStatus = status
+        if(status && status !== "granted"){
+            const {status} = await Notifications.requestPermissionsAsync()
+            finalStatus = status
+        }
+        if(finalStatus !== "granted"){
+            alert("Permission not granted!")
+            return
+        }
+        const token = await Notifications.getExpoPushTokenAsync()
+        return token.data
+    }
 
     useEffect(() => {
-        const fetchCustomerBookingData = async () => {
-            if (!user) return
-            setLoading(true)
-            getCustomerBookingList(user.uid).then((res) => {
-                if (Array.isArray(res) && res.length > 0) {
-                    console.log(res)
-                    const ids = []
-                    res.map((item) => {
-                        if (item.productRef) {
-                            !ids.includes(item.productRef) && ids.push(item.productRef)
-                        }
-                    })
-                    if (ids.length > 0) {
-                        getProductByIds(ids).then((result) => {
-                            setTimeout(() => {
-                                setLoading(false)
-                                setBookingRef(res)
-                                setProduct(result)
-                            }, 5000)
-                        }).catch((error) => {
-                            console.log(error)
-                            showTopMessage("Error while fetching the user booking list", "danger")
-                            setTimeout(() => {
-                                setLoading(false)
-                            }, 5000)
-                        })
-                    }
-                }
-            }).catch((err) => {
-                console.log(err)
-                showTopMessage("Error while fetching the user booking list", "danger")
-                setTimeout(() => {
-                    setLoading(false)
-                }, 5000)
-            })
+        if (orderStatus === "success") {
+            setOpenStatus(true)
+            setLoading(false)
         }
-        fetchCustomerBookingData()
+        if (customerOrderListStatus === "success") {
+            setOrderList(customerOrderListResponse)
+            setLoading(false)
+        }
+    }, [orderStatus, customerOrderListStatus])
+
+    useEffect(() => {
         fetUserInfo()
     }, [])
 
-    const fetUserInfo=()=>{
+    useEffect(() => {
+        fetchProduct()
+    }, [userInfo])
+    useEffect(() => {
+        if (bookingListStatus === "success") {
+            setProduct(bookingListResponse)
+            setLoading(false)
+        }
+    }, [bookingListStatus])
+    
+    useEffect(()=>{
+        if(paymentStatus === "success" && itemsInfo){
+            dispatch(getPaymentDataAction(itemsInfo._id))
+            fetchProduct()
+        }
+    },[paymentStatus])
+
+    const fetchProduct = () => {
+        if (!userInfo) return;
+        dispatch(getVendorProductPlaceBookingAction(userInfo._id))
+        dispatch(getCustomerOrderListAction(userInfo._id))
+    }
+
+    const fetUserInfo = async () => {
         setLoading(true)
-        getUserInfo().then((res)=>{
-            console.log(res)
-            setUserInfo(res)
+        const user = await AsyncStorage.getItem('currentUser')
+        if (user) {
+            setUserInfo(JSON.parse(user))
             setLoading(false)
-        }).catch((err)=>{
-            console.log(err)
-            setLoading(false)
-            setUserInfo(null)
-        })
+        }
     }
 
 
@@ -113,14 +184,33 @@ export default function ServiceBookingScreen({ route, navigation }) {
     };
 
     const goToLoginScreen = () => {
-        navigation.navigate("LoginScreen");
+        navigation.navigate("LoginScreen")
+    };
+    const goToHome = () => {
+        navigation.navigate("HomeScreen")
     };
 
-    const RenderProducts = ({ itemsInfo,identifier }) => {
-        const metaData = itemsInfo && itemsInfo.hasOwnProperty('metaData') ? JSON.parse(itemsInfo.metaData) : null;
+    const handleGetOrderStatus = ({
+        findBookingCode,
+        status,
+        itemsInfo
+    }) => {
+        setStatus(status)
+        setfindBookingCode(findBookingCode)
+        setOpenStatus(true)
+        setItemInfo(itemsInfo)
+        if(findBookingCode === "2" && itemsInfo){
+            dispatch(getPaymentDataAction(itemsInfo._id))
+        }
+    }
+
+    const RenderProducts = ({ itemsInfo, identifier }) => {
+        const findProdduct = product.length > 0 ? product.find((i) => i._id === itemsInfo.productRef) : null
+        const metaData = findProdduct && findProdduct.hasOwnProperty('metaData') ? JSON.parse(findProdduct.metaData) : null;
         const images = metaData && metaData.hasOwnProperty('images') ? JSON.parse(metaData.images) : []
-        const findBookingCode = itemsInfo && itemsInfo.id && bookingRef.length > 0 && bookingRef.find((item) => item.productRef === itemsInfo.id)
-        const status = findBookingCode && bookingStatus(findBookingCode.bookingStatus)
+        const findBookingCode = itemsInfo && itemsInfo.hasOwnProperty('bookingStatus') ? itemsInfo.bookingStatus : null
+        const status = findBookingCode && bookingStatus(findBookingCode)
+        if(!findProdduct) return null
         return (
             <View style={styles.header_container} key={identifier}>
                 <ImageSlider
@@ -128,7 +218,7 @@ export default function ServiceBookingScreen({ route, navigation }) {
                 />
                 <View>
                     <Text style={[styles.title, { textAlign: "center", color: colors.color_primary }]}>
-                        {itemsInfo?.title || "Booking Summary"}
+                        {itemsInfo?.productTitle || "Booking Summary"}
                     </Text>
 
                     <View
@@ -139,61 +229,15 @@ export default function ServiceBookingScreen({ route, navigation }) {
                             marginVertical: 8,
                         }}
                     />
-                    <Text style={[styles.desc, { color: colors.color_secondary }]}>
-                        Current Status: <Text style={{ fontWeight: 'bold' }}>{status}</Text>
-                    </Text>
-
-                    {
-                        findBookingCode && findBookingCode.bookingStatus === "2" && (
-                            <>
-                                <Text style={[styles.desc, { color: colors.color_secondary, marginVertical: 8 }]}>
-                                    To confirm your booking, please proceed with the payment.
-                                </Text>
-                                <Text style={[styles.desc,{color:colors.color_secondary,fontSize:18,fontWeight:'bold'}]}>Term & Condition</Text>
-                                <Text style={[styles.calendar_container,{color:colors.color_secondary}]}>{platformFeeTermAndConfition}</Text>
-                                <Button
-                                    text={"Pay Now Rs:100"}
-                                    onPress={() => {
-                                        if(!userInfo || !user) return
-                                        const userData = {
-                                            name:userInfo.firstName+" "+userInfo.lastName,
-                                            email:user.email,
-                                            profileUrl:user.photoURL,
-                                            phone:userInfo.phoneNumber,
-                                            productId:itemsInfo.id,
-                                            orderId:findBookingCode.orderId
-                                        }
-                                        setOpenPayment(true)
-                                        setUserInfo(userData)
-                                    }}
-                                />
-                            </>
-                        )
-                    }
-                </View>
-                <Modal visible={openPayment} animationType='slide' >
-                    <RazorpayWeb
-                        amount={10000}
-                        onPaymentSuccess={(e) => {
-                            const orderId = findBookingCode.orderId
-                            const status = "4"
-                            updateBooking(orderId,status,e.razorpay_payment_id).then((res)=>{
-                                setOpenPayment(false),
-                                showTopMessage("Payment Completed successfully!","success")
-                            })
-                        }}
-                        onPaymentFailed={(e)=>{
-                            setOpenPayment(false)
-                            if(e.status === "dismissed"){
-                                showTopMessage(e.message,"info")
-                            }
-                            if(e.status === "failed"){
-                                showTopMessage(e.description,"danger")
-                            }
-                        }}
-                        customerData={userInfo}
+                    <Button
+                        text={"Check Status"}
+                        onPress={() => handleGetOrderStatus({
+                            findBookingCode,
+                            status,
+                            itemsInfo
+                        })}
                     />
-                </Modal>
+                </View>
             </View>
         )
     }
@@ -211,18 +255,149 @@ export default function ServiceBookingScreen({ route, navigation }) {
                 }}
             >
                 {
-                    product && product.length > 0 &&
-                    product.map((item, index) => (
+                    orderList && orderList.length > 0 ?
+                    orderList.map((item, index) => (
                         <RenderProducts
                             itemsInfo={item}
                             key={index}
-                            identifier = {`${item.title}+${index}`}
+                            identifier={`${item._id}+${index}`}
                         />
-                    ))
+                    )) : orderList.length === 0 && (
+                        <View style={{
+                            height:"100%",
+                            justifyContent:'center',
+                            alignItems:'center',
+                            marginTop:50,
+                            gap:30
+                        }}>
+                            <Text style={[styles.about,{color:colors.color_secondary,fontWeight:'bold'}]}>
+                                Order Booking List Empty!
+                            </Text>
+                            <Button
+                               text={"Click Hero To Select Property"}
+                               onPress={goToHome}
+                            />
+                        </View>
+                    )
                 }
             </ScrollView>
+            <PopoverModal
+                title={"Property Booking Status"}
+                visible={openStatus}
+                children={
+                    <View style={{ maxHeight: 400 }}>
+                        <Text style={[styles.subTitle, { textAlign: 'center' }]}>Booking Current Status: {
+                            status && status}</Text>
+                        {
+                            findBookingCode && findBookingCode === "2" && (
+                                <>
+                                    <Text style={[styles.desc, { color: colors.color_secondary }]}>
+                                        To ensure the smooth operation, maintenance, and continuous improvement of our platform, we charge a small platform fee on each booking. This fee helps us cover essential services including:
+                                    </Text>
+                                    <ItemList
+                                        data={
+                                            [
+                                                "Secure payment processing",
+                                                "24/7 customer support",
+                                                "Listing verification and moderation",
+                                                "Regular platform updates and enhancements",
+                                                "Hosting and infrastructure costs"
+                                            ]
+                                        }
+                                        renderItem={({ item, index }) => {
+                                            return (
+                                                <View style={{
+                                                    display: "flex",
+                                                    flexDirection: 'row',
+                                                    gap: 4
+                                                }} key={index}>
+                                                    <Text style={[styles.desc, { color: colors.color_secondary }]}>{index}.</Text>
+                                                    <Text style={[styles.desc, { color: colors.color_secondary }]}>{item}</Text>
+                                                </View>
+                                            )
+                                        }}
+                                    />
+                                    <Text style={[styles.desc, { color: colors.color_secondary }]}>
+                                        Your contribution through this fee helps us create a safe, seamless, and efficient experience for both renters and owners.
+                                    </Text>
+                                </>
+                            )
+                        }
+                        {
+                            findBookingCode && findBookingCode === "2" && (
+                                <Button
+                                    text={"Pay Now Rs. 100"}
+                                    onPress={() => {
+                                        setOpenPayment(true)
+                                    }}
+                                />
+                            )
+                        }
+                    </View>
+                }
+                onClose={() => {
+                    setOpenStatus(false)
+                    dispatch(cleanUpOrderStatusAction())
+                    setOpenPayment(false)
+                }}
+            />
             {
-                loading && (
+                itemsInfo && userInfo && openPayment && (
+                    <Modal visible={openPayment} animationType='slide' >
+                        <RazorpayWeb
+                            amount={10000}
+                            onPaymentSuccess={(e) => {
+                                const data = {
+                                    orderRef: itemsInfo._id,
+                                    customerRef: itemsInfo.customerRef,
+                                    productRef: itemsInfo.productRef,
+                                    paymentId: e.razorpay_payment_id,
+                                    paymentStatus: "success",
+                                    numberOfAttep: 1
+                                }
+                                showTopMessage("Payment successfull","success")
+                                dispatch(paymentAction(data))
+                                setOpenPayment(false)
+                                registerForPushNotificationAsync().then((token)=>{
+                                    const notificationData={
+                                        userRef:itemsInfo.vendorRef,
+                                        token:token,
+                                        message:"Platform payment done successfully!",
+                                        title:"Platform Payment Alert",
+                                        redirectLink:""
+                                    }
+                                    dispatch(createNotificationAction(notificationData))
+                                }).catch((err)=>{
+                                    console.log("err===>",err)
+                                })
+                            }}
+                            onPaymentFailed={(e) => {
+                                setOpenPayment(false)
+                                if (e.status === "dismissed") {
+                                    showTopMessage(e.message, "info")
+                                }
+                                if (e.status === "failed") {
+                                    showTopMessage(e.description || e.error.description, "danger")
+                                }
+                            }}
+                            customerData={{
+                                name: userInfo.userName,
+                                email: userInfo.userEmail,
+                                phone: userInfo.userContactNumber,
+                                productId: itemsInfo.productRef,
+                                orderId: itemsInfo._id
+                            }}
+                        />
+                    </Modal>
+                )
+            }
+            {
+                (
+                    loading ||
+                    bookingListStatus === "started" ||
+                    customerOrderListStatus === "started"
+                    // orderStatus === "started"
+                ) && (
                     <Loader />
                 )
             }
@@ -231,11 +406,12 @@ export default function ServiceBookingScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-    out_container: { flex: 1,marginBottom:100 },
+    out_container: { flex: 1 },
     container: {
         flexGrow: 1,
-        marginTop: 48,
+        // marginTop: 4,
         paddingHorizontal: 24,
+        marginBottom: 20
     },
     header_container: {
         flexDirection: "column",

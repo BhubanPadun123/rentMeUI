@@ -15,7 +15,6 @@ const windowWidth = Dimensions.get("window").width;
 const ProductCart = ({ category, isSelected, onPress }) => {
     const metaData = category.hasOwnProperty('metaData') ? JSON.parse(category.metaData) : null
     const images = metaData && metaData.hasOwnProperty('images') ? JSON.parse(metaData.images) : null
-
     return (
         <TouchableOpacity
             style={[styles.button, isSelected ? styles.selectedButton : null]}
@@ -42,7 +41,7 @@ const ProductCart = ({ category, isSelected, onPress }) => {
                     <Text style={[
                         styles.text,
                         isSelected ? styles.selectedText : null]}>
-                        {category.title}
+                        {category.productTitle}
                     </Text>
                     <View
                         style={{
@@ -52,7 +51,7 @@ const ProductCart = ({ category, isSelected, onPress }) => {
                         }}
                     />
                     {
-                        category && category.description && category.description && (
+                        metaData && metaData.description && metaData.description && (
                             <Text style={{
                                 // marginTop:4,
                                 fontSize:12,
@@ -62,13 +61,13 @@ const ProductCart = ({ category, isSelected, onPress }) => {
                                 borderRadius:10
                             }}>
                                 {
-                                    category && category.description && category.description
+                                    metaData && metaData.description && metaData.description
                                 }
                             </Text>
                         )
                     }
                     {
-                        category && category.town && category.town && (
+                        metaData && metaData.town && metaData.town && (
                             <Text style={{
                                 // marginTop:4,
                                 fontSize:14,
@@ -78,7 +77,7 @@ const ProductCart = ({ category, isSelected, onPress }) => {
                                 borderRadius:10
                             }}> Town:
                                 {
-                                    category && category.town && category.town
+                                    metaData && metaData.town && metaData.town
                                 }
                             </Text>
                         )

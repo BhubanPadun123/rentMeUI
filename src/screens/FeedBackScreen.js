@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, Dimensions, FlatList, Image, SafeAreaView } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Dimensions, FlatList, Image, SafeAreaView, Platform } from "react-native";
 import InputBar from "../components/InputBar";
 import { colors, sizes } from "../styles/Theme";
 import Loader from "../components/Loader";
@@ -14,63 +14,147 @@ import DropdownSelect from "../components/SingleSelect";
 import Button from "../components/Button/Button";
 import { bookingStatus } from "../utils/utils"
 import { generateRandomId } from "../utils/RandomId";
+import { useSelector, useDispatch } from "react-redux";
+import {
+    getVendorProductPlaceBookingAction,
+    getVendorOrderListAction,
+    updateOrderStatusAction,
+    cleanUpOrderStatusAction,
+    getSingleProductAction,
+    clearSingleProductClear,
+    clearUpdateOrderStatus,
+    createNotificationAction
+} from "../Redux/action/product";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import PopoverModal from "../components/PopOver";
+import * as Notifications from "expo-notifications"
+import * as Device from "expo-device"
 
 const { height, width } = Dimensions.get('window')
 
 export default function FeedBackScreen({ navigation }) {
+    const dispatch = useDispatch()
     const [user, setUser] = React.useState(null)
     const [loading, setLoading] = useState(true)
-    const [orderRef, setOrderRef] = useState([])
     const [product, setProduct] = useState([])
-    const [customer, setCustomer] = useState([])
+    const [openPopOver, setPopover] = useState(false)
+    const [orderList, setOrderList] = useState([])
+    const [selectedProduct, setSelectProduct] = useState(null)
     const [status, setStatus] = useState(null)
+    const [tempStatus, setTempStatus] = useState("")
+    const [selectPId, setSelectedPId] = useState(null)
+    const [notification, setNotification] = useState(null)
+    const [channel, setChannels] = useState(null)
 
-    function fetchUserData() {
-        getUser().then((res) => {
-            setUser(res)
-            if (res.uid) {
-                getVendorProducts(res.uid).then((result) => {
-                    setOrderRef(result)
-                    if (result && result.length > 0 && Array.isArray(result)) {
-                        const productIds = []
-                        const customerIds = []
-                        result.map((item) => {
-                            productIds.push(item.productRef)
-                            customerIds.push(item.customerRef)
-                        })
-                        if (productIds.length > 0) {
-                            getProductByIds(productIds).then((pro) => {
-                                setProduct(pro)
-                                setLoading(false)
-                            }).catch((err) => {
-                                console.log(err)
-                                showTopMessage("Not able to fetch the product list.please refresh the app", "info")
-                                setLoading(false)
-                            })
-                        }
-                        // if(customerIds.length > 0){
-                        //     setLoading(true)
-                        //     getUserListForProductOrder(customerIds).then((result)=>{
-                        //         console.log(result)
-                        //         setCustomer(result)
-                        //         setLoading(false)
-                        //     }).catch((error)=>{
-                        //         console.log(error)
-                        //         showTopMessage("Not able to fetch the customer list.please refresh the app","info")
-                        //         setLoading(false)
-                        //     })
-                        // }
-                    }
-                }).catch((err) => {
-                    showTopMessage("Not able to fetch the product list.please refresh the app", "info")
-                    setLoading(false)
-                })
-            }
-        }).catch((err) => {
-            showTopMessage("User does not login yet!", "info")
-            setLoading(false)
-            gotToLogin()
+    const {
+        bookingListStatus,
+        bookingListResponse,
+        bookingListError,
+        orderListError,
+        orderListData,
+        orderListStatus,
+        updateOrderStatus,
+        updateOrderStatusResponse,
+        updateOrderStatusError,
+
+        singleProductError,
+        singleProductResponse,
+        singleProductStatus,
+
+        feedBackBookingStatus,
+        feedBackBookingError,
+        feedBackBookingResponse
+
+    } = useSelector((state) => state.product)
+
+    useEffect(() => {
+        if (Platform.OS === 'android') {
+            Notifications.getNotificationChannelsAsync().then(value => setChannels(value ?? []));
+        }
+        const listerner = Notifications.addNotificationReceivedListener((notification) => {
+            setNotification(notification)
         })
+        const responseListener = Notifications.addNotificationReceivedListener((response) => {
+            console.log(response)
+        })
+
+        return () => {
+            listerner.remove()
+            responseListener.remove()
+        }
+    }, [])
+
+    async function registerForPushNotificationAsync() {
+        if (!Device.isDevice) {
+            alert("Must use physical device for push Notification")
+        }
+        var { status } = await Notifications.getPermissionsAsync()
+        let finalStatus = status
+        if (status && status !== "granted") {
+            const { status } = await Notifications.requestPermissionsAsync()
+            finalStatus = status
+        }
+        if (finalStatus !== "granted") {
+            alert("Permission not granted!")
+            return
+        }
+        const token = await Notifications.getExpoPushTokenAsync()
+        return token.data
+    }
+
+    useEffect(() => {
+        if (bookingListStatus === "started" || orderListStatus === "started") {
+            setLoading(true)
+        }
+        if (bookingListStatus === "success") {
+            setProduct(bookingListResponse)
+            setTimeout(() => {
+                setLoading(false)
+            }, 5000)
+        }
+        if (orderListStatus === "success") {
+            setOrderList(orderListData)
+            setTimeout(() => {
+                setLoading(false)
+            }, 5000)
+        }
+        if (feedBackBookingStatus === "started") {
+            setLoading(true)
+        }
+        if (feedBackBookingStatus === "success") {
+            showTopMessage("Status updated successfully!", "success")
+            dispatch(cleanUpOrderStatusAction())
+            setTimeout(() => {
+                setLoading(false)
+                setPopover(false)
+            }, 5000)
+        }
+    }, [
+        bookingListStatus,
+        orderListStatus,
+        feedBackBookingStatus
+    ])
+    useEffect(() => {
+        if (updateOrderStatus === "success") {
+            showTopMessage(updateOrderStatusResponse.message ? updateOrderStatusResponse.message : "Status updated successfully!", "success")
+            setLoading(false)
+        }
+        if (updateOrderStatus === "started") {
+            setLoading(true)
+            fetchUserData()
+        }
+    }, [updateOrderStatus])
+
+    async function fetchUserData() {
+        const data = await AsyncStorage.getItem('currentUser')
+        if (data) {
+            const userInfo = JSON.parse(data)
+            setUser(userInfo)
+            await dispatch(getVendorProductPlaceBookingAction(userInfo._id))
+            await dispatch(getVendorOrderListAction(userInfo._id))
+        } else {
+            gotToLogin()
+        }
     }
 
     function gotToLogin() {
@@ -79,39 +163,87 @@ export default function FeedBackScreen({ navigation }) {
     React.useEffect(() => {
         fetchUserData()
     }, [])
-    const updateStatus = async (orderId, productRef) => {
-        const findAllOrder = await orderRef.filter((item) => item.productRef === productRef)
-        const statusCode = []
-        findAllOrder && findAllOrder.length > 0 && findAllOrder.map((i) => statusCode.push(i.bookingStatus))
-        if (statusCode.includes(status) && status == "2") {
-            showTopMessage("You are already confirmed order for other customer in this property", "info")
-            return
+    const updateStatus = async () => {
+        if (!status || !selectedProduct || !selectPId) return
+        if (singleProductStatus === "success" && singleProductResponse) {
+            if (singleProductResponse.hasOwnProperty('total')) {
+                const findOrder = orderList && orderList.find((i) => i._id === selectedProduct)
+                if (!findOrder) {
+                    showTopMessage("Error while selecting the property!,Property does not exist with us", "info")
+                    return
+                }
+                const total = Number(singleProductResponse.total)
+                if (total > 0 && findOrder.hasOwnProperty('bookingStatus') && findOrder.bookingStatus === "1") {
+                    const metaData = {
+                        ...singleProductResponse,
+                        total: total - 1
+                    }
+                    dispatch(updateOrderStatusAction(selectedProduct, status, selectPId, JSON.stringify(metaData)))
+                    registerForPushNotificationAsync().then((token) => {
+                        const notificationData = {
+                            userRef: findOrder.vendorRef,
+                            token: token,
+                            message: "Booking confirm by property owner",
+                            title: "Booking confirmation alert",
+                            redirectLink: "ServiceBookingScreen"
+                        }
+                        dispatch(createNotificationAction(notificationData))
+                    }).catch((err) => {
+                        console.log("err===>", err)
+                    })
+                } else {
+                    const metaData = {
+                        ...singleProductResponse,
+                        total: 0
+                    }
+                    dispatch(updateOrderStatusAction(selectedProduct, "3", selectPId, JSON.stringify(metaData)))
+                    registerForPushNotificationAsync().then((token) => {
+                        const notificationData = {
+                            userRef: findOrder.vendorRef,
+                            token: token,
+                            message: "Booking rejected by property owner",
+                            title: "Booking Rejection Alert",
+                            redirectLink: "ServiceBookingScreen"
+                        }
+                        dispatch(createNotificationAction(notificationData))
+                    }).catch((err) => {
+                        console.log("err===>", err)
+                    })
+                }
+            }
+        } else {
+            showTopMessage("Error while update", "danger")
         }
-        setLoading(true)
-        updateBooking(orderId, status).then((res) => {
-            showTopMessage(res.message, "success")
-            fetchUserData()
-        }).catch((err) => {
-            setLoading(false)
-            showTopMessage(err.message ? err.message : "Error while update the order status", "danger")
-        })
+    }
+    const onSelectProdct = (orderId, productId) => {
+        setSelectProduct(orderId)
+        setPopover(true)
+        if (productId) {
+            dispatch(getSingleProductAction(productId))
+            setSelectedPId(productId)
+        }
     }
     const RenderProduct = ({ item }) => {
-        const metaData = item && item.hasOwnProperty('metaData') ? JSON.parse(item.metaData) : null
+        const productRef = item && item.hasOwnProperty('productRef') ? item.productRef : null
+        const customer = item && item.hasOwnProperty('bookingDate') ? JSON.parse(item.bookingDate) : null
+        const findProduct = product && product.length > 0 && product.find(i => i._id === productRef)
+        const metaData = findProduct && findProduct.hasOwnProperty('metaData') ? JSON.parse(findProduct.metaData) : null
         const images = metaData && metaData.hasOwnProperty('images') ? JSON.parse(metaData.images) : []
-        const id = item && item.hasOwnProperty('id') ? item.id : null
-        const findCustomer = orderRef && orderRef.length > 0 && orderRef.find((item) => item.productRef === id)
-        const customerInfo = findCustomer && findCustomer.hasOwnProperty('customer') ? JSON.parse(findCustomer.customer) : null
-        const orderStatus = findCustomer && findCustomer.bookingStatus ? findCustomer.bookingStatus : null
-        const currentStaus = orderStatus ? bookingStatus(orderStatus) : null
+        const bookingStatusCode = item && item.hasOwnProperty('bookingStatus') ? item.bookingStatus : null
+        const customerMetaData = customer && customer.hasOwnProperty('metaData') ? JSON.parse(customer.metaData) : null
+        const status = bookingStatus(bookingStatusCode)
+        if (!findProduct) return null
         return (
-            <View key={customerInfo.orderRef + generateRandomId()} style={{
-                width: sizes.width - 20,
+            <View key={generateRandomId()} style={{
+                // width: "100%",
                 borderRadius: 10,
                 borderColor: colors.color_primary,
                 borderWidth: 2,
                 overflow: 'hidden',
-                marginVertical: 8
+                marginLeft: 8,
+                marginRight: 8,
+                marginVertical: 4,
+                justifyContent: 'center'
             }}>
                 <ImageSlider
                     images={images}
@@ -121,72 +253,57 @@ export default function FeedBackScreen({ navigation }) {
                     fontSize: 18,
                     fontWeight: 'bold',
                     textAlign: 'center'
-                }}>{item.title}</Text>
+                }}>{findProduct.productTitle}</Text>
+                {
+                    status && (
+                        <Text style={{
+                            color: colors.color_primary,
+                            fontSize: 18,
+                            fontWeight: 'bold',
+                            textAlign: 'center'
+                        }}>Current Status: {status}</Text>
+                    )
+                }
                 <View
                     style={{
-                        width: "100%",
                         height: 1,
+                        width: "100%",
                         backgroundColor: colors.color_secondary
                     }}
                 />
-                <Text style={{
-                    textAlign: 'center',
-                    fontSize: 16,
-                    color: colors.color_secondary,
-                    backgroundColor: colors.color_light_gray,
-                    marginHorizontal: 4,
-                    borderRadius: 4
-                }}>Current Order status:{currentStaus}</Text>
-                <View style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}>
-                    <Text style={{
-                        textAlign: 'center',
-                        fontSize: 12,
-                        color: colors.color_secondary
-                    }}>Customer Info</Text>
-                    <Image
-                        source={Icons.info}
-                        style={{
-                            height: 20,
-                            width: 20
-                        }}
-                    />
-                </View>
-                <View style={[styles.textContainer]}>
-                    <Text style={[styles.text]}>Customer Name : {customerInfo.hasOwnProperty('firstName') && customerInfo.hasOwnProperty('lastName') && `${customerInfo.firstName} ${customerInfo.lastName}`}</Text>
-                    <Text style={[styles.text]}>Phone Number : {customerInfo.hasOwnProperty('phoneNumber') && customerInfo.phoneNumber}</Text>
-                    <Text style={styles.text} >Address Details : {
-                        customerInfo.hasOwnProperty('state') &&
-                        customerInfo.hasOwnProperty('district') &&
-                        customerInfo.hasOwnProperty('town') &&
-                        customerInfo.hasOwnProperty('pinCode') &&
-                        customerInfo.hasOwnProperty('localAddress') &&
-                        `${customerInfo.state},${customerInfo.district},${customerInfo.pinCode},${customerInfo.town},${customerInfo.localAddress}`
-                    }</Text>
-                </View>
                 {
-                    orderStatus != "4" && (
-                        <View style={styles.textContainer}>
-                            <DropdownSelect
-                                options={[
-                                    { value: '2', label: "Booking Confirm" },
-                                    { value: '3', label: "Booking Denial" }
-                                ]}
-                                placeholder="Select Option"
-                                selectedValue={status}
-                                onValueChange={(e) => {
-                                    setStatus(e)
-                                }}
-                            />
+                    customer && (
+                        <View style={{
+                            backgroundColor: colors.color_light_gray,
+                            paddingHorizontal: 4
+                        }}>
+                            <Text style={[styles.text, { fontSize: 18, textAlign: 'left' }]}>Customer Bio-Data</Text>
+                            <Text style={[styles.text, { textAlign: 'left' }]}>Name:- {customer.userName && customer.userName}</Text>
+                            <Text style={[styles.text, { textAlign: 'left' }]}>Phone Number:- {customer.userContactNumber && customer.userContactNumber}</Text>
+                            <Text style={[styles.text, { textAlign: 'left' }]}>Email Address:- {customer.userEmail && customer.userEmail}</Text>
+                            {
+                                customerMetaData && (
+                                    <Text style={[styles.text, { textAlign: 'left' }]}>
+                                        Customer Address:- {
+                                            customerMetaData.district && customerMetaData.localAddress && customerMetaData.pinCode && customerMetaData.state && customerMetaData.town ?
+                                                `${customerMetaData.state},${customerMetaData.district},${customerMetaData.pinCode},${customerMetaData.town},${customerMetaData.localAddress}` : null
+                                        }
+                                    </Text>
+                                )
+                            }
+                        </View>
+                    )
+                }
+                {
+                    bookingStatusCode && bookingStatusCode === "1" && (
+                        <View style={{
+                            width: "80%",
+                            padding: 8,
+                            marginLeft: 30
+                        }}>
                             <Button
-                                text={"Update"}
-                                onPress={() => {
-                                    if (!id) return
-                                    updateStatus(findCustomer.orderId, id)
-                                }}
+                                text={"Update Status"}
+                                onPress={() => onSelectProdct(item._id, findProduct._id)}
                             />
                         </View>
                     )
@@ -198,20 +315,85 @@ export default function FeedBackScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.container}>
             {
-                product && product.length > 0 &&
-                <FlatList
-                    horizontal={false}
-                    showsHorizontalScrollIndicator={false}
-                    snapToInterval={sizes.width}
-                    decelerationRate={'normal'}
-                    data={product}
-                    keyExtractor={(catagory) => catagory.id + generateRandomId()}
-                    renderItem={RenderProduct}
-                />
+                product && product.length > 0 && (
+                    <Text style={{
+                        textAlign: 'center',
+                        fontSize: 20,
+                        backgroundColor: colors.color_secondary,
+                        fontWeight: 'bold',
+                        paddingVertical: 20,
+                        color: colors.color_white
+                    }}>Make Sure,Please Confirm only one customer for each property!</Text>
+                )
             }
-
             {
-                loading && (
+                product && product.length > 0 ? (
+                    <FlatList
+                        horizontal={false}
+                        showsHorizontalScrollIndicator={false}
+                        // snapToInterval={sizes.width}
+                        decelerationRate={'normal'}
+                        data={orderList}
+                        keyExtractor={(catagory) => catagory._id + generateRandomId()}
+                        renderItem={RenderProduct}
+                    />
+                ) : (
+                    <View style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginTop: 50
+                    }}>
+                        <Text style={[styles.header_text, { textAlign: 'center', color: colors.color_secondary, fontWeight: 'bold' }]}>
+                            No One is booking your property yet!
+                        </Text>
+                    </View>
+                )
+            }
+            <PopoverModal
+                visible={openPopOver}
+                title={"Order Status Update"}
+                children={
+                    <View style={{
+                        maxHeight: 140,
+                        justifyContent: 'center',
+                        // alignItems:'center'
+                    }}>
+                        <DropdownSelect
+                            options={
+                                [
+                                    { value: "2", label: "Confirm" },
+                                    { value: '3', label: "Denial" }
+                                ]
+                            }
+                            placeholder="Select the confirmation status"
+                            onValueChange={(e) => {
+                                setStatus(e)
+                                if (e === "3") {
+                                    setTempStatus("Denial")
+                                } else {
+                                    setTempStatus("Confirm")
+                                }
+                            }}
+                            selectedValue={status}
+                        />
+                        <Button
+                            text={"UPDATE"}
+                            onPress={updateStatus}
+                        />
+                    </View>
+                }
+                onClose={() => {
+                    setPopover(false)
+                    setSelectProduct(null)
+                    setStatus("")
+                    dispatch(cleanUpOrderStatusAction())
+                    fetchUserData()
+                }}
+            />
+            {
+                (
+                    loading
+                ) && (
                     <Loader />
                 )
             }
@@ -221,10 +403,7 @@ export default function FeedBackScreen({ navigation }) {
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 48,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom:100,
+        flex: 1
     },
     header_text: {
         marginHorizontal: 24,

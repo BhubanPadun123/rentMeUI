@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Button from "../components/Button/Button";
 import InputBar from "../components/InputBar";
@@ -8,7 +8,7 @@ import { Formik } from "formik";
 import ErrorHandler, { showTopMessage } from "../utils/ErrorHandler";
 import { colors } from "../styles/Theme";
 import {useDispatch,useSelector} from "react-redux"
-import { userLoginAction } from "../Redux/action/auth";
+import { userLoginAction,cleanUpLogin } from "../Redux/action/auth";
 
 const initialFormValues = {
     usermail: "",
@@ -18,13 +18,33 @@ const initialFormValues = {
 
 const LoginScreen = ({ navigation }) => {
     const dispatch = useDispatch()
-    const [loading, setLoading] = useState(false);
+    const prevData = useRef()
+    const [loading, setLoading] = useState(false)
+    
 
     const {
         loginStatus,
         loginResponse,
         loginError
     } = useSelector((state)=>state.auth)
+
+    useEffect(()=>{
+        if(loginStatus === "success"){
+            showTopMessage("Login successfull!","success");
+            setLoading(false)
+            goToUserProfile()
+        }
+        if(loginStatus==="started"){
+            setLoading(true)
+        }
+        if(loginStatus === "failed"){
+            showTopMessage(typeof(loginError) === "string" ? loginError  : "Error while login","danger")
+            setLoading(false)
+        }
+        return ()=>{
+            dispatch(cleanUpLogin())
+        }
+    },[loginStatus])
     
     async function handleFormSubmit(formValues) {
         const data = {

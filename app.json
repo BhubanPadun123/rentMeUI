@@ -7,7 +7,7 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash.gif",
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
@@ -17,7 +17,7 @@
     "ios": {
       "supportsTablet": true,
       "splash": {
-        "image": "./assets/splash.png",
+        "image": "./assets/splash.gif",
         "resizeMode": "cover",
         "backgroundColor": "#ffffff"
       },
@@ -34,7 +34,8 @@
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE"
-      ]
+      ],
+      "package": "com.padun.homekartapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"

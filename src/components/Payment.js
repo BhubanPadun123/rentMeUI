@@ -2,12 +2,12 @@ import React from "react";
 import { WebView } from "react-native-webview";
 
 export default function RazorpayWeb({
-    amount = 10000,
-    onPaymentSuccess,
-    onPaymentFailed,
-    customerData,
+  amount = 10000,
+  onPaymentSuccess,
+  onPaymentFailed,
+  customerData,
 }) {
-    const htmlContent = `
+  const htmlContent = `
     <html>
       <head>
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -59,34 +59,34 @@ export default function RazorpayWeb({
     </html>
   `;
 
-    return (
-        <WebView
-            originWhitelist={['*']}
-            source={{ html: htmlContent }}
-            onMessage={(event) => {
-                try {
-                    const data = JSON.parse(event.nativeEvent.data);
-                    if (data.status === 'success') {
-                        onPaymentSuccess?.(data);
-                    } else {
-                        onPaymentFailed?.(data);
-                    }
-                } catch (err) {
-                    onPaymentFailed?.({ status: 'error', message: 'Invalid response from payment gateway', error: err });
-                }
-            }}
-            onError={(syntheticEvent) => {
-                const { nativeEvent } = syntheticEvent;
-                onPaymentFailed?.({ status: 'error', message: 'WebView error', error: nativeEvent });
-            }}
-            onHttpError={({ nativeEvent }) => {
-                onPaymentFailed?.({
-                    status: 'error',
-                    message: 'WebView HTTP error',
-                    statusCode: nativeEvent.statusCode,
-                    description: nativeEvent.description,
-                });
-            }}
-        />
-    );
+  return (
+    <WebView
+      originWhitelist={['*']}
+      source={{ html: htmlContent }}
+      onMessage={(event) => {
+        try {
+          const data = JSON.parse(event.nativeEvent.data);
+          if (data.status === 'success') {
+            onPaymentSuccess?.(data);
+          } else {
+            onPaymentFailed?.(data);
+          }
+        } catch (err) {
+          onPaymentFailed?.({ status: 'error', message: 'Invalid response from payment gateway', error: err });
+        }
+      }}
+      onError={(syntheticEvent) => {
+        const { nativeEvent } = syntheticEvent;
+        onPaymentFailed?.({ status: 'error', message: 'WebView error', error: nativeEvent });
+      }}
+      onHttpError={({ nativeEvent }) => {
+        onPaymentFailed?.({
+          status: 'error',
+          message: 'WebView HTTP error',
+          statusCode: nativeEvent.statusCode,
+          description: nativeEvent.description,
+        });
+      }}
+    />
+  );
 }

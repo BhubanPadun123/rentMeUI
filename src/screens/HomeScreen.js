@@ -1,5 +1,5 @@
 import { getAuth } from "firebase/auth";
-import React from "react";
+import React, { useCallback } from "react";
 import { useEffect, useState } from "react";
 import tabsImages from "../utils/TabsImages";
 import {
@@ -9,7 +9,8 @@ import {
     ScrollView,
     ActivityIndicator,
     ImageBackground,
-    FlatList
+    FlatList,
+    RefreshControl
 } from "react-native";
 import { colors, sizes } from "../styles/Theme";
 import SearchBar from "../components/SearchBar";
@@ -21,35 +22,37 @@ import {
     getUserInfo
 } from "../APIs/userApi"
 import Loader from "../components/Loader";
-import { getFirstProducts } from "../APIs/product";
-import { showTopMessage } from "../utils/ErrorHandler";
 import ProductCart from "../components/ProductCart";
+import { useDispatch, useSelector } from "react-redux"
+import { getAllProductAction } from "../Redux/action/product";
 
 
 export default function HomeScreen({ navigation }) {
+    const dispatch = useDispatch()
     const [userAuth, setUserAuth] = useState(null);
-    const [isReady, setIsReady] = useState(false);
+    const [isReady, setIsReady] = useState(true);
     const [userInfo, setUserInfo] = useState(null);
     const [product, setProduct] = useState([])
+    const [refreshing, setRefreshing] = useState(false);
+
+    const {
+        productListStatus,
+        productListError,
+        productListResponse
+    } = useSelector((state) => state.product)
 
     useEffect(() => {
-        getUserInfo().then((res) => {
-            setUserInfo(res)
-            fetchFirstProduct()
-        }).catch((err) => {
-            showTopMessage("Error app is down please restart after sometime!", "info")
-        })
-    }, []);
+        if (productListStatus === "success") {
+            setProduct(productListResponse)
+        }
+    }, [productListStatus])
+
+    useEffect(() => {
+        fetchFirstProduct()
+    }, [])
+
     function fetchFirstProduct() {
-        setIsReady(false)
-        getFirstProducts().then((res) => {
-            setProduct(res.data)
-            setTimeout(() => {
-                setIsReady(true)
-            }, 5000)
-        }).catch((err) => {
-            showTopMessage("Error while fetch the data.please re-start your application", "info")
-        })
+        dispatch(getAllProductAction(0, 10))
     }
 
     //NAVIGATION
@@ -76,7 +79,7 @@ export default function HomeScreen({ navigation }) {
         navigation.navigate("PropertyRegisterScreen")
     }
     const goToProductDatils = (category) => {
-        navigation.navigate("ServiceDetailScreen",{item:category})
+        navigation.navigate("ServiceDetailScreen", { item: category })
     };
 
     const RenderProduct = () => {
@@ -98,8 +101,19 @@ export default function HomeScreen({ navigation }) {
             </React.Fragment>
         )
     }
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchFirstProduct()
+        setTimeout(() => {
+            setRefreshing(false);
+        }, 2000);
+    }, []);
     return (
-        <ScrollView>
+        <ScrollView
+            refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+        >
             {isReady && (
                 <View style={styles.container}>
                     <View style={styles.top_container}>
@@ -144,9 +158,11 @@ export default function HomeScreen({ navigation }) {
                     </View>
                 </View>
             )}
-            {!isReady && (
-                <Loader />
-            )}
+            {(
+                !isReady || productListStatus === "started"
+            ) && (
+                    <Loader />
+                )}
         </ScrollView>
     );
 }

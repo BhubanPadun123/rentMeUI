@@ -7,12 +7,13 @@ import Icons from "../utils/Icons";
 import { showTopMessage } from "../utils/ErrorHandler";
 import {uploadImagesToCloudinary} from "../APIs/uploadImage"
 
-export default function ImagePickerBar({ value = [], onType, placeholder }) {
+export default function ImagePickerBar({ value = [], onType, placeholder,onUpload }) {
     const [loading, setLoading] = React.useState(false);
     const [images,setImages] = React.useState([])
 
     const pickImages = async () => {
         setLoading(true);
+        onUpload(true)
         try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (status !== "granted") {
@@ -35,6 +36,7 @@ export default function ImagePickerBar({ value = [], onType, placeholder }) {
                 onType(JSON.stringify(uploadedUrls))
                 setImages(uploadedUrls)
                 showTopMessage("uploaded all selected images","success")
+                onUpload(false)
             }
         } catch (error) {
             showTopMessage("Image select failed","danger")

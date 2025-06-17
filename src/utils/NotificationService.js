@@ -7,6 +7,7 @@ export function configureNotifications() {
             shouldShowAlert: true,
             shouldPlaySound: true,
             shouldSetBadge: true,
+            
         }),
     });
 

@@ -1,83 +1,121 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView } from "react-native";
+import React, { useEffect, useState } from "react";
+import {Keyboard, View, Text, StyleSheet, ScrollView, KeyboardAvoidingView ,Platform,TouchableWithoutFeedback} from "react-native";
 import Button from "../components/Button/Button";
 import InputBar from "../components/InputBar";
-import { getAuth, createUserWithEmailAndPassword,sendEmailVerification } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import app from "../../firebaseConfig";
 import { Formik } from "formik";
 import ErrorHandler, { showTopMessage } from "../utils/ErrorHandler";
 import { colors } from "../styles/Theme";
 import TermsAndConditions from "../components/TermAndCondition";
+import Dropdown from "../components/SingleSelect"
+import {useSelector,useDispatch} from "react-redux"
+import { userRegisterAction,clearUpregisterAction } from "../Redux/action/auth";
 
 const initialFormValues = {
     usermail: "",
     password: "",
-    passwordre: "",
+    cPassword: "",
+    userName: "",
+    userContactNumber: "",
+    userType: "",
 };
 
-export default function SignUpScreen() {
+export default function SignUpScreen({navigation}) {
+    const dispatch = useDispatch()
     const [loading, setLoading] = useState(false);
     const [isAggree, setAggree] = useState(false)
 
-    const auth = getAuth(app);
-    function verifyEmail(){
-        const currentUser = auth.currentUser
-        sendEmailVerification(currentUser).then((res)=>{
-            console.log(res)
-        }).catch((err)=>{
-            console.log(err)
-        })
-    }
-    function handleFormSubmit(formValues) {
-
-        setLoading(true);
-
-        if (formValues.password != formValues.passwordre) {
-            showTopMessage(
-                "Providing password is not same!",
-                "warning"
-            );
-            setLoading(false);
-        } else {
-            createUserWithEmailAndPassword(
-                auth,
-                formValues.usermail,
-                formValues.password
-            )
-                .then(
-                    (res) => {
-                        showTopMessage(" Register successfull!", "success");
-                        setLoading(false);
-                        verifyEmail()
-                    }
-                    //buradan home screene gitmeli veya go back
-                )
-                .catch((err) => {
-                    console.log(err)
-                    showTopMessage(ErrorHandler(err.code), "danger")
-                }
-                );
-
-            setLoading(false);
+    const {
+        signupError,
+        signupResponse,
+        signupStatus
+    } = useSelector((state)=> state.auth)
+    console.log(signupError)
+    useEffect(()=>{
+        if(signupStatus==="started"){
+            setLoading(true)
         }
+        if(signupStatus==="failed"){
+            setLoading(false)
+            showTopMessage(signupError.message ? signupError.message : "Error while signup","danger")
+        }
+        if(signupStatus==="success"){
+            setLoading(false)
+            showTopMessage("Signup successfull!","success")
+            setTimeout(()=>{
+                dispatch(clearUpregisterAction())
+                goToLogin()
+            },5000)
+        }
+        return ()=>{
+            dispatch(clearUpregisterAction())
+        }
+    },[signupStatus])
+
+    function goToLogin(){
+        navigation.navigate("LoginScreen")
     }
+
+    function handleFormSubmit(formValues) {
+        let userData = {
+            userName:formValues.userName,
+            userEmail:formValues.usermail,
+            userContactNumber:formValues.userContactNumber,
+            userType:formValues.userType,
+            password:formValues.password,
+        }
+        let error = null
+        Object.entries(userData).map((item)=>{
+            if(!item[1]){
+                showTopMessage(`${item[0]} field data is mandatory!`,"info")
+                error = true
+                return
+            }
+        })
+        if(error) return
+        if(userData.password != formValues.cPassword){
+            showTopMessage("password and confirm password not matching!","info")
+            return
+        }
+        userData={
+            ...userData,
+            isVerifyed:false
+        }
+        dispatch(userRegisterAction(userData))
+    }
+
 
     return (
         <KeyboardAvoidingView
             style={styles.container}
-        // behavior="padding"
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
         >
-            <ScrollView style={styles.container}>
-                <Text style={styles.text}>HomeKart Signup </Text>
-                {
-                    isAggree ? (
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <ScrollView
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <Text style={styles.text}>HomeKart Signup</Text>
+                    {isAggree ? (
                         <Formik
-                            initialValues={{ initialFormValues }}
+                            initialValues={initialFormValues} // ✅ fix incorrect use here
                             onSubmit={handleFormSubmit}
                         >
                             {({ values, handleChange, handleSubmit }) => (
                                 <>
                                     <View style={styles.input_container}>
+                                        <InputBar
+                                            onType={handleChange("userName")}
+                                            value={values.userName}
+                                            placeholder={"User Name"}
+                                        />
+                                        <InputBar
+                                            onType={handleChange("userContactNumber")}
+                                            value={values.userContactNumber}
+                                            placeholder={"Phone Number"}
+                                        />
                                         <InputBar
                                             onType={handleChange("usermail")}
                                             value={values.usermail}
@@ -90,10 +128,19 @@ export default function SignUpScreen() {
                                             isSecure
                                         />
                                         <InputBar
-                                            onType={handleChange("passwordre")}
-                                            value={values.passwordre}
+                                            onType={handleChange("cPassword")}
+                                            value={values.cPassword}
                                             placeholder={"Confirm Password"}
                                             isSecure
+                                        />
+                                        <Dropdown
+                                            placeholder="Select User Type"
+                                            options={[
+                                                { value: "owner", label: "Property Owner" },
+                                                { value: "customer", label: "Customer" },
+                                            ]}
+                                            onValueChange={handleChange("userType")}
+                                            selectedValue={values.userType}
                                         />
                                     </View>
                                     <View style={styles.button_container}>
@@ -107,14 +154,14 @@ export default function SignUpScreen() {
                             )}
                         </Formik>
                     ) : (
-                        <TermsAndConditions 
-                           onAccept={()=>{
-                            setAggree(true)
-                           }}
+                        <TermsAndConditions
+                            onAccept={() => {
+                                setAggree(true);
+                            }}
                         />
-                    )
-                }
-            </ScrollView>
+                    )}
+                </ScrollView>
+            </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
     );
 }
@@ -122,7 +169,7 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: 40
+        marginTop: 40,
     },
     text: {
         marginHorizontal: 24,
