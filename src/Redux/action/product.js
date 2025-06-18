@@ -403,3 +403,87 @@ export const getNotificationAction=(userRef)=>{
         }
     }
 }
+
+export const deleteNotification=(id)=>{
+    return async(dispatch)=>{
+        dispatch({
+            type:actionTypes.DELETE_NOTIFICATION,
+            payload:{}
+        })
+        const {
+            response,
+            error
+        } = await apiRequest('delete',`${apiPath.manage}/notification?id=${id}`)
+        if(response){
+            dispatch({
+                type:actionTypes.DELETE_NOTIFICATION_RESPONSE,
+                payload:response.data
+            })
+        }
+        if(error){
+            dispatch({
+                type:actionTypes.DELETE_NOTIFICATION_ERROR,
+                payload:error.message ? error.message : error
+            })
+        }
+    }
+}
+
+export const clearNotification=()=>{
+    return (dispatch)=>{
+        dispatch({
+            type:actionTypes.CLEAR_NOTIFICATION,
+            payload:{}
+        })
+    }
+}
+
+export const getEarning=()=>{
+    return async(dispatch)=>{
+        dispatch({
+            type:actionTypes.GET_EARNING,
+            payload:{}
+        })
+        const {
+            response,
+            error
+        } = await apiRequest('get',`${apiPath.customer}/payment`)
+        if(response){
+            dispatch({
+                type:actionTypes.GET_EARNING_RESPONSE,
+                payload:response.data
+            })
+        }
+        if(error){
+            dispatch({
+                type:actionTypes.GET_EARNING_ERROR,
+                payload:error.message ? error.message : error
+            })
+        }
+    }
+}
+
+export const getAllSpecifictProductAction=(town,type)=>{
+    return async (dispatch)=>{
+        dispatch({
+            type:actionTypes.GET_ALL_AREA_PRODUCT,
+            payload:{}
+        })
+        const {
+            response,
+            error
+        } = await apiRequest('get',`${apiPath.product}/area?town=${town}&type=${type}`)
+        if(response){
+            dispatch({
+                type:actionTypes.GET_ALL_AREA_PRODUCT_RESPONSE,
+                payload:response.data
+            })
+        }
+        if(error){
+            dispatch({
+                type:actionTypes.GET_ALL_AREA_PRODUCT_ERROR,
+                payload:error.message ? error.message : error
+            })
+        }
+    }
+}

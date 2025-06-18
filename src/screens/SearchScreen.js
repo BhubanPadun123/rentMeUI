@@ -2,20 +2,19 @@ import React, { useEffect, useState } from "react";
 import { View, FlatList, StyleSheet, ActivityIndicator } from "react-native";
 import CardMedium from "../components/CardMedium";
 import SearchBar from "../components/SearchBar";
-import { getDatabase, ref, child, get } from "firebase/database";
 import { colors, sizes } from "../styles/Theme";
-import { filterServicesByCategory } from "../utils/CategoryUtils";
-import categories from "../utils/Categories";
-import Category from "../components/Category";
 import { showTopMessage } from "../utils/ErrorHandler";
-import parseContentData from "../utils/ParseContentData";
 import userImages from "../utils/UserImageUtils"
 import { getFirstProducts } from "../APIs/product";
 import ProductCart from "../components/ProductCart";
 import Button from "../components/Button/Button";
-import { paymentGatway } from "../APIs/paymentGateway";
+import { useSelector,useDispatch } from "react-redux";
+import {
+    getAllSpecifictProductAction
+} from "../Redux/action/product.js"
 
 export default function SearchScreen({ navigation, route }) {
+    const dispatch = useDispatch()
     const [loading, setLoading] = useState(true);
     const [product, setProduct] = useState([])
     const [serviceList, setServiceList] = useState([]);
@@ -26,32 +25,33 @@ export default function SearchScreen({ navigation, route }) {
     const type = route.params?.type
     const placegolderName = SearchPlaceholderName(type)
 
-    console.log(placegolderName)
+    const {
+        areaProductStatus,
+        areaProductResponse,
+        areaProductError
+    } = useSelector((state)=> state.product)
 
-    function getFirstProduct() {
-        setLoading(true)
-        getFirstProducts().then((res) => {
+    useEffect(()=>{
+        if(areaProductStatus === "success" && areaProductResponse && Array.isArray(areaProductResponse) && areaProductResponse.length >0){
             setLoading(false)
-            setProduct(res.data)
-        }).catch((err) => {
-            setLoading(false)
-            showTopMessage("Error occured to get propetys!", "danger")
-        })
-    }
-    useEffect(() => {
-        if (!type) return
-        switch (type) {
-            case "product":
-                getFirstProduct();
-                break;
-            default:
-                return
+            setProduct(areaProductResponse)
         }
-    }, [type])
+    },[areaProductStatus])
+
+    useEffect(() => {
+        if (!category) return
+        if(category.hasOwnProperty('value')){
+            fetchProduct(category.value)
+        }
+    }, [category])
 
     const goToProductDatils = (category) => {
         navigation.navigate("ServiceDetailScreen",{item:category})
     };
+
+    function fetchProduct(name){
+        dispatch(getAllSpecifictProductAction("all",name))
+    }
 
     //Render to flatlist
     const renderService = ({ item }) => (
@@ -106,14 +106,14 @@ export default function SearchScreen({ navigation, route }) {
                 />
             ) : (
                 <View style={styles.container}>
-                    <View style={styles.search_container}>
+                    {/* <View style={styles.search_container}>
                         <SearchBar
                             onSearch={handleSearch}
                             placeholder_text={placegolderName ? placegolderName.toUpperCase() : ""}
                         />
-                    </View>
+                    </View> */}
                     {
-                        type && type === "product" && product.length > 0 && (
+                        areaProductStatus === "success" && product.length > 0 && (
                             <View style={styles.category_container}>
                                 <FlatList
                                     horizontal={false}
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     },
     category_container: {
         marginHorizontal: 4,
-        marginBottom:100
+        // marginBottom:100
     },
     list_container: {
         marginBottom: 32,

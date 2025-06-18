@@ -1,40 +1,16 @@
+export const serviceList =[
+    { value: "commercial", name: "Commercial Place" ,icon:"md-person",count:"1K+",image: require("../../assets/illustration/growth.png")},
+    { value: "PG_boy", name: "PG - Boy's",icon:"md-person",count:"1K+",image: require("../../assets/illustration/sport.png") },
+    { value: "PG_girl", name: "PG - Girld's",icon:"md-person",count:"1K+",image: require("../../assets/illustration/healthcare.png") },
+    { value: "PG", name: "PG for all",icon:"md-person",count:"1K+",image: require("../../assets/illustration/education.png") },
+    { value: "room_single", name: "Single Room",icon:"md-person",count:"1K+",image: require("../../assets/illustration/beauty.png") },
+    { value: 'room-girl', name: "Private room for Girl's",icon:"md-person",count:"1K+",image: require("../../assets/illustration/other.png") },
+    { value: 'room-boy', name: "Private room for Boy's",icon:"md-person",count:"1K+",image: require("../../assets/illustration/other.png") },
+    { value: "working", name: "Working profissional",icon:"md-person",count:"1K+" ,image: require("../../assets/illustration/other.png")},
+    { value: "all", name: "Room for all",icon:"md-person",count:"1K+" ,image: require("../../assets/illustration/other.png")}
+]
 const categories = [
-    {
-        name: "Indivisual Room",
-        icon: "md-person",
-        image: require("../../assets/illustration/growth.png"),
-        count: 240,
-    },
-    {
-        name: "Student Room",
-        icon: "md-fitness",
-        image: require("../../assets/illustration/sport.png"),
-        count: 200,
-    },
-    {
-        name: "Working Pro Room",
-        icon: "md-medical",
-        image: require("../../assets/illustration/healthcare.png"),
-        count: 150,
-    },
-    {
-        name: "Family Room",
-        icon: "md-school",
-        image: require("../../assets/illustration/education.png"),
-        count: 250,
-    },
-    {
-        name: "Store",
-        icon: "md-flower",
-        image: require("../../assets/illustration/beauty.png"),
-        count: 100,
-    },
-    {
-        name: "Commercial place",
-        icon: "md-apps-sharp",
-        image: require("../../assets/illustration/other.png"),
-        count: 100,
-    },
+    
 ];
 
 export default categories;

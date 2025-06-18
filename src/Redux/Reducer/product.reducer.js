@@ -56,7 +56,19 @@ const initialState = {
 
     getNotificationStatus:"",
     getNotificationResponse:[],
-    getNotificationError:null
+    getNotificationError:null,
+
+    getEarningStatus:"",
+    getEarningResponse:[],
+    getEarningError:null,
+
+    deleteNotificationStatus:"",
+    deleteNotificationResponse:[],
+    deleteNofiticationError:null,
+
+    areaProductStatus:"",
+    areaProductResponse:[],
+    areaProductError:null
 }
 
 export const ProductReducer = (state = initialState, action) => {
@@ -434,6 +446,92 @@ export const ProductReducer = (state = initialState, action) => {
                 getNotificationStatus:"failed",
                 getNotificationResponse:[],
                 getNotificationError:action.payload
+            }
+            return state;
+        case actionType.DELETE_NOTIFICATION:
+            state={
+                ...state,
+                deleteNofiticationError:null,
+                deleteNotificationResponse:[],
+                deleteNotificationStatus:"started"
+            }
+            return state;
+        case actionType.DELETE_NOTIFICATION_RESPONSE:
+            state={
+                ...state,
+                deleteNofiticationError:null,
+                deleteNotificationResponse:action.payload,
+                deleteNotificationStatus:"success"
+            }
+            return state;
+        case actionType.DELETE_NOTIFICATION_ERROR:
+            state={
+                ...state,
+                deleteNofiticationError:action.payload,
+                deleteNotificationResponse:[],
+                deleteNotificationStatus:"failed"
+            }
+            return state;
+        case actionType.CLEAR_NOTIFICATION:
+            state={
+                ...state,
+                deleteNofiticationError:null,
+                deleteNotificationResponse:[],
+                deleteNotificationStatus:"",
+                createNotificationError:"",
+                createNotificationResponse:[],
+                createNotificationStatus:"",
+                getNotificationError:null,
+                getNotificationResponse:[],
+                getNotificationStatus:""
+            }
+            return state;
+        case actionType.GET_EARNING:
+            state={
+                ...state,
+                getEarningStatus:"started",
+                getEarningResponse:[],
+                getEarningError:null
+            }
+            return state;
+        case actionType.GET_EARNING_RESPONSE:
+            state={
+                ...state,
+                getEarningStatus:"success",
+                getEarningResponse:action.payload,
+                getEarningError:null
+            }
+            return state;
+        case actionType.GET_EARNING_ERROR:
+            state={
+                ...state,
+                getEarningStatus:"failed",
+                getEarningResponse:[],
+                getEarningError:action.payload
+            }
+            return state;
+        case actionType.GET_ALL_AREA_PRODUCT:
+            state={
+                ...state,
+                areaProductStatus:"started",
+                areaProductResponse:[],
+                areaProductError:null
+            }
+            return state;
+        case actionType.GET_ALL_AREA_PRODUCT_RESPONSE:
+            state={
+                ...state,
+                areaProductStatus:"success",
+                areaProductResponse:action.payload,
+                areaProductError:null
+            }
+            return state;
+        case actionType.GET_ALL_AREA_PRODUCT_ERROR:
+            state={
+                ...state,
+                areaProductStatus:"failed",
+                areaProductResponse:[],
+                areaProductError:actionType.payload
             }
             return state;
         default:

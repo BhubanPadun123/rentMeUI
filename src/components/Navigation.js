@@ -17,6 +17,7 @@ import FeedBackScreen from "../screens/FeedBackScreen";
 import PropertyRegisterScreen from "../screens/PropertyRegisterScreen";
 import PropertyLocationScreen from "../screens/PropertyLocationScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import PlatformEarning from "../screens/Earning";
 
 import app from "../../firebaseConfig";
 import iconPref, { customTabButton } from "../utils/NavBarUtils";
@@ -89,6 +90,11 @@ function AuthStack() {
                 name="NotificationsScreen"
                 component={NotificationsScreen}
                 options={{ headerShown: true,title:"Notification" }}
+            />
+            <Stack.Screen
+                name="Earning"
+                component={PlatformEarning}
+                options={{ headerShown: true,title:"Earning Data" }}
             />
         </Stack.Navigator>
     );
@@ -163,6 +169,11 @@ function HomeStack() {
                 name="UpdateProductStock"
                 component={UpdateVendorStock}
                 options={{ headerShown: true,title:"Update Property" }}
+            />
+            <Stack.Screen
+                name="Earning"
+                component={PlatformEarning}
+                options={{ headerShown: true,title:"Earning Data" }}
             />
         </Stack.Navigator>
     );

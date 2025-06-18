@@ -22,7 +22,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from "../components/Loader";
 import { configureNotifications } from "../utils/NotificationService";
 import * as Notifications from 'expo-notifications';
-import * as Device from "expo-device"
 
 const imageList = [
     'https://picsum.photos/id/10/600/400',
@@ -91,9 +90,6 @@ export default function ServiceDetailScreen({ route, navigation }) {
     },[bookingProductStatus])
 
     async function registerForPushNotificationAsync(){
-        if(!Device.isDevice){
-            alert("Must use physical device for push Notification")
-        }
         var {status} = await Notifications.getPermissionsAsync()
         let finalStatus = status
         if(status && status !== "granted"){

@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { colors, sizes } from "../styles/Theme";
 import SearchBar from "../components/SearchBar";
-import categories from "../utils/Categories";
+import categories,{serviceList} from "../utils/Categories";
 import { CardCarousel } from "../components/CardCarousel";
 import Category from "../components/Category";
 import Icons from "../utils/Icons";
@@ -145,7 +145,7 @@ export default function HomeScreen({ navigation }) {
                         <Text style={styles.text}>Explore More</Text>
                         <View>
                             <CardCarousel
-                                list={categories}
+                                list={serviceList}
                                 onSelectCategory={handleCategorySelect}
                             />
                         </View>

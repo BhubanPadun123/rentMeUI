@@ -14,16 +14,39 @@ import { Feather } from "@expo/vector-icons";
 import parseContentData from "../utils/ParseContentData";
 import { showMessage } from "react-native-flash-message";
 import districtCoordinates from "../utils/MapScreenUtils";
+import { useDispatch,useSelector } from "react-redux";
+import { getAllSpecifictProductAction } from "../Redux/action/product";
+import Loader from "../components/Loader";
 
 export default function MapScreen({ navigation }) {
-    const [loading, setLoading] = useState(true);
+    const dispatch = useDispatch()
+    const [loading, setLoading] = useState(false);
+    const [locationDetail,setLocationDetail] = useState(null)
     const [serviceList, setServiceList] = useState([
         { id: 1, title: "Bhuban Padun", latitude: 28.6139, longitude: 77.2090, color: 'red' },
         { id: 2, title: "Temporary", latitude: 19.0760, longitude: 72.8777, color: 'green' },
         { id: 3, title: "Temporary", latitude: 12.9716, longitude: 77.5946, color: 'purple' },
         { id: 4, title: "Bhuban Padun Happy Home", latitude: 27.648712, longitude: 94.880699, color: 'yellow' }
     ]);
+    const [isAllOk,setIsAllOk] = useState(false)
     const [initialRegion, setInitialRegion] = useState(null);
+
+    const {
+        areaProductStatus,
+        areaProductResponse,
+        areaProductError
+    } = useSelector((state)=> state.product)
+
+    useEffect(()=>{
+        if(areaProductStatus === "success" && areaProductResponse && Array.isArray(areaProductResponse) && areaProductResponse.length > 0){
+            setServiceList(areaProductResponse)
+            setLoading(false)
+            setIsAllOk(true)
+        }
+        if(areaProductStatus === "started"){
+            setLoading(true)
+        }
+    },[areaProductStatus])
 
     useEffect(() => {
         async function getLocationAsync() {
@@ -34,42 +57,34 @@ export default function MapScreen({ navigation }) {
 
             let location = await Location.getCurrentPositionAsync({});
             const { latitude, longitude } = location.coords;
+            const address = await Location.reverseGeocodeAsync({latitude,longitude})
             setInitialRegion({
                 latitude,
                 longitude,
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
             });
+            if(address && address.length > 0){
+                setLocationDetail(address[0]);
+            }
         }
 
         getLocationAsync();
     }, []);
 
-    //get serviceList
-    useEffect(() => {
-        const dbRef = ref(getDatabase());
+    useEffect(()=>{
+        if(locationDetail){
+            fetchProductList()
+        }
+    },[locationDetail])
 
-        get(child(dbRef, "services"))
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    const serviceList = parseContentData(snapshot.val());
-                    setServiceList(serviceList);
-                } else {
-                    showMessage("Gösterecek veri yok", "info");
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    }, []);
-
-    const getCoordinatesForDistrict = (district) => {
-        return districtCoordinates[district] || { latitude: 0, longitude: 0 };
-    };
-
+    function fetchProductList(){
+        if(!locationDetail) return
+        console.log(locationDetail)
+        if(locationDetail.hasOwnProperty('city')){
+            dispatch( getAllSpecifictProductAction(locationDetail.city,"map"))
+        }
+    }
     //Navigate to detail
     const handleServiceSelect = (item) => {
         navigation.navigate("ServiceDetailScreen", { item });
@@ -159,6 +174,7 @@ const styles = StyleSheet.create({
         // //fontFamily: "Mulish-Medium",
         paddingBottom: 12,
         fontSize: 18,
+        color:"red"
     },
     callout_text: {
         // //fontFamily: "Mulish-Light",

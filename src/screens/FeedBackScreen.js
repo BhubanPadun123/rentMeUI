@@ -28,7 +28,6 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import PopoverModal from "../components/PopOver";
 import * as Notifications from "expo-notifications"
-import * as Device from "expo-device"
 
 const { height, width } = Dimensions.get('window')
 
@@ -85,9 +84,6 @@ export default function FeedBackScreen({ navigation }) {
     }, [])
 
     async function registerForPushNotificationAsync() {
-        if (!Device.isDevice) {
-            alert("Must use physical device for push Notification")
-        }
         var { status } = await Notifications.getPermissionsAsync()
         let finalStatus = status
         if (status && status !== "granted") {

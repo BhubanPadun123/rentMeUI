@@ -15,7 +15,11 @@ import CardAppointmentSmall from "../components/CardAppointmentSmall";
 import Loader from "../components/Loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSelector, useDispatch } from "react-redux";
-import { getNotificationAction } from "../Redux/action/product";
+import {
+    getNotificationAction,
+    deleteNotification,
+    clearNotification
+} from "../Redux/action/product";
 
 
 export default function NotificationsScreen({ navigation }) {
@@ -52,16 +56,18 @@ export default function NotificationsScreen({ navigation }) {
         navigation.navigate("LoginScreen");
     }
 
-    function goToLocation(path){
-        if(!path) return
+    function goToLocation(path,id){
+        if(!path || !id) return
+        dispatch(deleteNotification(id))
+        dispatch(clearNotification())
         navigation.navigate(path)
     }
 
     function RenderItem({ item }) {
         return (
             <TouchableOpacity style={styles.cartContainer} onPress={()=> {
-                if(item && item.hasOwnProperty('redirectLink')){
-                    goToLocation(item.redirectLink)
+                if(item && item.hasOwnProperty('redirectLink') && item._id){
+                    goToLocation(item.redirectLink,item._id)
                 }
             }}>
                 <Text style={{

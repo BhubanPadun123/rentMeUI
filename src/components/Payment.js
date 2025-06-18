@@ -18,7 +18,7 @@ export default function RazorpayWeb({
             key: "rzp_test_A9zfKiKyFSOTCk",
             amount: "${amount}",
             currency: "INR",
-            name: "HomeKert",
+            name: "HomeKart",
             description: "Room Booking",
             image: "${customerData.profileUrl ? customerData.profileUrl : "https://res.cloudinary.com/dli3rzw0s/image/upload/v1749196361/upload_yas78d.jpg"}",
             handler: function (response) {

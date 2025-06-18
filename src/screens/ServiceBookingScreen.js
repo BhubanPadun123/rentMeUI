@@ -55,7 +55,6 @@ import {
 import PopoverModal from "../components/PopOver";
 import ItemList from "../components/ListItems";
 import * as Notifications from "expo-notifications"
-import * as Device from "expo-device"
 
 export default function ServiceBookingScreen({ route, navigation }) {
     const dispatch = useDispatch()
@@ -114,9 +113,6 @@ export default function ServiceBookingScreen({ route, navigation }) {
     },[])
 
     async function registerForPushNotificationAsync(){
-        if(!Device.isDevice){
-            alert("Must use physical device for push Notification")
-        }
         var {status} = await Notifications.getPermissionsAsync()
         let finalStatus = status
         if(status && status !== "granted"){
@@ -326,7 +322,7 @@ export default function ServiceBookingScreen({ route, navigation }) {
                         {
                             findBookingCode && findBookingCode === "2" && (
                                 <Button
-                                    text={"Pay Now Rs. 100"}
+                                    text={"Pay Now Rs.49 only"}
                                     onPress={() => {
                                         setOpenPayment(true)
                                     }}
@@ -345,7 +341,7 @@ export default function ServiceBookingScreen({ route, navigation }) {
                 itemsInfo && userInfo && openPayment && (
                     <Modal visible={openPayment} animationType='slide' >
                         <RazorpayWeb
-                            amount={10000}
+                            amount={4900}
                             onPaymentSuccess={(e) => {
                                 const data = {
                                     orderRef: itemsInfo._id,
@@ -355,9 +351,11 @@ export default function ServiceBookingScreen({ route, navigation }) {
                                     paymentStatus: "success",
                                     numberOfAttep: 1
                                 }
-                                showTopMessage("Payment successfull","success")
                                 dispatch(paymentAction(data))
-                                setOpenPayment(false)
+                                setTimeout(()=>{
+                                    showTopMessage("Payment successfull","success")
+                                    setOpenPayment(false)
+                                },1000)
                                 registerForPushNotificationAsync().then((token)=>{
                                     const notificationData={
                                         userRef:itemsInfo.vendorRef,
@@ -366,7 +364,7 @@ export default function ServiceBookingScreen({ route, navigation }) {
                                         title:"Platform Payment Alert",
                                         redirectLink:""
                                     }
-                                    dispatch(createNotificationAction(notificationData))
+                                    // dispatch(createNotificationAction(notificationData))
                                 }).catch((err)=>{
                                     console.log("err===>",err)
                                 })

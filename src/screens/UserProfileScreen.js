@@ -157,6 +157,9 @@ export default function UserProfileScreen({ navigation }) {
     function goToRecord() {
         navigation.navigate('Record')
     }
+    function goToEarning(){
+        navigation.navigate("Earning")
+    }
     async function handleSignOut() {
         await AsyncStorage.removeItem('currentUser')
         await AsyncStorage.removeItem('userMetaData')
@@ -250,7 +253,11 @@ export default function UserProfileScreen({ navigation }) {
                     <View style={styles.section_container}>
                         <View style={styles.row}>
                             {
-                                state.user && state.user.hasOwnProperty('userType') && (state.user.userType === "owner" || state.user.userType === "supper_admin") && (
+                                state.user && state.user.hasOwnProperty('userType') && (
+                                    state.user.userType === "owner" || 
+                                    state.user.userType === "supper_admin" ||
+                                    state.user.userType === "admin"
+                                ) && (
                                     <>
                                         <ImageButton
                                             title={"Register Property"}
@@ -309,7 +316,11 @@ export default function UserProfileScreen({ navigation }) {
                             />
                         </View>
                         {
-                            state.user && state.user.hasOwnProperty('userType') && (state.user.userType === "owner" || state.user.userType === "supper_admin") && (
+                            state.user && state.user.hasOwnProperty('userType') && (
+                                state.user.userType === "owner" || 
+                                state.user.userType === "supper_admin" ||
+                                state.user.userType === "admin"
+                            ) && (
                                 <View style={styles.row}>
                                     <ImageButton
                                         title={"Edit Stocks"}
@@ -325,7 +336,9 @@ export default function UserProfileScreen({ navigation }) {
                             )
                         }
                         {
-                            state.user && state.user.hasOwnProperty('userType') && (state.user.userType === "supper_admin") && (
+                            state.user && state.user.hasOwnProperty('userType') && (
+                                state.user.userType === "supper_admin"
+                            ) && (
                                 <View style={styles.row}>
                                     <ImageButton
                                         title={"Booking Record's"}
@@ -335,7 +348,7 @@ export default function UserProfileScreen({ navigation }) {
                                     <ImageButton
                                         title={"Earning Record's"}
                                         imageSource={Icons.saleRepost}
-                                        onPress={goToNotification}
+                                        onPress={goToEarning}
                                     />
                                 </View>
                             )
