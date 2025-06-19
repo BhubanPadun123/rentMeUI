@@ -23,12 +23,7 @@ import Loader from "../components/Loader";
 import { configureNotifications } from "../utils/NotificationService";
 import * as Notifications from 'expo-notifications';
 
-const imageList = [
-    'https://picsum.photos/id/10/600/400',
-    'https://picsum.photos/id/20/600/400',
-    'https://picsum.photos/id/30/600/400',
-    'https://picsum.photos/id/40/600/400',
-];
+
 export default function ServiceDetailScreen({ route, navigation }) {
     const dispatch = useDispatch()
     const [notification,setNotification] = useState(null)
@@ -164,7 +159,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
             <ScrollView style={styles.container}>
                 <View style={styles.header_container}>
                     <ImageSlider
-                        images={images ? images : imageList}
+                        images={images ? images : []}
                     />
                 </View>
                 {/* Body */}

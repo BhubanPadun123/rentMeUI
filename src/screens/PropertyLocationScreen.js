@@ -10,10 +10,6 @@ import {
 } from "react-native";
 import * as Location from "expo-location";
 import { colors, sizes } from "../styles/Theme";
-import { Feather } from "@expo/vector-icons";
-import parseContentData from "../utils/ParseContentData";
-import { showMessage } from "react-native-flash-message";
-import districtCoordinates from "../utils/MapScreenUtils";
 import { showTopMessage } from "../utils/ErrorHandler";
 
 export default function PropertyLocationScreen({ route, navigation }) {
@@ -21,10 +17,6 @@ export default function PropertyLocationScreen({ route, navigation }) {
     let { geoLocation, title } = route.params
     const [loading, setLoading] = useState(true);
     const [serviceList, setServiceList] = useState([
-        { id: 1, title: "Bhuban Padun", latitude: 28.6139, longitude: 77.2090, color: 'red' },
-        { id: 2, title: "Temporary", latitude: 19.0760, longitude: 72.8777, color: 'green' },
-        { id: 3, title: "Temporary", latitude: 12.9716, longitude: 77.5946, color: 'purple' },
-        { id: 4, title: "Bhuban Padun Happy Home", latitude: 27.648712, longitude: 94.880699, color: 'yellow' }
     ]);
     const [initialRegion, setInitialRegion] = useState(null);
 
@@ -42,7 +34,6 @@ export default function PropertyLocationScreen({ route, navigation }) {
                     try {
                         parsedGeoLocation = JSON.parse(geoLocation);
                     } catch (e) {
-                        console.warn("Invalid JSON format in geoLocation");
                         parsedGeoLocation = null;
                     }
                 }
@@ -80,7 +71,6 @@ export default function PropertyLocationScreen({ route, navigation }) {
 
                 setLoading(false);
             } catch (error) {
-                console.error("Location error:", error);
                 setLoading(false);
             }
         }

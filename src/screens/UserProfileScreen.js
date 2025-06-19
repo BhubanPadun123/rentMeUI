@@ -58,33 +58,33 @@ export default function UserProfileScreen({ navigation }) {
         getNotificationError,
         getNotificationResponse,
         getNotificationStatus
-    } = useSelector((state)=> state.product)
+    } = useSelector((state) => state.product)
 
-    useEffect(()=>{
-        const handleShowNotification=()=>{
-            if(getNotificationStatus === "success" && getNotificationResponse && Array.isArray(getNotificationResponse) && getNotificationResponse.length > 0){
-                getNotificationResponse.map((item)=>{
-                    const data={
-                        title:item.title,
-                        message:item.message,
+    useEffect(() => {
+        const handleShowNotification = () => {
+            if (getNotificationStatus === "success" && getNotificationResponse && Array.isArray(getNotificationResponse) && getNotificationResponse.length > 0) {
+                getNotificationResponse.map((item) => {
+                    const data = {
+                        title: item.title,
+                        message: item.message,
                     }
                     showNotification(data);
                 })
             }
         }
         handleShowNotification();
-    },[getNotificationStatus])
+    }, [getNotificationStatus])
 
-    async function showNotification(data){
+    async function showNotification(data) {
         await Notifications.scheduleNotificationAsync({
-            content:{
-                title:data.title,
-                body:data.message,
-                sound:'default'
+            content: {
+                title: data.title,
+                body: data.message,
+                sound: 'default'
             },
-            trigger:{
-                type:Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-                seconds:5
+            trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+                seconds: 5
             }
         })
     }
@@ -157,7 +157,7 @@ export default function UserProfileScreen({ navigation }) {
     function goToRecord() {
         navigation.navigate('Record')
     }
-    function goToEarning(){
+    function goToEarning() {
         navigation.navigate("Earning")
     }
     async function handleSignOut() {
@@ -250,133 +250,139 @@ export default function UserProfileScreen({ navigation }) {
             </View>
             {
                 !state.toggleProfile && (
-                    <View style={styles.section_container}>
-                        <View style={styles.row}>
+                    <ScrollView>
+                        <View style={styles.section_container}>
+                            <View style={styles.row}>
+                                {
+                                    state.user && state.user.hasOwnProperty('userType') && (
+                                        state.user.userType === "owner" ||
+                                        state.user.userType === "supper_admin" ||
+                                        state.user.userType === "admin"
+                                    ) && (
+                                        <>
+                                            <ImageButton
+                                                title={"Register Property"}
+                                                imageSource={Icons.add}
+                                                onPress={goToAddProperty}
+                                            />
+                                            <ImageButton
+                                                title={"Update Booking Status"}
+                                                imageSource={Icons.status}
+                                                onPress={goToBookingStatusUpdate}
+                                            />
+                                        </>
+                                    )
+                                }
+                            </View>
+                            <View style={styles.row}>
+                                <ImageButton
+                                    title={"Home"}
+                                    imageSource={tabsImages.Home}
+                                    onPress={goToHome}
+                                />
+                                <ImageButton
+                                    title={"Logout"}
+                                    imageSource={Icons.logout}
+                                    onPress={goToLogin}
+                                />
+                            </View>
+                            <View style={styles.row}>
+                                <ImageButton
+                                    title={"My Booking"}
+                                    imageSource={Icons.cart}
+                                    onPress={goToMyBooking}
+                                />
+                                <ImageButton
+                                    title={"Notification"}
+                                    imageSource={Icons.notification}
+                                    onPress={goToNotification}
+                                    renderChild={
+                                        <Text style={{
+                                            color: "red",
+                                            textAlign: "left",
+                                            fontSize: 20,
+                                            fontWeight: 'bold',
+                                            // borderWidth:1,
+                                            // backgroundColor:colors.color_light_gray,
+                                            // padding:4,
+                                            // borderRadius:20,
+                                            position: "absolute",
+                                            zIndex: 20
+                                        }}>
+                                            {
+                                                getNotificationStatus === "success" && getNotificationResponse ? getNotificationResponse.length : null
+                                            }
+                                        </Text>
+                                    }
+                                />
+                            </View>
                             {
                                 state.user && state.user.hasOwnProperty('userType') && (
-                                    state.user.userType === "owner" || 
+                                    state.user.userType === "owner" ||
                                     state.user.userType === "supper_admin" ||
                                     state.user.userType === "admin"
                                 ) && (
-                                    <>
+                                    <View style={styles.row}>
                                         <ImageButton
-                                            title={"Register Property"}
-                                            imageSource={Icons.add}
-                                            onPress={goToAddProperty}
+                                            title={"Edit Stocks"}
+                                            imageSource={Icons.stock}
+                                            onPress={goToEditStock}
                                         />
                                         <ImageButton
-                                            title={"Update Booking Status"}
-                                            imageSource={Icons.status}
-                                            onPress={goToBookingStatusUpdate}
+                                            title={"Stock Record's"}
+                                            imageSource={Icons.stockReport}
+                                            onPress={goToRecord}
                                         />
-                                    </>
+                                    </View>
+                                )
+                            }
+                            {
+                                state.user && state.user.hasOwnProperty('userType') && (
+                                    state.user.userType === "supper_admin"
+                                ) && (
+                                    <View style={styles.row}>
+                                        <ImageButton
+                                            title={"Booking Record's"}
+                                            imageSource={Icons.stockReport}
+                                            onPress={goToRecord}
+                                        />
+                                        <ImageButton
+                                            title={"Earning Record's"}
+                                            imageSource={Icons.saleRepost}
+                                            onPress={goToEarning}
+                                        />
+                                    </View>
                                 )
                             }
                         </View>
-                        <View style={styles.row}>
-                            <ImageButton
-                                title={"Home"}
-                                imageSource={tabsImages.Home}
-                                onPress={goToHome}
-                            />
-                            <ImageButton
-                                title={"Logout"}
-                                imageSource={Icons.logout}
-                                onPress={goToLogin}
-                            />
-                        </View>
-                        <View style={styles.row}>
-                            <ImageButton
-                                title={"My Booking"}
-                                imageSource={Icons.cart}
-                                onPress={goToMyBooking}
-                            />
-                            <ImageButton
-                                title={"Notification"}
-                                imageSource={Icons.notification}
-                                onPress={goToNotification}
-                                renderChild={
-                                    <Text style={{
-                                        color:"red",
-                                        textAlign:"left",
-                                        fontSize:20,
-                                        fontWeight:'bold',
-                                        // borderWidth:1,
-                                        // backgroundColor:colors.color_light_gray,
-                                        // padding:4,
-                                        // borderRadius:20,
-                                        position:"absolute",
-                                        zIndex:20
-                                    }}>
-                                        {
-                                            getNotificationStatus === "success" && getNotificationResponse ? getNotificationResponse.length : null
-                                        }
-                                    </Text>
+                    </ScrollView>
+                )
+            }
+            {
+                state.toggleProfile && state.isUserInfoAvailable && (
+                    <View style={styles.user_card}>
+                        <View style={styles.title_container}>
+                            <Text style={styles.title}>
+                                {
+                                    state.user.displayName && state.user.displayName
                                 }
-                            />
+                            </Text>
+                            <Text style={styles.desc}>{state.user.userEmail && state.user.userEmail}</Text>
+                            <Text style={styles.desc}>{state.user.userContactNumber && state.user.userContactNumber}</Text>
                         </View>
-                        {
-                            state.user && state.user.hasOwnProperty('userType') && (
-                                state.user.userType === "owner" || 
-                                state.user.userType === "supper_admin" ||
-                                state.user.userType === "admin"
-                            ) && (
-                                <View style={styles.row}>
-                                    <ImageButton
-                                        title={"Edit Stocks"}
-                                        imageSource={Icons.stock}
-                                        onPress={goToEditStock}
-                                    />
-                                    <ImageButton
-                                        title={"Stock Record's"}
-                                        imageSource={Icons.stockReport}
-                                        onPress={goToRecord}
-                                    />
-                                </View>
-                            )
-                        }
-                        {
-                            state.user && state.user.hasOwnProperty('userType') && (
-                                state.user.userType === "supper_admin"
-                            ) && (
-                                <View style={styles.row}>
-                                    <ImageButton
-                                        title={"Booking Record's"}
-                                        imageSource={Icons.stockReport}
-                                        onPress={goToRecord}
-                                    />
-                                    <ImageButton
-                                        title={"Earning Record's"}
-                                        imageSource={Icons.saleRepost}
-                                        onPress={goToEarning}
-                                    />
-                                </View>
-                            )
-                        }
+                        <UploadImage
+                            photoURL={state.userMetaData && state.userMetaData.photoURL && state.userMetaData.photoURL}
+                            handleUpdateToDb={(img) => {
+                                setState((prevState) => ({
+                                    ...prevState,
+                                    user: { ...prevState.user, photoURL: img }
+                                }))
+                            }}
+                            imgUrl={state.userMetaData && state.userMetaData.photoURL && state.userMetaData.photoURL}
+                        />
                     </View>
                 )
             }
-            <View style={styles.user_card}>
-                <View style={styles.title_container}>
-                    <Text style={styles.title}>
-                        {
-                            state.user.displayName && state.user.displayName
-                        }
-                    </Text>
-                    <Text style={styles.desc}>{state.user.userEmail && state.user.userEmail}</Text>
-                    <Text style={styles.desc}>{state.user.userContactNumber && state.user.userContactNumber}</Text>
-                </View>
-                <UploadImage
-                    photoURL={state.userMetaData && state.userMetaData.photoURL && state.userMetaData.photoURL}
-                    handleUpdateToDb={(img) => {
-                        setState((prevState) => ({
-                            ...prevState,
-                            user: { ...prevState.user, photoURL: img }
-                        }))
-                    }}
-                    imgUrl={state.userMetaData && state.userMetaData.photoURL && state.userMetaData.photoURL}
-                />
-            </View>
 
 
             {

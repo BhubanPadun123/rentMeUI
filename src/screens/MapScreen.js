@@ -10,10 +10,6 @@ import {
 } from "react-native";
 import * as Location from "expo-location";
 import { colors, sizes } from "../styles/Theme";
-import { Feather } from "@expo/vector-icons";
-import parseContentData from "../utils/ParseContentData";
-import { showMessage } from "react-native-flash-message";
-import districtCoordinates from "../utils/MapScreenUtils";
 import { useDispatch,useSelector } from "react-redux";
 import { getAllSpecifictProductAction } from "../Redux/action/product";
 import Loader from "../components/Loader";
@@ -22,12 +18,7 @@ export default function MapScreen({ navigation }) {
     const dispatch = useDispatch()
     const [loading, setLoading] = useState(false);
     const [locationDetail,setLocationDetail] = useState(null)
-    const [serviceList, setServiceList] = useState([
-        { id: 1, title: "Bhuban Padun", latitude: 28.6139, longitude: 77.2090, color: 'red' },
-        { id: 2, title: "Temporary", latitude: 19.0760, longitude: 72.8777, color: 'green' },
-        { id: 3, title: "Temporary", latitude: 12.9716, longitude: 77.5946, color: 'purple' },
-        { id: 4, title: "Bhuban Padun Happy Home", latitude: 27.648712, longitude: 94.880699, color: 'yellow' }
-    ]);
+    const [serviceList, setServiceList] = useState([]);
     const [isAllOk,setIsAllOk] = useState(false)
     const [initialRegion, setInitialRegion] = useState(null);
 
@@ -80,7 +71,6 @@ export default function MapScreen({ navigation }) {
 
     function fetchProductList(){
         if(!locationDetail) return
-        console.log(locationDetail)
         if(locationDetail.hasOwnProperty('city')){
             dispatch( getAllSpecifictProductAction(locationDetail.city,"map"))
         }
@@ -90,6 +80,9 @@ export default function MapScreen({ navigation }) {
         navigation.navigate("ServiceDetailScreen", { item });
     };
 
+    if(!isAllOk) {
+        return <Loader/>
+    }
     return (
         <View style={styles.container}>
             {initialRegion && !loading ? (
