@@ -1,30 +1,34 @@
 import React, { useEffect, useState } from "react";
 import MapView, { Callout, Circle, Marker } from "react-native-maps";
-import { getDatabase, ref, child, get } from "firebase/database";
 import {
     StyleSheet,
     View,
     Text,
     TouchableOpacity,
     ActivityIndicator,
+    Platform,
+    Alert,
 } from "react-native";
 import * as Location from "expo-location";
 import { colors, sizes } from "../styles/Theme";
 import { showTopMessage } from "../utils/ErrorHandler";
 
 export default function PropertyLocationScreen({ route, navigation }) {
-
-    let { geoLocation, title } = route.params
+    const { geoLocation, title } = route.params || {};
     const [loading, setLoading] = useState(true);
-    const [serviceList, setServiceList] = useState([
-    ]);
+    const [serviceList, setServiceList] = useState([]);
     const [initialRegion, setInitialRegion] = useState(null);
 
     useEffect(() => {
+        let isMounted = true;
+
         async function getLocationAsync() {
             try {
                 let { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== "granted") return;
+                if (status !== "granted") {
+                    Alert.alert("Permission denied", "Location access is required to view the map.");
+                    return;
+                }
 
                 let location = await Location.getCurrentPositionAsync({});
                 const { latitude, longitude } = location.coords;
@@ -39,14 +43,13 @@ export default function PropertyLocationScreen({ route, navigation }) {
                 }
 
                 if (
-                    parsedGeoLocation &&
-                    parsedGeoLocation.coords &&
-                    typeof parsedGeoLocation.coords.latitude === "number" &&
-                    typeof parsedGeoLocation.coords.longitude === "number"
+                    parsedGeoLocation?.coords?.latitude &&
+                    parsedGeoLocation?.coords?.longitude
                 ) {
+                    if (!isMounted) return;
                     setInitialRegion({
-                        latitude: latitude,
-                        longitude: longitude,
+                        latitude,
+                        longitude,
                         latitudeDelta: 0.0922,
                         longitudeDelta: 0.0421,
                     });
@@ -54,13 +57,14 @@ export default function PropertyLocationScreen({ route, navigation }) {
                     setServiceList([
                         {
                             id: 1,
-                            title: title,
+                            title: title || "Unknown Title",
                             latitude: parsedGeoLocation.coords.latitude,
                             longitude: parsedGeoLocation.coords.longitude,
                             color: "red",
                         },
                     ]);
                 } else {
+                    if (!isMounted) return;
                     setInitialRegion({
                         latitude,
                         longitude,
@@ -69,17 +73,20 @@ export default function PropertyLocationScreen({ route, navigation }) {
                     });
                 }
 
-                setLoading(false);
+                if (isMounted) setLoading(false);
             } catch (error) {
-                setLoading(false);
+                console.log("Location error:", error);
+                if (isMounted) setLoading(false);
             }
         }
 
         getLocationAsync();
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
-
-    //Navigate to detail
     const handleServiceSelect = (item) => {
         navigation.navigate("ServiceDetailScreen", { item });
     };
@@ -109,23 +116,21 @@ export default function PropertyLocationScreen({ route, navigation }) {
 
                     {serviceList.map((service) => (
                         <Marker
-                            key={service.id}
-                            coordinate={{ latitude: service.latitude, longitude: service.longitude }}
-                            title={`${service.title}`}
-                            pinColor={service.color}
+                            key={String(service.id)}
+                            coordinate={{
+                                latitude: service.latitude,
+                                longitude: service.longitude,
+                            }}
+                            title={service.title || "Untitled"}
+                            pinColor={service.color || "red"}
                         >
                             <Callout style={styles.callout_container}>
                                 <TouchableOpacity
                                     onPress={() => handleServiceSelect(service)}
                                 >
                                     <View style={styles.callout_button}>
-                                        <Text style={styles.callout_title}>
-                                            {service.id}{" "}
-                                            {service.title}
-                                        </Text>
-                                        <Text style={styles.callout_text}>
-                                            {service.title}
-                                        </Text>
+                                        <Text style={styles.callout_title}>{service.title}</Text>
+                                        <Text style={styles.callout_text}>Tap for more info</Text>
                                     </View>
                                 </TouchableOpacity>
                             </Callout>
@@ -159,13 +164,12 @@ const styles = StyleSheet.create({
         paddingLeft: 8,
     },
     callout_title: {
-        // //fontFamily: "Mulish-Medium",
-        paddingBottom: 12,
         fontSize: 18,
+        color: "black",
     },
     callout_text: {
-        // //fontFamily: "Mulish-Light",
         fontSize: 13,
+        color: "gray",
     },
     callout_button: {
         justifyContent: "center",

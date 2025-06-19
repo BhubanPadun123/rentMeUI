@@ -1,88 +1,95 @@
+// MapScreen.js
 import React, { useEffect, useState } from "react";
 import MapView, { Callout, Circle, Marker } from "react-native-maps";
-import { getDatabase, ref, child, get } from "firebase/database";
-import {
-    StyleSheet,
-    View,
-    Text,
-    TouchableOpacity,
-    ActivityIndicator,
-} from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import * as Location from "expo-location";
 import { colors, sizes } from "../styles/Theme";
-import { useDispatch,useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getAllSpecifictProductAction } from "../Redux/action/product";
 import Loader from "../components/Loader";
 
 export default function MapScreen({ navigation }) {
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
-    const [locationDetail,setLocationDetail] = useState(null)
+    const [locationDetail, setLocationDetail] = useState(null);
     const [serviceList, setServiceList] = useState([]);
-    const [isAllOk,setIsAllOk] = useState(false)
+    const [isAllOk, setIsAllOk] = useState(false);
     const [initialRegion, setInitialRegion] = useState(null);
 
     const {
         areaProductStatus,
         areaProductResponse,
         areaProductError
-    } = useSelector((state)=> state.product)
-
-    useEffect(()=>{
-        if(areaProductStatus === "success" && areaProductResponse && Array.isArray(areaProductResponse) && areaProductResponse.length > 0){
-            setServiceList(areaProductResponse)
-            setLoading(false)
-            setIsAllOk(true)
-        }
-        if(areaProductStatus === "started"){
-            setLoading(true)
-        }
-    },[areaProductStatus])
+    } = useSelector((state) => state.product);
 
     useEffect(() => {
-        async function getLocationAsync() {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== "granted") {
-                return;
-            }
+        if (
+            areaProductStatus === "success" &&
+            Array.isArray(areaProductResponse) &&
+            areaProductResponse.length > 0
+        ) {
+            setServiceList(areaProductResponse);
+            setLoading(false);
+            setIsAllOk(true);
+        }
+        if (areaProductStatus === "started") {
+            setLoading(true);
+        }
+    }, [areaProductStatus]);
 
-            let location = await Location.getCurrentPositionAsync({});
-            const { latitude, longitude } = location.coords;
-            const address = await Location.reverseGeocodeAsync({latitude,longitude})
-            setInitialRegion({
-                latitude,
-                longitude,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-            });
-            if(address && address.length > 0){
-                setLocationDetail(address[0]);
+    useEffect(() => {
+        let isMounted = true;
+
+        async function getLocationAsync() {
+            try {
+                const { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== "granted") return;
+
+                const location = await Location.getCurrentPositionAsync({});
+                const { latitude, longitude } = location.coords;
+
+                if (!isMounted) return;
+
+                setInitialRegion({
+                    latitude,
+                    longitude,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
+                });
+
+                try {
+                    const address = await Location.reverseGeocodeAsync({ latitude, longitude });
+                    if (isMounted && address.length > 0) {
+                        setLocationDetail(address[0]);
+                    }
+                } catch (err) {
+                    console.log("Reverse geocode error:", err);
+                }
+            } catch (err) {
+                console.log("Location error:", err);
             }
         }
 
         getLocationAsync();
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
-    useEffect(()=>{
-        if(locationDetail){
-            fetchProductList()
+    useEffect(() => {
+        if (locationDetail && locationDetail.city) {
+            dispatch(getAllSpecifictProductAction(locationDetail.city, "map"));
         }
-    },[locationDetail])
+    }, [locationDetail]);
 
-    function fetchProductList(){
-        if(!locationDetail) return
-        if(locationDetail.hasOwnProperty('city')){
-            dispatch( getAllSpecifictProductAction(locationDetail.city,"map"))
-        }
-    }
-    //Navigate to detail
     const handleServiceSelect = (item) => {
         navigation.navigate("ServiceDetailScreen", { item });
     };
 
-    if(!isAllOk) {
-        return <Loader/>
+    if (!isAllOk) {
+        return <Loader />;
     }
+
     return (
         <View style={styles.container}>
             {initialRegion && !loading ? (
@@ -106,36 +113,36 @@ export default function MapScreen({ navigation }) {
                         fillColor="rgba(0, 0, 255, 0.2)"
                     />
 
-                    {serviceList.map((service) => (
-                        <Marker
-                            key={service.id}
-                            coordinate={{latitude:service.latitude,longitude:service.longitude}}
-                            title={`${service.title}`}
-                            pinColor={service.color}
-                        >
-                            <Callout style={styles.callout_container}>
-                                <TouchableOpacity
-                                    onPress={() => handleServiceSelect(service)}
-                                >
-                                    <View style={styles.callout_button}>
-                                        <Text style={styles.callout_title}>
-                                            {service.id}{" "}
-                                            {service.title}
-                                        </Text>
-                                        <Text style={styles.callout_text}>
-                                            {service.title}
-                                        </Text>
-                                    </View>
-
-                                    {/* <Feather
-                                        name="chevron-right"
-                                        size={24}
-                                        color={colors.color_primary}
-                                    /> */}
-                                </TouchableOpacity>
-                            </Callout>
-                        </Marker>
-                    ))}
+                    {serviceList
+                        .filter(
+                            (s) =>
+                                typeof s.latitude === "number" &&
+                                typeof s.longitude === "number" &&
+                                !isNaN(s.latitude) &&
+                                !isNaN(s.longitude)
+                        )
+                        .map((service) => (
+                            <Marker
+                                key={String(service.id)}
+                                coordinate={{
+                                    latitude: service.latitude,
+                                    longitude: service.longitude,
+                                }}
+                                title={String(service.title)}
+                                pinColor={service.color || "red"}
+                            >
+                                <Callout style={styles.callout_container}>
+                                    <TouchableOpacity onPress={() => handleServiceSelect(service)}>
+                                        <View style={styles.callout_button}>
+                                            <Text style={styles.callout_title}>
+                                                {String(service.id)} {String(service.title)}
+                                            </Text>
+                                            <Text style={styles.callout_text}>{String(service.title)}</Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                </Callout>
+                            </Marker>
+                        ))}
                 </MapView>
             ) : (
                 <ActivityIndicator
@@ -164,13 +171,11 @@ const styles = StyleSheet.create({
         paddingLeft: 8,
     },
     callout_title: {
-        // //fontFamily: "Mulish-Medium",
         paddingBottom: 12,
         fontSize: 18,
-        color:"red"
+        color: "red",
     },
     callout_text: {
-        // //fontFamily: "Mulish-Light",
         fontSize: 13,
     },
     callout_button: {
