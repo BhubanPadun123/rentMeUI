@@ -101,6 +101,9 @@ export default function UserProfileScreen({ navigation }) {
                     loading: false,
                     isUserInfoAvailable: true
                 }))
+                setTimeout(()=>{
+                    handleSignOut()
+                },2000)
             }
         }
         if (metaDataStatus === "failed") {
@@ -117,6 +120,21 @@ export default function UserProfileScreen({ navigation }) {
             }))
         }
     }, [metaDataStatus])
+
+    useEffect(() => {
+        const isValidUserMetaData =
+            state.userMetaData &&
+            typeof state.userMetaData === "object" &&
+            Object.keys(state.userMetaData).length > 1;
+    
+        if (!isValidUserMetaData) {
+            setState((prevState)=>({
+                ...prevState,
+                isUserInfoAvailable:false,
+                toggleProfile:true
+            }))
+        }
+    }, [state.userMetaData]);
 
 
     const fetchUserData = async () => {
@@ -138,6 +156,7 @@ export default function UserProfileScreen({ navigation }) {
             }))
         }
     }
+    
     React.useEffect(() => {
         fetchUserData()
         return () => {
@@ -283,7 +302,7 @@ export default function UserProfileScreen({ navigation }) {
                                 <ImageButton
                                     title={"Logout"}
                                     imageSource={Icons.logout}
-                                    onPress={goToLogin}
+                                    onPress={handleSignOut}
                                 />
                             </View>
                             <View style={styles.row}>
@@ -359,7 +378,7 @@ export default function UserProfileScreen({ navigation }) {
                 )
             }
             {
-                state.toggleProfile && state.isUserInfoAvailable && (
+                state.toggleProfile  && (
                     <View style={styles.user_card}>
                         <View style={styles.title_container}>
                             <Text style={styles.title}>
@@ -412,8 +431,8 @@ export default function UserProfileScreen({ navigation }) {
                                                 options={
                                                     [
                                                         { value: "student", label: "Student" },
-                                                        { value: "working", label: "Working Profissional" },
-                                                        { value: "business", label: "Business Person" }
+                                                        { value: "working", label: "Working professional" },
+                                                        { value: "business", label: "Business man" }
                                                     ]
                                                 }
                                                 onValueChange={handleChange("workingProfissional")}

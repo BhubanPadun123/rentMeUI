@@ -216,11 +216,11 @@ export default Navigation = () => {
         <>
             <Tab.Navigator screenOptions={iconPref} initialRouteName={"Home"} >
                 <Tab.Screen name="Home" component={HomeStack} />
-                <Tab.Screen
+                {/* <Tab.Screen
                     name="Map"
                     component={MapStack}
                     options={{ tabBarButton: customTabButton }}
-                />
+                /> */}
                 <Tab.Screen
                     name="Profile"
                     component={getTabScreen(UserProfileScreen, AuthStack)}

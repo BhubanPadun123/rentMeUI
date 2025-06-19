@@ -104,7 +104,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
         navigation.navigate("ServiceBookingScreen", { item });
     };
     const goToPropertyLocation = () => {
-        navigation.navigate("PropertyLocationScreen", { geoLocation: geoLocation, title: item && item.productTitle ? item.productTitle : "Demo Place" })
+        // navigation.navigate("PropertyLocationScreen", { geoLocation: geoLocation, title: item && item.productTitle ? item.productTitle : "Demo Place" })
     }
     const goToLoginScreen = () => {
         navigation.navigate("LoginScreen")
