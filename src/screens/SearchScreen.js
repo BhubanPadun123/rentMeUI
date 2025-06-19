@@ -8,9 +8,10 @@ import userImages from "../utils/UserImageUtils"
 import { getFirstProducts } from "../APIs/product";
 import ProductCart from "../components/ProductCart";
 import Button from "../components/Button/Button";
-import { useSelector,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
-    getAllSpecifictProductAction
+    getAllSpecifictProductAction,
+    getAllProductAction
 } from "../Redux/action/product.js"
 
 export default function SearchScreen({ navigation, route }) {
@@ -20,6 +21,7 @@ export default function SearchScreen({ navigation, route }) {
     const [serviceList, setServiceList] = useState([]);
     const [filteredServiceList, setFilteredServiceList] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("");
+    const [state, setStart] = useState(0)
 
     const category = route.params?.category
     const type = route.params?.type
@@ -28,29 +30,40 @@ export default function SearchScreen({ navigation, route }) {
     const {
         areaProductStatus,
         areaProductResponse,
-        areaProductError
-    } = useSelector((state)=> state.product)
+        areaProductError,
 
-    useEffect(()=>{
-        if(areaProductStatus === "success" && areaProductResponse && Array.isArray(areaProductResponse) && areaProductResponse.length >0){
+        productListStatus,
+        productListError,
+        productListResponse
+    } = useSelector((state) => state.product)
+
+    useEffect(() => {
+        if (areaProductStatus === "success" && areaProductResponse && Array.isArray(areaProductResponse) && areaProductResponse.length > 0) {
             setLoading(false)
             setProduct(areaProductResponse)
         }
-    },[areaProductStatus])
+        if (productListStatus === "success" && productListResponse && Array.isArray(productListResponse) && productListResponse.length > 0) {
+            setProduct(productListResponse)
+            setLoading(false)
+        }
+    }, [areaProductStatus, productListStatus])
 
     useEffect(() => {
         if (!category) return
-        if(category.hasOwnProperty('value')){
+        if (category.hasOwnProperty('value')) {
             fetchProduct(category.value)
+        }
+        if (type === "all") {
+            dispatch(getAllProductAction(state, 5))
         }
     }, [category])
 
     const goToProductDatils = (category) => {
-        navigation.navigate("ServiceDetailScreen",{item:category})
+        navigation.navigate("ServiceDetailScreen", { item: category })
     };
 
-    function fetchProduct(name){
-        dispatch(getAllSpecifictProductAction("all",name))
+    function fetchProduct(name) {
+        dispatch(getAllSpecifictProductAction("all", name))
     }
 
     //Render to flatlist
@@ -113,7 +126,7 @@ export default function SearchScreen({ navigation, route }) {
                         />
                     </View> */}
                     {
-                        areaProductStatus === "success" && product.length > 0 && (
+                        areaProductStatus === "success" && product.length > 0 && type !== "all" && (
                             <View style={styles.category_container}>
                                 <FlatList
                                     horizontal={false}
@@ -125,6 +138,19 @@ export default function SearchScreen({ navigation, route }) {
                                     renderItem={renderCategory}
                                 />
                             </View>
+                        )
+                    }
+                    {
+                        productListStatus === "success" && product.length > 0 && type==="all" && (
+                            <FlatList
+                                horizontal={false}
+                                showsHorizontalScrollIndicator={false}
+                                snapToInterval={sizes.width}
+                                decelerationRate={"normal"}
+                                data={product}
+                                keyExtractor={(category) => category._id}
+                                renderItem={renderCategory}
+                            />
                         )
                     }
                     {/* <View style={styles.category_container}>

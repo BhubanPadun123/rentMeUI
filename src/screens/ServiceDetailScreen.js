@@ -140,18 +140,19 @@ export default function ServiceDetailScreen({ route, navigation }) {
         })
         if(error) return
         await dispatch(bookingProductAction(data))
-        // registerForPushNotificationAsync().then((token)=>{
-        //     const notificationData={
-        //         userRef:data.vendorRef,
-        //         token:token,
-        //         message:"Hi,Someone is booking in your property.Please update the status",
-        //         title:"New Booking Alert",
-        //         redirectLink:"ServiceBookingScreen"
-        //     }
-        //     dispatch(createNotificationAction(notificationData))
-        // }).catch((err)=>{
-        //     console.log("err===>",err)
-        // })
+    }
+
+    function RenderItem({item,index}){
+        return (
+            <View style={{
+                display:"flex",
+                flexDirection:'row',
+                gap:8
+            }}>
+                <Text>{index}.</Text>
+                <Text>{typeof(item) === "string" && item}</Text>
+            </View>
+        )
     }
 
     return (
@@ -169,7 +170,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
                         {
                             createdAt && (
                                 <Text style={[styles.desc, { padding: 6, fontSize: 14, backgroundColor: colors.color_light_gray, textAlign: 'center', borderRadius: 20 }]}>
-                                    Posted At : {formatDate(createdAt)}
+                                    Posted At : {formatDate(createdAt).toLowerCase()}
                                 </Text>
                             )
                         }
@@ -252,18 +253,7 @@ export default function ServiceDetailScreen({ route, navigation }) {
                                 <Text style={[styles.text_content, { fontSize: 12 }]}>Available Aminities</Text>
                                 <ItemList 
                                    data={availableItems}
-                                   renderItem={({item,index})=>{
-                                    return(
-                                        <View style={{
-                                            display:"flex",
-                                            flexDirection:'row',
-                                            gap:8
-                                        }}>
-                                            <Text style={styles.text_content}>{index}.</Text>
-                                            <Text style={styles.text_content}>{item}</Text>
-                                        </View>
-                                    )
-                                   }}
+                                   renderItem={RenderItem}
                                 />
                             </View>
                         )

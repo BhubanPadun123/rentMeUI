@@ -66,7 +66,7 @@ export default function HomeScreen({ navigation }) {
     }
 
     const handleSearch = () => {
-        navigation.navigate("SearchScreen");
+        navigation.navigate("SearchScreen",{category:null,type:"all"});
     };
 
     const handleCategorySelect = (selectedCategory, type) => {
