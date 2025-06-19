@@ -10,8 +10,7 @@ const Icons={
     "stock":require('../../assets/icons/stock.png'),
     "reports":require('../../assets/icons/report.png'),
     "stockReport":require('../../assets/icons/stockReport.png'),
-    "saleRepost":require('../../assets/icons/bookingReport.png'),
-    "loader":require('../../assets/splash.gif')
+    "saleRepost":require('../../assets/icons/bookingReport.png')
 }
 
 export default Icons
