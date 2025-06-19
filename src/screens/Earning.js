@@ -89,6 +89,11 @@ export default function PlatformEarning({ navigation }) {
                 )
             }
             {
+                getEarningStatus === "failed" && (
+                    <Text style={styles.emptyCollction}>{JSON.stringify(getEarningError)}</Text>
+                )
+            }
+            {
                 getEarningStatus === "started" && (
                     <Loader />
                 )

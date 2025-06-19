@@ -121,7 +121,7 @@ export default function SearchScreen({ navigation, route }) {
                                     snapToInterval={sizes.width}
                                     decelerationRate={"normal"}
                                     data={product}
-                                    keyExtractor={(category) => category.title}
+                                    keyExtractor={(category) => category._id}
                                     renderItem={renderCategory}
                                 />
                             </View>

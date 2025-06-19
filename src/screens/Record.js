@@ -143,6 +143,14 @@ export default function Record() {
                 )
             }
             {
+                orderInRangeStatus === "failed" && userInfo && userInfo.hasOwnProperty('userType') &&  (
+                    userInfo.userType === "supper_admin" ||
+                    userInfo.userType === "admin"
+                ) && (
+                    <Text style={[styles.cartContainer,{fontSize:20,color:colors.color_secondary}]}>{JSON.stringify(orderInRangeError)}</Text>
+                )
+            }
+            {
                 (
                     vendorStackStatus==="started" ||
                     orderInRangeStatus === "started"
