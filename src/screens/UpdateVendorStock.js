@@ -20,7 +20,6 @@ import {
 } from "../Redux/action/product";
 import Loader from "../components/Loader";
 import { colors } from "../styles/Theme";
-import Button from "../components/Button/Button";
 import Icons from "../utils/Icons";
 import tabsImages from "../utils/TabsImages";
 import {
@@ -30,6 +29,12 @@ import {
 } from "@expo/vector-icons"
 import DropdownSelect from "../components/SingleSelect";
 import { showTopMessage } from "../utils/ErrorHandler";
+import {
+    Tab,
+    Button,
+    Card
+} from "@rneui/themed"
+import { ListItem } from "@rneui/base";
 
 export default function UpdateVendorStock() {
     const dispatch = useDispatch()
@@ -37,6 +42,8 @@ export default function UpdateVendorStock() {
     const [product, setPropduct] = useState([])
     const [openPopover, setPopover] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState(null)
+    const [filterCode, setFilterCode] = useState(0)
+    const [expandId, setExpandId] = useState(null)
     const [productData, setProductData] = useState({
         propertyOccupancy: [],
         productTitle: "",
@@ -63,7 +70,7 @@ export default function UpdateVendorStock() {
 
     useEffect(() => {
         fetchUserData()
-    }, [updateVendorProductStatus,deleteVendorProductStatus])
+    }, [updateVendorProductStatus, deleteVendorProductStatus])
     useEffect(() => {
         if (vendorStackStatus === "success") {
             setPropduct(vendorStackResponse)
@@ -71,19 +78,19 @@ export default function UpdateVendorStock() {
     }, [
         vendorStackStatus
     ])
-    useEffect(()=>{
-        if(deleteVendorProductStatus === "success"){
-            showTopMessage("Property deleted successfully","success")
+    useEffect(() => {
+        if (deleteVendorProductStatus === "success") {
+            showTopMessage("Property deleted successfully", "success")
         }
-    },[deleteVendorProductStatus])
-    useEffect(()=>{
-        if(updateVendorProductStatus === "success"){
+    }, [deleteVendorProductStatus])
+    useEffect(() => {
+        if (updateVendorProductStatus === "success") {
             setPopover(false)
-            setTimeout(()=>{
-                showTopMessage("Property updated successfully","success")
-            },5000)
+            setTimeout(() => {
+                showTopMessage("Property updated successfully", "success")
+            }, 5000)
         }
-    },[updateVendorProductStatus])
+    }, [updateVendorProductStatus])
 
     async function fetchUserData() {
         const user = await AsyncStorage.getItem("currentUser")
@@ -96,24 +103,24 @@ export default function UpdateVendorStock() {
         }
     }
 
-    function hanldeDeleteProduct(id){
-        if(!id) return
+    function hanldeDeleteProduct(id) {
+        if (!id) return
         dispatch(deleteVendorProduct(id))
     }
-    function handleUpdateProperty(){
+    function handleUpdateProperty() {
         // console.log(productData,"<<<"),
         // console.log(selectedProduct,"<<<")
-        if(!selectedProduct || !productData) return
+        if (!selectedProduct || !productData) return
         const data = {
-            productId:selectedProduct._id,
-            data:{
-                availableStatus:productData.availableStatus,
-                postAt:selectedProduct.postAt,
-                productTitle:productData.productTitle,
-                productType:selectedProduct.productType,
-                propertyOccupancy:selectedProduct.propertyOccupancy,
-                vendorRef:selectedProduct.vendorRef,
-                metaData:JSON.stringify(productData.metaData)
+            productId: selectedProduct._id,
+            data: {
+                availableStatus: productData.availableStatus,
+                postAt: selectedProduct.postAt,
+                productTitle: productData.productTitle,
+                productType: selectedProduct.productType,
+                propertyOccupancy: selectedProduct.propertyOccupancy,
+                vendorRef: selectedProduct.vendorRef,
+                metaData: JSON.stringify(productData.metaData)
             }
         }
         dispatch(updateVendorProductAction(data))
@@ -142,28 +149,107 @@ export default function UpdateVendorStock() {
     function RenderProduct({ item }) {
         const metaData = item && item.hasOwnProperty('metaData') ? JSON.parse(item.metaData) : null
         const images = metaData && metaData.hasOwnProperty('images') ? JSON.parse(metaData.images) : []
+        const total = metaData && metaData.hasOwnProperty('total') ? metaData.total : null
+        if(filterCode === 1){
+            if(total != 0) return null
+        }
+        if(filterCode === 2){
+            if(total == 0) return null
+        }
         return (
-            <View style={styles.card}>
+            <Card>
                 <ImageSlider
                     images={images}
                 />
-                <Text style={{ fontSize: 20, color: colors.color_primary, textAlign: 'center' }}>{item && item.productTitle}</Text>
-                <Button
-                    text={"Update"}
-                    onPress={() => handleUpdate(item)}
-                    icon={<MaterialCommunityIcons name="update" size={24} color="white" />}
-                />
-                <Button
-                    text={"Delete"}
-                    icon={<MaterialIcons name="delete" size={24} color="red" />}
-                    onPress={()=> hanldeDeleteProduct(item._id)}
-                />
-            </View>
+                <Card.Title style={{ color: colors.color_primary, textAlign: 'center' }}>{item && item.productTitle}</Card.Title>
+                <Card.FeaturedSubtitle style={{ color: colors.color_secondary, textAlign: 'center' }}>{`Posted At: ${item.postAt}`}</Card.FeaturedSubtitle>
+                <Card.Divider />
+                <ListItem.Accordion
+                    content={
+                        <ListItem.Content>
+                            <ListItem.Title>See Stock Details</ListItem.Title>
+                            <ListItem.Subtitle>Tap to expand</ListItem.Subtitle>
+                        </ListItem.Content>
+                    }
+                    isExpanded={expandId === item._id}
+                    onPress={() => {
+                        setExpandId(expandId ? null : item._id)
+                    }}
+                >
+                    <ListItem>
+                        <ListItem.Content>
+                            <ListItem.Title>Total Available Property : {total}</ListItem.Title>
+                        </ListItem.Content>
+                    </ListItem>
+                    <ListItem style={{width:"100%"}}>
+                        <ListItem.Content style={{
+                            width:"100%",
+                            justifyContent:'center',
+                            alignItems:'center',
+                            gap:4
+                        }}>
+                            <Button
+                                title={"Update"}
+                                onPress={() => handleUpdate(item)}
+                                icon={<MaterialCommunityIcons name="update" size={24} color="red" />}
+                                style={{width:"100%"}}
+                                size='lg'
+                                type='outline'
+                            />
+                            <Button
+                                title={"Delete"}
+                                icon={<MaterialIcons name="delete" size={24} color="red" />}
+                                onPress={() => hanldeDeleteProduct(item._id)}
+                                style={{width:"100%"}}
+                                size='lg'
+                                type='outline'
+                            />
+                        </ListItem.Content>
+                    </ListItem>
+                </ListItem.Accordion>
+            </Card>
         )
     }
 
     return (
         <View style={styles.container}>
+            <Tab
+                variant="primary"
+                indicatorStyle={{
+                    padding: 0,
+                    margin: 0,
+                }}
+                value={filterCode}
+                onChange={(e) => setFilterCode(e)}
+            >
+                <Tab.Item
+                    dense={true}
+                    titleStyle={{
+                        fontSize: 8,
+                        padding: 0,
+                        margin: 0,
+                    }}
+                    title={"All Property"}
+                />
+                <Tab.Item
+                    dense={true}
+                    titleStyle={{
+                        fontSize: 8,
+                        padding: 0,
+                        margin: 0,
+                    }}
+                    title={"Empty Stock"}
+                />
+                <Tab.Item
+                    dense={true}
+                    titleStyle={{
+                        fontSize: 8,
+                        padding: 0,
+                        margin: 0,
+                    }}
+                    title={"Available Stock"}
+                />
+            </Tab>
             {
                 product && product.length > 0 ? (
                     <FlatList
@@ -303,14 +389,21 @@ export default function UpdateVendorStock() {
                                     }}
                                 />
                                 <Button
-                                    text={"Update"}
-                                    icon={<MaterialCommunityIcons name="update" size={24} color="white" />}
+                                    title={"Update"}
+                                    icon={<MaterialCommunityIcons name="update" size={24} color="pink" />}
                                     onPress={handleUpdateProperty}
+                                    uppercase={true}
+                                    size='lg'
+                                    type='outline'
                                 />
                                 <Button
-                                    text={"Cancel"}
-                                    icon={<AntDesign name="closecircle" size={24} color="white" />}
-                                    onPress={()=> setPopover(false)}
+                                    title={"Cancel"}
+                                    icon={<AntDesign name="closecircle" size={24} color="pink" />}
+                                    onPress={() => setPopover(false)}
+                                    color={'secondary'}
+                                    uppercase={true}
+                                    size='lg'
+                                    type='outline'
                                 />
                             </View>
                         )

@@ -1,133 +1,217 @@
-import React, { useEffect, useState } from "react";
-import { View, FlatList, StyleSheet, ActivityIndicator } from "react-native";
+import React, { Component } from "react";
+import {
+    View,
+    FlatList,
+    StyleSheet,
+    ActivityIndicator,
+    Text
+} from "react-native";
+import { connect } from "react-redux";
 import CardMedium from "../components/CardMedium";
-import SearchBar from "../components/SearchBar";
-import { colors, sizes } from "../styles/Theme";
-import { showTopMessage } from "../utils/ErrorHandler";
-import userImages from "../utils/UserImageUtils"
-import { getFirstProducts } from "../APIs/product";
 import ProductCart from "../components/ProductCart";
-import Button from "../components/Button/Button";
-import { useSelector, useDispatch } from "react-redux";
+import { colors, sizes } from "../styles/Theme";
+import userImages from "../utils/UserImageUtils";
 import {
     getAllSpecifictProductAction,
-    getAllProductAction
-} from "../Redux/action/product.js"
+    getAllProductAction,
+} from "../Redux/action/product.js";
+import SearchBar from "../components/SearchBar.js";
 
-export default function SearchScreen({ navigation, route }) {
-    const dispatch = useDispatch()
-    const [loading, setLoading] = useState(true);
-    const [product, setProduct] = useState([])
-    const [serviceList, setServiceList] = useState([]);
-    const [filteredServiceList, setFilteredServiceList] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState("");
-    const [state, setStart] = useState(0)
+class SearchScreen extends Component {
+    constructor(props) {
+        super(props);
 
-    const category = route.params?.category
-    const type = route.params?.type
-    const placegolderName = SearchPlaceholderName(type)
+        this.state = {
+            loading: true,
+            product: [],
+            serviceList: [],
+            filteredServiceList: [],
+            selectedCategory: "",
+            state: 0,
+        };
 
-    const {
-        areaProductStatus,
-        areaProductResponse,
-        areaProductError,
-
-        productListStatus,
-        productListError,
-        productListResponse
-    } = useSelector((state) => state.product)
-
-    useEffect(() => {
-        if (areaProductStatus === "success" && areaProductResponse && Array.isArray(areaProductResponse) && areaProductResponse.length > 0) {
-            setLoading(false)
-            setProduct(areaProductResponse)
-        }
-        if (productListStatus === "success" && productListResponse && Array.isArray(productListResponse) && productListResponse.length > 0) {
-            setProduct(productListResponse)
-            setLoading(false)
-        }
-    }, [areaProductStatus, productListStatus])
-
-    useEffect(() => {
-        if (!category) return
-        if (category.hasOwnProperty('value')) {
-            fetchProduct(category.value)
-        }
-        if (type === "all") {
-            dispatch(getAllProductAction(state, 5))
-        }
-    }, [category])
-
-    const goToProductDatils = (category) => {
-        navigation.navigate("ServiceDetailScreen", { item: category })
-    };
-
-    function fetchProduct(name) {
-        dispatch(getAllSpecifictProductAction("all", name))
+        const { category, type } = props.route.params || {};
+        this.category = category;
+        this.type = type;
     }
 
-    //Render to flatlist
-    const renderService = ({ item }) => (
-        <CardMedium
-            image_source={userImages[item.id]}
-            service={item}
-            key={item.id}
-            onSelect={() => handleServiceSelect(item)}
-        />
-    );
+    componentDidMount() {
+        const { navigation } = this.props
+        if (this.category && this.category.hasOwnProperty("value")) {
+            this.fetchProduct(this.category.value);
+        }
+        if (this.type === "all") {
+            this.props.getAllProductAction(this.state.state, 5)
+        }
+        this.onBlur = navigation.addListener('blur', () => {
+            this.setState({
+                product: [],
+                loading: true
+            })
+        })
+    }
+    componentWillUnmount() {
+        this.onBlur && this.onBlur()
+        this.onFocus && this.onFocus()
+    }
+    componentDidUpdate(prevProps) {
+        const {
+            areaProductStatus,
+            areaProductResponse,
+            productListStatus,
+            productListResponse,
+        } = this.props;
 
-    const renderCategory = ({ item }) => (
-        <ProductCart
-            category={item}
-            isSelected={selectedCategory === item.title}
-            onPress={() => goToProductDatils(item)}
-            key={item.title}
-        />
-    );
+        if (
+            areaProductStatus === "success" &&
+            areaProductStatus !== prevProps.areaProductStatus &&
+            Array.isArray(areaProductResponse) &&
+            areaProductResponse.length > 0
+        ) {
+            this.setState({ product: areaProductResponse, loading: false });
+        } else {
+            if (areaProductStatus === "success" &&
+                areaProductStatus !== prevProps.areaProductStatus &&
+                Array.isArray(areaProductResponse) &&
+                areaProductResponse.length == 0) {
+                this.setState({ product: [], loading: false });
+            }
+        }
 
-    //Navigate to detail
-    const handleServiceSelect = (item) => {
-        navigation.navigate("ServiceDetailScreen", { item });
+        if (
+            productListStatus === "success" &&
+            productListStatus !== prevProps.productListStatus &&
+            Array.isArray(productListResponse) &&
+            productListResponse.length > 0
+        ) {
+            this.setState({
+                product: productListResponse,
+                loading: false
+            });
+        } else {
+            if (
+                productListStatus === "success" &&
+                productListStatus !== prevProps.productListStatus &&
+                Array.isArray(productListResponse) &&
+                productListResponse.length == 0
+            ) {
+                this.setState({
+                    product: [],
+                    loading: false
+                });
+            }
+        }
+    }
+
+    fetchProduct = (name) => {
+        this.props.getAllSpecifictProductAction("all", name)
     };
 
-    //Search function
-    const handleSearch = (text) => {
+    goToProductDetails = (item) => {
+        this.props.navigation.navigate("ServiceDetailScreen", { item });
+    };
+
+    handleSearch = (text) => {
         const searchedText = text.toLowerCase();
+        const {
+            areaProductResponse,
+            productListResponse
+        } = this.props
+        const { product } = this.state;
 
-        const filteredList = serviceList.filter((service) => {
-            const skillsMatch = service.skills.some((skill) =>
-                skill.toLowerCase().includes(searchedText)
-            );
+        if (!searchedText) {
+            if(areaProductResponse.length){
+                this.setState({
+                    product:areaProductResponse
+                })
+            }
+            if(productListResponse.length){
+                this.setState({
+                    product:productListResponse
+                })
+            }
+            return;
+        }
 
-            const expertAreaMatch = service.expert_area
-                .toLowerCase()
-                .includes(searchedText);
+        const filteredList = product.filter((p) => {
+            if (!p.metaData) return false;
 
-            return skillsMatch || expertAreaMatch;
+            let metaData;
+            try {
+                metaData = typeof p.metaData === "string" ? JSON.parse(p.metaData) : p.metaData;
+            } catch (err) {
+                return false;
+            }
+
+            const addressInfo = metaData.addressInfo || {};
+
+            return Object.values(addressInfo).some((value) => {
+                return (
+                    typeof value === "string" &&
+                    value.toLowerCase().includes(searchedText)
+                );
+            });
         });
-
-        setFilteredServiceList(filteredList);
+        this.setState({ product: filteredList });
     };
 
-    return (
-        <View style={styles.container}>
-            {loading ? (
-                <ActivityIndicator
-                    style={styles.loadingIndicator}
-                    size="large"
-                    color={colors.color_primary}
-                />
-            ) : (
-                <View style={styles.container}>
-                    {/* <View style={styles.search_container}>
-                        <SearchBar
-                            onSearch={handleSearch}
-                            placeholder_text={placegolderName ? placegolderName.toUpperCase() : ""}
-                        />
-                    </View> */}
-                    {
-                        areaProductStatus === "success" && product.length > 0 && type !== "all" && (
-                            <View style={styles.category_container}>
+
+    renderCategory = ({ item }) => {
+        return (
+            <ProductCart
+                category={item}
+                isSelected={this.state.selectedCategory === item.title}
+                onPress={() => this.goToProductDetails(item)}
+                key={item.title}
+            />
+        );
+    };
+
+    render() {
+        const { loading, product } = this.state;
+        const {
+            areaProductStatus,
+            productListStatus,
+            productListResponse,
+            areaProductResponse
+        } = this.props;
+
+        return (
+            <View style={styles.container}>
+                {(loading) ? (
+                    <ActivityIndicator
+                        style={styles.loadingIndicator}
+                        size="large"
+                        color={colors.color_primary}
+                    />
+                ) : (
+                    <View style={styles.container}>
+                        <View style={styles.search_container}>
+                            <SearchBar
+                                onSearch={this.handleSearch}
+                                placeholder_text="Search by place....."
+                            />
+                        </View>
+
+                        {areaProductStatus === "success" &&
+                            product.length > 0 &&
+                            this.type !== "all" && (
+                                <View style={styles.category_container}>
+                                    <FlatList
+                                        horizontal={false}
+                                        showsHorizontalScrollIndicator={false}
+                                        snapToInterval={sizes.width}
+                                        decelerationRate={"normal"}
+                                        data={product}
+                                        keyExtractor={(category) => category._id}
+                                        renderItem={this.renderCategory}
+                                    />
+                                </View>
+                            )}
+
+                        {productListStatus === "success" &&
+                            product.length > 0 &&
+                            this.type === "all" && (
                                 <FlatList
                                     horizontal={false}
                                     showsHorizontalScrollIndicator={false}
@@ -135,49 +219,21 @@ export default function SearchScreen({ navigation, route }) {
                                     decelerationRate={"normal"}
                                     data={product}
                                     keyExtractor={(category) => category._id}
-                                    renderItem={renderCategory}
+                                    renderItem={this.renderCategory}
                                 />
-                            </View>
-                        )
-                    }
-                    {
-                        productListStatus === "success" && product.length > 0 && type==="all" && (
-                            <FlatList
-                                horizontal={false}
-                                showsHorizontalScrollIndicator={false}
-                                snapToInterval={sizes.width}
-                                decelerationRate={"normal"}
-                                data={product}
-                                keyExtractor={(category) => category._id}
-                                renderItem={renderCategory}
-                            />
-                        )
-                    }
-                    {/* <View style={styles.category_container}>
-                        <FlatList
-                            horizontal={false}
-                            showsHorizontalScrollIndicator={false}
-                            snapToInterval={sizes.width}
-                            decelerationRate={"fast"}
-                            data={categories}
-                            keyExtractor={(category) => category.name}
-                            renderItem={renderCategory}
-                        />
-                    </View> */}
-
-                    {/* <View style={styles.list_container}>
-                        <FlatList
-                            horizontal={false}
-                            data={filteredServiceList}
-                            renderItem={renderService}
-                            keyExtractor={(item) => item.id.toString()}
-                            contentContainerStyle={{ paddingBottom: 330 }} //scroll viewdan dolayı flatlist gömülüyordu
-                        />
-                    </View> */}
-                </View>
-            )}
-        </View>
-    );
+                            )}
+                        {
+                            !loading && product.length === 0 && (
+                                <Text style={[styles.search_container]}>
+                                    Property Not Available In This Catagory Yet!
+                                </Text>
+                            )
+                        }
+                    </View>
+                )}
+            </View>
+        );
+    }
 }
 
 const styles = StyleSheet.create({
@@ -191,7 +247,6 @@ const styles = StyleSheet.create({
     },
     category_container: {
         marginHorizontal: 4,
-        // marginBottom:100
     },
     list_container: {
         marginBottom: 32,
@@ -203,15 +258,18 @@ const styles = StyleSheet.create({
     },
 });
 
+const mapStateToProps = (state) => ({
+    areaProductStatus: state.product.areaProductStatus,
+    areaProductResponse: state.product.areaProductResponse,
+    areaProductError: state.product.areaProductError,
+    productListStatus: state.product.productListStatus,
+    productListResponse: state.product.productListResponse,
+    productListError: state.product.productListError,
+});
 
-function SearchPlaceholderName(name) {
-    switch (name) {
-        case "catagoryClick":
-            return "Search Catagory"
-        case "cardClick":
-            return "Search Product"
+const mapDispatchToProps = {
+    getAllSpecifictProductAction,
+    getAllProductAction,
+};
 
-        default:
-            return name
-    }
-}
+export default connect(mapStateToProps, mapDispatchToProps)(SearchScreen);

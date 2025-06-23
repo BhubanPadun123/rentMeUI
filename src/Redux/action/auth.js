@@ -113,3 +113,28 @@ export const cleanupUpdate=()=>{
         })
     }
 }
+
+export const forgetPasswordAction=(data)=>{
+    return async(dispatch)=>{
+        dispatch({
+            type:actionType.FORGET_PASSWORD,
+            payload:{}
+        })
+        const {
+            response,
+            error
+        } = await apiRequest('post',`${apiPath.auth}/forget_password`,data)
+        if(error){
+            dispatch({
+                type:actionType.FORGET_PASSWORD_ERROR,
+                payload:error.message ? error.message : error
+            })
+        }
+        if(response){
+            dispatch({
+                type:actionType.FORGET_PASSWORD_RESPONSE,
+                payload:response.data
+            })
+        }
+    }
+}

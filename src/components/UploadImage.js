@@ -8,11 +8,13 @@ import { uploadImagesToCloudinary } from "../APIs/uploadImage";
 export default function UploadImage({
     photoURL,
     handleUpdateToDb,
-    imgUrl
+    imgUrl,
+    onSelect
 }) {
     const [image, setImage] = useState(photoURL);
 
     const addImage = async () => {
+        onSelect()
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,

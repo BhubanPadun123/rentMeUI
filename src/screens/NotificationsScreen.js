@@ -1,112 +1,147 @@
-import { getAuth } from "firebase/auth";
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { Component } from "react";
 import {
     View,
     Text,
     StyleSheet,
-    ScrollView,
-    ActivityIndicator,
     FlatList,
-    TouchableOpacity
+    TouchableOpacity,
 } from "react-native";
-import { colors } from "../styles/Theme";
-import CardAppointmentSmall from "../components/CardAppointmentSmall";
-import Loader from "../components/Loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useSelector, useDispatch } from "react-redux";
+import { connect } from "react-redux";
 import {
     getNotificationAction,
     deleteNotification,
-    clearNotification
+    clearNotification,
 } from "../Redux/action/product";
+import { colors } from "../styles/Theme";
+import Loader from "../components/Loader";
+import {
+    ListItem
+} from "@rneui/themed"
 
+class NotificationsScreen extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            userInfo: null,
+            selectedId: null,
+            path: "",
+            loading: true
+        };
+    }
 
-export default function NotificationsScreen({ navigation }) {
-    const dispatch = useDispatch()
-    const [appointmentList, setAppointmentList] = useState([]);
-    const [userInfo, setUserInfo] = useState(null)
-
-
-    useEffect(() => {
-        fetchUserData()
-    }, [])
-
-    const {
-        getNotificationError,
-        getNotificationResponse,
-        getNotificationStatus
-    } = useSelector((state) => state.product)
-
-
-    async function fetchUserData() {
-        const data = await AsyncStorage.getItem('currentUser')
-        if (data) {
-            const userData = JSON.parse(data)
-            setUserInfo(userData)
-            dispatch(getNotificationAction(userData._id))
-        } else {
-            gotToLogin()
+    componentDidMount() {
+        this.fetchUserData()
+    }
+    componentDidUpdate(prevProps) {
+        if (this.props.getNotificationStatus === "started" && this.props.getNotificationStatus != prevProps.getNotificationStatus) {
+            this.setState({
+                loading: true
+            })
+        }
+        if (this.props.getNotificationStatus === "success" && this.props.getNotificationStatus != prevProps.getNotificationStatus) {
+            this.setState({
+                loading: false
+            })
+        }
+        if (this.props.deleteNotificationStatus === "started" && this.props.deleteNotificationStatus != prevProps.deleteNotificationStatus) {
+            this.setState({
+                loading: true
+            })
+        }
+        if (this.props.deleteNotificationStatus === "success" && this.props.deleteNotificationStatus != prevProps.deleteNotificationStatus) {
+            this.setState({
+                loading: false
+            }, () => {
+                if (this.state.path) {
+                    this.props.navigation.navigate(this.state.path)
+                }
+            })
         }
     }
 
+    fetchUserData = async () => {
+        const data = await AsyncStorage.getItem("currentUser");
+        if (data) {
+            const userData = JSON.parse(data);
+            this.setState({
+                userInfo: userData
+            }, () => {
+                this.props.getNotificationAction(userData._id)
+            });
+        } else {
+            this.goToLogin();
+        }
+    };
 
+    goToLogin = () => {
+        this.props.navigation.navigate("Profile", {
+            screen: "LoginScreen"
+        });
+    };
 
-    function gotToLogin() {
-        navigation.navigate("LoginScreen");
-    }
+    goToLocation = (path, id) => {
+        if (!path || !id) return;
+        this.setState({
+            selectedId: id,
+            path: path
+        }, () => {
+            this.props.deleteNotification(id)
+            this.props.clearNotification()
+        })
+    };
 
-    function goToLocation(path,id){
-        if(!path || !id) return
-        dispatch(deleteNotification(id))
-        dispatch(clearNotification())
-        navigation.navigate(path)
-    }
-
-    function RenderItem({ item }) {
+    renderItem = ({ item }) => {
         return (
-            <TouchableOpacity style={styles.cartContainer} onPress={()=> {
-                if(item && item.hasOwnProperty('redirectLink') && item._id){
-                    goToLocation(item.redirectLink,item._id)
-                }
-            }}>
-                <Text style={{
-                    fontSize: 24,
-                    color: colors.color_white,
-                    fontWeight: 'bold',
-                    textAlign: 'center'
-                }}>{item && item.hasOwnProperty('title') && item.title}</Text>
-                <Text style={{
-                    fontSize: 14,
-                    color: colors.color_secondary,
-                    fontWeight: 'bold',
-                    textAlign: 'center'
-                }}>
-                    {item && item.hasOwnProperty('message') && item.message}
-                </Text>
+            <TouchableOpacity
+                onPress={() => {
+                    if (item && item.redirectLink && item._id) {
+                        this.goToLocation(item.redirectLink, item._id);
+                    }
+                }}
+            >
+                <ListItem bottomDivider
+                    containerStyle={{
+                        flexDirection: 'column'
+                    }}
+                >
+                    <ListItem.Title style={{ fontSize: 14, fontWeight: 'bold' }}>{item?.title}</ListItem.Title>
+                    <ListItem.Subtitle style={{ textAlign: 'center', fontSize: 10 }}>{item?.message}</ListItem.Subtitle>
+                </ListItem>
             </TouchableOpacity>
-        )
+        );
+    };
+
+    render() {
+        const {
+            getNotificationStatus,
+            getNotificationResponse,
+        } = this.props;
+
+        return (
+            <View style={styles.container}>
+                {this.state.loading && <Loader />}
+
+                {getNotificationStatus === "success" &&
+                    Array.isArray(getNotificationResponse) &&
+                    getNotificationResponse.length > 0 && (
+                        <FlatList
+                            data={getNotificationResponse}
+                            keyExtractor={(item) => item._id}
+                            renderItem={this.renderItem}
+                        />
+                    )}
+
+                {getNotificationStatus === "success" &&
+                    Array.isArray(getNotificationResponse) &&
+                    getNotificationResponse.length === 0 && (
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>Notification Empty!</Text>
+                        </View>
+                    )}
+            </View>
+        );
     }
-
-
-    return (
-        <View style={styles.container}>
-            {
-                getNotificationStatus === "success" && getNotificationResponse && Array.isArray(getNotificationResponse) && (
-                    <FlatList
-                        data={getNotificationResponse}
-                        keyExtractor={(item) => item._id}
-                        renderItem={RenderItem}
-                    />
-                )
-            }
-            {
-                getNotificationStatus === "started" && (
-                    <Loader />
-                )
-            }
-        </View>
-    );
 }
 
 const styles = StyleSheet.create({
@@ -120,7 +155,46 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         marginVertical: 10,
         backgroundColor: colors.color_light_gray,
-        overflow: 'hidden',
-        borderRadius: 4
-    }
+        overflow: "hidden",
+        borderRadius: 4,
+    },
+    titleText: {
+        fontSize: 24,
+        color: colors.color_white,
+        fontWeight: "bold",
+        textAlign: "center",
+    },
+    messageText: {
+        fontSize: 14,
+        color: colors.color_secondary,
+        fontWeight: "bold",
+        textAlign: "center",
+    },
+    emptyContainer: {
+        flex: 1,
+        backgroundColor: colors.color_light_gray,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    emptyText: {
+        textAlign: "center",
+        fontSize: 20,
+        color: colors.color_secondary,
+    },
 });
+
+const mapStateToProps = (state) => ({
+    getNotificationError: state.product.getNotificationError,
+    getNotificationResponse: state.product.getNotificationResponse,
+    getNotificationStatus: state.product.getNotificationStatus,
+    deleteNofiticationError: state.product.deleteNofiticationError,
+    deleteNotificationResponse: state.product.deleteNotificationResponse,
+    deleteNotificationStatus: state.product.deleteNotificationStatus
+});
+const mapDispatchToProps = {
+    getNotificationAction,
+    deleteNotification,
+    clearNotification,
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(NotificationsScreen);

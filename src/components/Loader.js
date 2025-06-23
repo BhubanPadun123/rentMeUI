@@ -27,17 +27,16 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 0,
         left: 0,
-        width:sizes.width,
-        height:sizes.height,
+        // width:sizes.width,
+        // height:sizes.height,
         backgroundColor: 'rgba(0, 0, 0, 0.2)',
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1000,
-        ...Platform.select({
-            android: {
-                elevation: 10,
-            },
-        }),
+        flex:1,
+        flexGrow:1,
+        width:"100%",
+        height:"100%"
     }
 });
 

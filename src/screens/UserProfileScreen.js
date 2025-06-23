@@ -1,632 +1,292 @@
-import React, { useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { TouchableWithoutFeedback, Keyboard, Platform, View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, KeyboardAvoidingView } from "react-native";
-import { getAuth, signOut } from "firebase/auth";
-import app from "../../firebaseConfig";
-import { Feather } from "@expo/vector-icons";
-import CardSmall from "../components/CardSmall";
+import React, { Component } from "react";
+import {
+    View,
+    StyleSheet,
+    ScrollView,
+    KeyboardAvoidingView,
+    Platform
+} from "react-native";
+import {
+    Text,
+    Avatar,
+    Divider,
+    ListItem,
+    Card,
+    Input,
+    Button
+} from "@rneui/themed"
+import { connect } from "react-redux";
+import * as Notifications from 'expo-notifications';
+import { getNotificationAction } from "../Redux/action/product";
+import { updateUserMetaDataAction, cleanupUpdate } from "../Redux/action/auth";
 import { showTopMessage } from "../utils/ErrorHandler";
 import { colors, sizes } from "../styles/Theme";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import UploadImage from "../components/UploadImage";
-import { getUser, updateUser, getUserInfo } from "../APIs/userApi";
-import { Formik } from "formik";
-import InputBar from "../components/InputBar";
-import Button from "../components/Button/Button";
-import Icons from "../utils/Icons";
-import DropdownSelect from "../components/SingleSelect";
-import tabsImages from "../utils/TabsImages";
-import { updateUserMetaDataAction, cleanupUpdate } from "../Redux/action/auth";
-import { useDispatch, useSelector } from "react-redux"
-import ImageButton from "../components/Button/ProfileButton";
-import { getNotificationAction } from "../Redux/action/product";
-import * as Notifications from 'expo-notifications';
+import Loader from "../components/Loader"
 
-export default function UserProfileScreen({ navigation }) {
-    const dispatch = useDispatch()
-    let initialFormValues = {
-        state: "",
-        district: "",
-        pinCode: "",
-        town: "",
-        localAddress: "",
-        workingProfissional: ""
-    }
-    const [state, setState] = React.useState({
-        user: {
-            id: "",
-            displayName: "",
-            email: "",
-            emailVerified: false,
-            phoneNumber: "",
-            createdAt: "",
-            photoURL: ""
-        },
-        metaData: {},
-        loading: false,
-        isUserInfoAvailable: false,
-        toggleProfile: false,
-        userMetaData: {}
-    })
-
-    const {
-        metaDataResponse,
-        metaDataStatus,
-        metaDataError,
-    } = useSelector((state) => state.auth);
-
-    const {
-        getNotificationError,
-        getNotificationResponse,
-        getNotificationStatus
-    } = useSelector((state) => state.product)
-
-    useEffect(() => {
-        const handleShowNotification = () => {
-            if (getNotificationStatus === "success" && getNotificationResponse && Array.isArray(getNotificationResponse) && getNotificationResponse.length > 0) {
-                getNotificationResponse.map((item) => {
-                    const data = {
-                        title: item.title,
-                        message: item.message,
-                    }
-                    showNotification(data);
-                })
-            }
-        }
-        handleShowNotification();
-    }, [getNotificationStatus])
-
-    async function showNotification(data) {
-        await Notifications.scheduleNotificationAsync({
-            content: {
-                title: data.title,
-                body: data.message,
-                sound: 'default'
-            },
-            trigger: {
-                type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-                seconds: 5
-            }
-        })
+class UserProfileScreen extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            userData: null,
+            openAddress: false,
+            openContact: false,
+            userType: null,
+            photoURL: null,
+            loading: false,
+            state: "",
+            district: "",
+            localAddress: "",
+            photoURL: "",
+            pinCode: "",
+            town: ""
+        };
     }
 
+    async componentDidMount() {
+        const currentUser = await AsyncStorage.getItem('currentUser')
+        if (currentUser) {
+            const data = JSON.parse(currentUser)
+            this.setState({
+                userData: data
+            })
+        } else {
+            this.props.navigation.navigate("LoginScreen")
+        }
+        // this.props.getNotificationAction(this.state.user._id);
+    }
 
-    useEffect(() => {
-        if (metaDataStatus === "success") {
-            showTopMessage("Data updated successfully", "success")
-            if (metaDataResponse && metaDataResponse.hasOwnProperty("metaData")) {
-                const metaData = JSON.parse(metaDataResponse.metaData)
-                setState((prevState) => ({
-                    ...prevState,
-                    metaData: metaData,
-                    loading: false,
-                    isUserInfoAvailable: true
-                }))
-                setTimeout(()=>{
-                    handleSignOut()
-                },2000)
-            }
-        }
-        if (metaDataStatus === "failed") {
-            showTopMessage(metaDataError.message ? metaDataError.message : "Error while update the data", "danger")
-            setState((prevState) => ({
-                ...prevState,
-                loading: false
-            }))
-        }
-        if (metaDataStatus === "started") {
-            setState((prevState) => ({
-                ...prevState,
+    componentWillUnmount() {
+        this.props.cleanupUpdate();
+    }
+    componentDidUpdate(nextProps) {
+        if (this.props.metaDataStatus === "started" && nextProps.metaDataStatus != this.props.metaDataStatus) {
+            this.setState({
                 loading: true
-            }))
+            })
         }
-    }, [metaDataStatus])
-
-    useEffect(() => {
-        const isValidUserMetaData =
-            state.userMetaData &&
-            typeof state.userMetaData === "object" &&
-            Object.keys(state.userMetaData).length > 1;
-    
-        if (!isValidUserMetaData) {
-            setState((prevState)=>({
-                ...prevState,
-                isUserInfoAvailable:false,
-                toggleProfile:true
-            }))
-        }
-    }, [state.userMetaData]);
-
-
-    const fetchUserData = async () => {
-        const userInfo = await AsyncStorage.getItem("currentUser")
-        const metaData = await AsyncStorage.getItem("userMetaData")
-        console.log(typeof metaData)
-        if (userInfo) {
-            const userData = JSON.parse(userInfo)
-            dispatch(getNotificationAction(userData._id));
-            setState((prevState) => ({
-                ...prevState,
-                user: {
-                    ...prevState.user,
-                    ...JSON.parse(userInfo)
-                },
-                metaData: metaData ? JSON.parse(metaData) : null,
-                isUserInfoAvailable: metaData ? true : false,
-                userMetaData: metaData && JSON.parse(metaData).hasOwnProperty('metaData') ? JSON.parse(JSON.parse(metaData).metaData) : null
-            }))
+        if (this.props.metaDataStatus === "success" && nextProps.metaDataStatus != this.props.metaDataStatus) {
+            this.setState({
+                loading: false
+            }, () => {
+                if (this.props.metaDataResponse && this.props.metaDataResponse.hasOwnProperty('metaData')) {
+                    AsyncStorage.setItem("currentUser", JSON.stringify(this.props.metaDataResponse.metaData))
+                    this.setState({
+                        userData: this.props.metaDataResponse.metaData
+                    })
+                }
+            })
         }
     }
-    
-    React.useEffect(() => {
-        fetchUserData()
-        return () => {
-            dispatch(cleanupUpdate())
+
+    handleUpdateMetadata = () => {
+        if (!this.state.userData) {
+            this.props.navigation.navigate("LoginScreen")
         }
-    }, [])
-    //sing out user
-    function goToMyBooking() {
-        navigation.navigate("ServiceBookingScreen", { item: {} })
-    }
-    function goToNotification() {
-        navigation.navigate("NotificationsScreen")
-    }
-    function goToEditStock() {
-        navigation.navigate("UpdateProductStock")
-    }
-    function goToRecord() {
-        navigation.navigate('Record')
-    }
-    function goToEarning() {
-        navigation.navigate("Earning")
-    }
-    async function handleSignOut() {
-        await AsyncStorage.removeItem('currentUser')
-        await AsyncStorage.removeItem('userMetaData')
-        await AsyncStorage.removeItem('userToken')
-        await AsyncStorage.removeItem('refreshToken')
-        goToLogin()
-    }
-
-    // Navigation
-    function goToLogin() {
-        navigation.navigate("LoginScreen");
-    }
-
-    // Navigation
-    function goToBookingHistory() {
-        navigation.navigate("BookingHistoryScreen");
-    }
-    function goToHome() {
-        navigation.navigate("Home");
-    }
-    function goToAddProperty() {
-        navigation.navigate("PropertyRegisterScreen");
-    }
-    function goToBookingStatusUpdate() {
-        navigation.navigate("FeedBackScreen");
-    }
-    function handleUpdateUser(formValues) {
+        const {
+            photoURL,
+            state,
+            district,
+            localAddress,
+            town,
+            pinCode,
+            userData
+        } = this.state
         const data = {
-            state: formValues.state,
-            district: formValues.district,
-            pinCode: formValues.pinCode,
-            localAddress: formValues.localAddress,
-            town: formValues.town,
-            photoURL: state.user.photoURL,
+            photoURL,
+            state,
+            district,
+            localAddress,
+            town,
+            pinCode
         }
-        let isError = null
+        let isError = false
         Object.entries(data).map((item) => {
             if (!item[1]) {
-                showTopMessage(`${item[0]} is mandatory*`, "danger")
+                showTopMessage(`${item[0]} field value missing`, "info")
                 isError = true
                 return
             }
         })
         if (isError) return
-        dispatch(updateUserMetaDataAction(data, state.user._id))
+        this.props.updateUserMetaDataAction(data, userData._id)
     }
-    return (
-        <View style={styles.container}>
-            <View style={{
-                marginHorizontal: 20,
-                display: 'flex',
-                flexDirection: "column",
-                alignItems: 'center',
-                gap: 8,
-                justifyContent: "space-around"
-            }}>
-                <View style={{
-                    display: "flex",
-                    flexDirection: 'row',
-                    justifyContent: "space-between",
-                    width: "100%",
-                    alignItems: 'center',
-                    gap: 14,
-                    backgroundColor: colors.color_light_gray,
-                    paddingVertical: 4,
-                    paddingRight: 8,
-                    borderRadius: 8
-                }}>
-                    <Text style={[state.toggleProfile, { padding: 4, fontSize: 20, color: colors.color_secondary, fontWeight: 'bold' }]}>Welcome To HomeKert</Text>
-                    <TouchableOpacity
-                        onPress={() => {
-                            setState((prevState) => ({
-                                ...prevState,
-                                toggleProfile: !prevState.toggleProfile
-                            }))
-                        }}
-                    >
-                        <Image source={Icons.edit} style={{ height: 20, width: 20 }} />
-                    </TouchableOpacity>
-                </View>
-                <View
-                    style={{
-                        width: "100%",
-                        height: 1,
-                        backgroundColor: colors.color_primary
-                    }}
-                />
-            </View>
-            {
-                !state.toggleProfile && (
-                    <ScrollView>
-                        <View style={styles.section_container}>
-                            <View style={styles.row}>
-                                {
-                                    state.user && state.user.hasOwnProperty('userType') && (
-                                        state.user.userType === "owner" ||
-                                        state.user.userType === "supper_admin" ||
-                                        state.user.userType === "admin"
-                                    ) && (
-                                        <>
-                                            <ImageButton
-                                                title={"Register Property"}
-                                                imageSource={Icons.add}
-                                                onPress={goToAddProperty}
-                                            />
-                                            <ImageButton
-                                                title={"Update Booking Status"}
-                                                imageSource={Icons.status}
-                                                onPress={goToBookingStatusUpdate}
-                                            />
-                                        </>
-                                    )
-                                }
-                            </View>
-                            <View style={styles.row}>
-                                <ImageButton
-                                    title={"Home"}
-                                    imageSource={tabsImages.Home}
-                                    onPress={goToHome}
-                                />
-                                <ImageButton
-                                    title={"Logout"}
-                                    imageSource={Icons.logout}
-                                    onPress={handleSignOut}
-                                />
-                            </View>
-                            <View style={styles.row}>
-                                <ImageButton
-                                    title={"My Booking"}
-                                    imageSource={Icons.cart}
-                                    onPress={goToMyBooking}
-                                />
-                                <ImageButton
-                                    title={"Notification"}
-                                    imageSource={Icons.notification}
-                                    onPress={goToNotification}
-                                    renderChild={
-                                        <Text style={{
-                                            color: "red",
-                                            textAlign: "left",
-                                            fontSize: 20,
-                                            fontWeight: 'bold',
-                                            // borderWidth:1,
-                                            // backgroundColor:colors.color_light_gray,
-                                            // padding:4,
-                                            // borderRadius:20,
-                                            position: "absolute",
-                                            zIndex: 20
-                                        }}>
-                                            {
-                                                getNotificationStatus === "success" && getNotificationResponse ? getNotificationResponse.length : null
-                                            }
-                                        </Text>
-                                    }
-                                />
-                            </View>
-                            {
-                                state.user && state.user.hasOwnProperty('userType') && (
-                                    state.user.userType === "owner" ||
-                                    state.user.userType === "supper_admin" ||
-                                    state.user.userType === "admin"
-                                ) && (
-                                    <View style={styles.row}>
-                                        <ImageButton
-                                            title={"Edit Stocks"}
-                                            imageSource={Icons.stock}
-                                            onPress={goToEditStock}
-                                        />
-                                        <ImageButton
-                                            title={"Stock Record's"}
-                                            imageSource={Icons.stockReport}
-                                            onPress={goToRecord}
-                                        />
-                                    </View>
-                                )
-                            }
-                            {
-                                state.user && state.user.hasOwnProperty('userType') && (
-                                    state.user.userType === "supper_admin"
-                                ) && (
-                                    <View style={styles.row}>
-                                        <ImageButton
-                                            title={"Booking Record's"}
-                                            imageSource={Icons.stockReport}
-                                            onPress={goToRecord}
-                                        />
-                                        <ImageButton
-                                            title={"Earning Record's"}
-                                            imageSource={Icons.saleRepost}
-                                            onPress={goToEarning}
-                                        />
-                                    </View>
-                                )
-                            }
-                        </View>
-                    </ScrollView>
-                )
-            }
-            {
-                state.toggleProfile  && (
-                    <View style={styles.user_card}>
-                        <View style={styles.title_container}>
-                            <Text style={styles.title}>
-                                {
-                                    state.user.displayName && state.user.displayName
-                                }
-                            </Text>
-                            <Text style={styles.desc}>{state.user.userEmail && state.user.userEmail}</Text>
-                            <Text style={styles.desc}>{state.user.userContactNumber && state.user.userContactNumber}</Text>
-                        </View>
-                        <UploadImage
-                            photoURL={state.userMetaData && state.userMetaData.photoURL && state.userMetaData.photoURL}
-                            handleUpdateToDb={(img) => {
-                                setState((prevState) => ({
-                                    ...prevState,
-                                    user: { ...prevState.user, photoURL: img }
-                                }))
-                            }}
-                            imgUrl={state.userMetaData && state.userMetaData.photoURL && state.userMetaData.photoURL}
-                        />
-                    </View>
-                )
-            }
-
-
-            {
-                !state.isUserInfoAvailable && (
-                    <Formik
-                        initialValues={{ initialFormValues }}
-                        onSubmit={handleUpdateUser}
-                    >
-                        {
-                            ({ values, handleChange, handleSubmit }) => (
-                                <KeyboardAvoidingView
-                                    behavior={Platform.OS === "ios" ? "padding" : "height"}
-                                    keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-                                    style={{
-                                        flex: 1,
-                                        marginTop: 10,
-                                        marginHorizontal: 10
-                                    }}
-                                >
-                                    <ScrollView style={{
-                                        flex: 1,
-                                        marginBottom: 20
-                                    }}>
-                                        <View style={styles.input_container}>
-                                            <DropdownSelect
-                                                placeholder="Select working profissional"
-                                                options={
-                                                    [
-                                                        { value: "student", label: "Student" },
-                                                        { value: "working", label: "Working professional" },
-                                                        { value: "business", label: "Business man" }
-                                                    ]
-                                                }
-                                                onValueChange={handleChange("workingProfissional")}
-                                                selectedValue={values.workingProfissional}
-
-                                            />
-                                            <InputBar
-                                                onType={handleChange("state")}
-                                                value={values.state}
-                                                placeholder={"Enter State Name"}
-                                            />
-                                            <InputBar
-                                                onType={handleChange("district")}
-                                                value={values.district}
-                                                placeholder={"Enter District Name"}
-                                            />
-                                            <InputBar
-                                                onType={handleChange("pinCode")}
-                                                value={values.pinCode}
-                                                placeholder={"Enter Pin Code"}
-                                            />
-                                            <InputBar
-                                                onType={handleChange("town")}
-                                                value={values.town}
-                                                placeholder={"Enter Town Name"}
-                                            />
-                                            <InputBar
-                                                onType={handleChange("localAddress")}
-                                                value={values.localAddress}
-                                                placeholder={"Enter Local Address Details"}
-                                            />
-                                        </View>
-                                        <View style={styles.button_container} >
-                                            <Button
-                                                text={"Update"}
-                                                onPress={handleSubmit}
-                                                loading={state.loading}
-                                            />
-                                        </View>
-                                    </ScrollView>
-                                </KeyboardAvoidingView>
-                            )
-                        }
-                    </Formik>
-                )
-            }
-            {
-                state.toggleProfile && state.isUserInfoAvailable && state.userMetaData && (
-                    <ScrollView style={{
-                        flex: 1,
-                        marginBottom: 20
+    render() {
+        const {
+            userData
+        } = this.state
+        const metaData = userData && userData.hasOwnProperty('metaData') ? JSON.parse(userData.metaData) : null
+        let addsData = ""
+        if (metaData && Object.entries(metaData).length) {
+            Object.entries(metaData).map((item) => {
+                if (item[0] != "photoURL") {
+                    addsData = addsData + `${item[1]} ,`
+                }
+            })
+        }
+        return (
+            <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={{ flex: 1 }}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+            >
+                <ScrollView
+                    contentContainerStyle={{ flexGrow: 1, marginTop: 50 }}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        // maxHeight: 60,
+                        padding: 4
                     }}>
                         {
-                            state.userMetaData && state.userMetaData.state && (
-                                <CardSmall
-                                    iconName={"user"}
-                                    text={state.userMetaData.state}
+                            metaData && metaData.hasOwnProperty('photoURL') ? (
+                                <Avatar
+                                    size={50}
+                                    rounded
+                                    source={{
+                                        uri: metaData && metaData.hasOwnProperty('photoURL') ? metaData.photoURL : ""
+                                    }}
+                                />
+                            ) : (
+                                <UploadImage
+                                    photoURL={this.state.photoURL}
+                                    imgUrl={this.state.photoURL}
+                                    handleUpdateToDb={(e) => {
+                                        this.setState({
+                                            photoURL: e,
+                                            loading: false
+                                        })
+                                    }}
+                                    onSelect={() => { this.setState({ loading: true }) }}
                                 />
                             )
                         }
-                        {
-                            state.userMetaData.district && state.userMetaData.district && (
-                                <CardSmall
-                                    iconName={"user"}
-                                    text={state.userMetaData.district}
+                    </View>
+                    <Divider />
+                    {
+                        userData && userData.hasOwnProperty('userName') ? (
+                            <View style={styles.infoConteinr}>
+                                <Text style={{
+                                    textAlign: 'center',
+                                    fontSize: 20,
+                                    color: colors.color_primary,
+                                    fontWeight: 'bold'
+                                }}>{userData.userName}</Text>
+                                <ListItem.Accordion style={{ marginTop: 30 }}
+                                    content={
+                                        <ListItem.Content>
+                                            <ListItem.Title>Address detail</ListItem.Title>
+                                        </ListItem.Content>
+                                    }
+                                    isExpanded={this.state.openAddress}
+                                    onPress={() => this.setState({ openAddress: !this.state.openAddress })}
+                                >
+                                    <Card>
+                                        <Card.Title>{addsData}</Card.Title>
+                                    </Card>
+                                </ListItem.Accordion>
+                                <ListItem.Accordion content={
+                                    <ListItem.Content>
+                                        <ListItem.Title>Contact detail</ListItem.Title>
+                                    </ListItem.Content>
+                                }
+                                    isExpanded={this.state.openContact}
+                                    onPress={() => this.setState({ openContact: !this.state.openContact })}
+                                >
+                                    <Card>
+                                        <Card.Title>Phone Number {`(${userData.hasOwnProperty('userContactNumber') && userData.userContactNumber})`}</Card.Title>
+                                        <Card.Title>Email Address {`(${userData.hasOwnProperty('userEmail') && userData.userEmail})`}</Card.Title>
+                                    </Card>
+                                </ListItem.Accordion>
+                                <Button
+                                    title={"LOGOUT"}
+                                    type='outline'
+                                    size='sm'
+                                    onPress={async () => {
+                                        await AsyncStorage.clear()
+                                        this.props.navigation.navigate("LoginScreen")
+                                    }}
                                 />
-                            )
-                        }
-                        {
-                            state.userMetaData.pinCode && state.userMetaData.pinCode && (
-                                <CardSmall
-                                    iconName={"user"}
-                                    text={state.userMetaData.pinCode}
+                            </View>
+                        ) : (
+                            <View style={styles.infoConteinr}>
+                                <Input
+                                    placeholder="Enter State Name"
+                                    value={this.state.state}
+                                    onChangeText={(e) => this.setState({ state: e })}
                                 />
-                            )
-                        }
-                        {
-                            state.userMetaData.town && state.userMetaData.town && (
-                                <CardSmall
-                                    iconName={"user"}
-                                    text={state.userMetaData.town}
+                                <Input
+                                    placeholder="Enter Distrct Name"
+                                    value={this.state.district}
+                                    onChangeText={(e) => this.setState({ district: e })}
                                 />
-                            )
-                        }
-                        {
-                            state.userMetaData.localAddress && state.userMetaData.localAddress && (
-                                <CardSmall
-                                    iconName={"user"}
-                                    text={state.userMetaData.localAddress}
+                                <Input
+                                    placeholder="Enter PIN Code"
+                                    value={this.state.pinCode}
+                                    onChangeText={(e) => this.setState({ pinCode: e })}
+                                    keyboardType='number-pad'
                                 />
-                            )
-                        }
-                        {
-                            state.user.userType && (
-                                <CardSmall
-                                    iconName={"user"}
-                                    text={state.user.userType}
+                                <Input
+                                    placeholder="Enter Town Name"
+                                    value={this.state.town}
+                                    onChangeText={(e) => this.setState({ town: e })}
                                 />
-                            )
-                        }
-                    </ScrollView>
-                )
-            }
-
-        </View>
-    );
+                                <Input
+                                    placeholder="Enter Local Address"
+                                    value={this.state.localAddress}
+                                    onChangeText={(e) => this.setState({ localAddress: e })}
+                                    multiline
+                                />
+                                <Button
+                                    title={"UPDATE"}
+                                    size='lg'
+                                    color={'secondary'}
+                                    onPress={this.handleUpdateMetadata}
+                                />
+                            </View>
+                        )
+                    }
+                </ScrollView>
+                {
+                    this.state.loading && (
+                        <Loader />
+                    )
+                }
+            </KeyboardAvoidingView>
+        )
+    }
 }
 
+const mapStateToProps = (state) => ({
+    metaDataResponse: state.auth.metaDataResponse,
+    metaDataStatus: state.auth.metaDataStatus,
+    metaDataError: state.auth.metaDataError,
+    getNotificationError: state.product.getNotificationError,
+    getNotificationResponse: state.product.getNotificationResponse,
+    getNotificationStatus: state.product.getNotificationStatus,
+});
+
+const mapDispatchToProps = {
+    getNotificationAction,
+    updateUserMetaDataAction,
+    cleanupUpdate,
+};
+
 const styles = StyleSheet.create({
-    container: {
+    root: {
+        // flex: 1,
+        paddingTop: 50,
+        backgroundColor: colors.color_light_gray
+    },
+    infoConteinr: {
+        marginTop: 8,
         flex: 1,
-        marginTop: 48,
-    },
-    user_card: {
-        flexDirection: "row",
-        borderRadius: 20,
-        marginHorizontal: 24,
-        marginBottom: 16,
-        backgroundColor: colors.color_white,
-        padding: 16
-    },
-    section_container: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: "center",
-        paddingHorizontal: 16,
-        paddingTop: 20,
-        alignItems: 'center',
-        height: sizes.height
-    },
-    text_container: {
-        flex: 1,
-    },
-    title_container: {
-        flex: 1,
-        justifyContent: "center",
-        paddingHorizontal: 16
-    },
-    title: {
-        fontSize: 18,
-        color: colors.color_primary
-        //fontFamily: "Mulish-Medium",
-    },
-    desc: {
-        fontSize: 14,
-        //fontFamily: "Mulish-Light",
-        color: colors.color_secondary,
-    },
-    logout_container: {
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center"
-    },
-    header_text: {
-        marginHorizontal: 24,
-        marginVertical: 16,
-        fontSize: 30,
-        textAlign: 'center',
-        color: colors.color_primary
-        //fontFamily: "Mulish-Medium",
-    },
-    logo_container: {
-        flex: 1,
-        marginVertical: 24,
-        alignItems: "center",
-    },
-    logo_text: {
-        fontSize: 34,
-        //fontFamily: "Mulish-Medium",
-        color: colors.color_light_gray,
-    },
-    icon: {
-        padding: 4,
-    },
-    text: {
-        padding: 8,
-        fontSize: 18,
-        //fontFamily: "Mulish-Medium",
-    },
-    input_container: {
-        flex: 1,
-        marginHorizontal: 10
-    },
-    button_container: {
-        paddingVertical: 8,
-    },
-    button: {
-        paddingVertical: 8,
-        flexDirection: "row",
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 16,
+        flexGrow: 1,
         gap: 8
     }
-});
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserProfileScreen);

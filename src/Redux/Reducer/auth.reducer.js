@@ -12,7 +12,11 @@ const authInitial={
 
     metaDataStatus:"",
     metaDataResponse:[],
-    metaDataError:null
+    metaDataError:null,
+    
+    forgetPasswordStatus:"",
+    forgetPasswordResponse:[],
+    forgetPasswordError:null
 }
 
 export const AuthReducer=(state=authInitial,action)=>{
@@ -112,7 +116,31 @@ export const AuthReducer=(state=authInitial,action)=>{
                 metaDataResponse:[],
                 metaDataStatus:""
             }
-            return state
+            return state;
+        case actionType.FORGET_PASSWORD:
+            state={
+                ...state,
+                forgetPasswordStatus:"started",
+                forgetPasswordResponse:[],
+                forgetPasswordError:null
+            }
+            return state;
+        case actionType.FORGET_PASSWORD_RESPONSE:
+            state={
+                ...state,
+                forgetPasswordStatus:"success",
+                forgetPasswordResponse:action.payload,
+                forgetPasswordError:null
+            }
+            return state;
+        case actionType.FORGET_PASSWORD_ERROR:
+            state={
+                ...state,
+                forgetPasswordStatus:"failed",
+                forgetPasswordResponse:[],
+                forgetPasswordError:action.payload
+            }
+            return state;
         default:{
             return state
         }

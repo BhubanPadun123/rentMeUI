@@ -12,16 +12,16 @@ export function formatDate(timestamp) {
     return `${dd}-${mm}-${yy} : ${hh}-${min}-${ss}`;
 }
 
-export const bookingStatus=(code)=>{
-    switch(code){
+export const bookingStatus = (code) => {
+    switch (code) {
         case "1":
-            return "Booking in review"
+            return "Pending Owner Review"
         case "2":
-            return "Booking Confirmed By Owner"
+            return "Confirmed by Property Owner";
         case "3":
-            return "Booking Deniel By Owner"
+            return "Rejected by Property Owner";
         case "4":
-            return "Allow for Boarding"
+            return "Boarding Approved";
         default:
             return ""
 
@@ -33,18 +33,23 @@ You must provide accurate and up-to-date information.
 Your personal data will be kept secure and confidential.
 We do not use your data for marketing or share it without consent.`
 
-export const baseUrl = "https://homekart-fyazhphmembuhnag.centralindia-01.azurewebsites.net"
+export const baseUrl = "http://192.168.67.166:8080"
 //"http://192.168.67.166:8080"
 //"https://homekart-fyazhphmembuhnag.centralindia-01.azurewebsites.net"
 export const apiPath = {
-    "auth":"api/auth",
-    "product":"api/product",
-    "manage":"api/manage",
-    "customer":"/api/customer"
+    "auth": "api/auth",
+    "product": "api/product",
+    "manage": "api/manage",
+    "customer": "/api/customer"
 }
 
 export const privillages = {
-    "customer":["read"],
-    "owner":["read","write","update"],
-    "admin":["read","write","update","delete","all"]
+    "customer": ["read"],
+    "owner": ["read", "write", "update"],
+    "admin": ["read", "write", "update", "delete", "all"]
 }
+
+export const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+};

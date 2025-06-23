@@ -1,119 +1,135 @@
-import React, { useEffect, useState,useRef } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import Button from "../components/Button/Button";
-import InputBar from "../components/InputBar";
-import { getAuth, signInWithEmailAndPassword,sendEmailVerification } from "firebase/auth";
-import app from "../../firebaseConfig";
+import React, { Component } from "react";
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity
+} from "react-native";
+import { connect } from "react-redux";
 import { Formik } from "formik";
-import ErrorHandler, { showTopMessage } from "../utils/ErrorHandler";
+
+import InputBar from "../components/InputBar";
+import Button from "../components/Button/Button";
+import { showTopMessage } from "../utils/ErrorHandler";
+import { userLoginAction, cleanUpLogin } from "../Redux/action/auth";
 import { colors } from "../styles/Theme";
-import {useDispatch,useSelector} from "react-redux"
-import { userLoginAction,cleanUpLogin } from "../Redux/action/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const initialFormValues = {
     usermail: "",
     password: "",
 };
 
+class LoginScreen extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            loading: false
+        };
+    }
+    async componentDidMount(){
+        const currentUser = await AsyncStorage.getItem('currentUser')
+        if(currentUser){
+            const data = JSON.parse(currentUser)
+            if(data && data.hasOwnProperty('_id')){
+                this.props.navigation.navigate("UserProfileScreen")
+            }
+        }
+    }
+    componentDidUpdate(prevProps) {
+        const { loginStatus, loginResponse, loginError } = this.props;
 
-const LoginScreen = ({ navigation }) => {
-    const dispatch = useDispatch()
-    const prevData = useRef()
-    const [loading, setLoading] = useState(false)
-    
+        if (prevProps.loginStatus !== loginStatus) {
+            if (loginStatus === "success") {
+                showTopMessage("Login successful!", "success");
+                this.setState({ loading: false });
+                this.goToUserProfile();
+            } else if (loginStatus === "started") {
+                this.setState({ loading: true });
+            } else if (loginStatus === "failed") {
+                showTopMessage(
+                    typeof loginError === "string" ? loginError : "Error while login",
+                    "danger"
+                );
+                this.setState({ loading: false });
+            }
+        }
+    }
 
-    const {
-        loginStatus,
-        loginResponse,
-        loginError
-    } = useSelector((state)=>state.auth)
+    componentWillUnmount() {
+        this.props.cleanUpLogin();
+    }
 
-    useEffect(()=>{
-        if(loginStatus === "success"){
-            showTopMessage("Login successfull!","success");
-            setLoading(false)
-            goToUserProfile()
-        }
-        if(loginStatus==="started"){
-            setLoading(true)
-        }
-        if(loginStatus === "failed"){
-            showTopMessage(typeof(loginError) === "string" ? loginError  : "Error while login","danger")
-            setLoading(false)
-        }
-        return ()=>{
-            dispatch(cleanUpLogin())
-        }
-    },[loginStatus])
-    
-    async function handleFormSubmit(formValues) {
+    handleFormSubmit = (formValues) => {
         const data = {
-            userEmail:formValues.usermail,
-            password:formValues.password
-        }
-        dispatch(userLoginAction(data));
+            userEmail: formValues.usermail,
+            password: formValues.password,
+        };
+        this.props.userLoginAction(data);
+    };
 
+    goToMemberSignUp = () => {
+        this.props.navigation.navigate("SignUpScreen");
+    };
+
+    goToUserProfile = () => {
+        this.props.navigation.navigate("UserProfileScreen");
+    };
+    gotToForgetPassword=()=>{
+        this.props.navigation.navigate("ForgetPassword")
     }
 
-    // Navigation
+    render() {
+        const { loading } = this.state;
 
-    function goToMemberSignUp() {
-        navigation.navigate("SignUpScreen");
-    }
-
-    // Navigation
-
-    function goToUserProfile() {
-        navigation.navigate("UserProfileScreen");
-    }
-
-    return (
-        <View style={styles.container}>
-            <Text style={styles.text}> HomeKart Login </Text>
-            <Formik
-                initialValues={{ initialFormValues }}
-                onSubmit={handleFormSubmit}
-            >
-                {({ values, handleChange, handleSubmit }) => (
-                    <>
-                        <View style={styles.input_container}>
-                            <InputBar
-                                onType={handleChange("usermail")}
-                                value={values.usermail}
-                                placeholder={"Email Address"}
-                            />
-                            <InputBar
-                                onType={handleChange("password")}
-                                value={values.password}
-                                placeholder={"Password"}
-                                isSecure
-                            />
-                            <TouchableOpacity style={styles.button}>
-                                <Text style={styles.detail}>Forget password?</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.button_container}>
-                            <View style={styles.button}>
-                                <Button
-                                    text="Login"
-                                    onPress={handleSubmit}
-                                    loading={loading}
+        return (
+            <View style={styles.container}>
+                <Text style={styles.text}> HomeKart Login </Text>
+                <Formik
+                    initialValues={initialFormValues}
+                    onSubmit={this.handleFormSubmit}
+                >
+                    {({ values, handleChange, handleSubmit }) => (
+                        <>
+                            <View style={styles.input_container}>
+                                <InputBar
+                                    onType={handleChange("usermail")}
+                                    value={values.usermail}
+                                    placeholder={"Email Address"}
                                 />
-                            </View>
-                            <View style={styles.button}>
-                                <Button
-                                    text="Signup"
-                                    onPress={goToMemberSignUp}
-                                    theme="secondary"
+                                <InputBar
+                                    onType={handleChange("password")}
+                                    value={values.password}
+                                    placeholder={"Password"}
+                                    isSecure
                                 />
+                                <TouchableOpacity style={styles.button} onPress={this.gotToForgetPassword}>
+                                    <Text style={styles.detail}>Forget password?</Text>
+                                </TouchableOpacity>
                             </View>
-                        </View>
-                    </>
-                )}
-            </Formik>
-        </View>
-    );
-};
+                            <View style={styles.button_container}>
+                                <View style={styles.button}>
+                                    <Button
+                                        text="Login"
+                                        onPress={handleSubmit}
+                                        loading={loading}
+                                    />
+                                </View>
+                                <View style={styles.button}>
+                                    <Button
+                                        text="Signup"
+                                        onPress={this.goToMemberSignUp}
+                                        theme="secondary"
+                                    />
+                                </View>
+                            </View>
+                        </>
+                    )}
+                </Formik>
+            </View>
+        );
+    }
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -125,14 +141,12 @@ const styles = StyleSheet.create({
     text: {
         marginVertical: 32,
         fontSize: 30,
-        textAlign:'center',
-        color:colors.color_primary
-        // //fontFamily: "Mulish-Medium",
+        textAlign: "center",
+        color: colors.color_primary,
     },
     detail: {
         fontSize: 14,
-        // //fontFamily: "Mulish-Medium",
-        color:colors.color_gray
+        color: colors.color_gray,
     },
     button_container: {
         paddingVertical: 8,
@@ -141,6 +155,20 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         flexDirection: "row",
     },
+    input_container: {
+        marginBottom: 24,
+    }
 });
 
-export default LoginScreen;
+const mapStateToProps = (state) => ({
+    loginStatus: state.auth.loginStatus,
+    loginResponse: state.auth.loginResponse,
+    loginError: state.auth.loginError,
+});
+
+const mapDispatchToProps = {
+    userLoginAction,
+    cleanUpLogin,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen);

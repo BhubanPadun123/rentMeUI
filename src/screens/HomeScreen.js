@@ -1,170 +1,252 @@
-import { getAuth } from "firebase/auth";
-import React, { useCallback } from "react";
-import { useEffect, useState } from "react";
-import tabsImages from "../utils/TabsImages";
+import React, { Component } from "react";
 import {
     View,
     Text,
     StyleSheet,
     ScrollView,
-    ActivityIndicator,
+    RefreshControl,
     ImageBackground,
-    FlatList,
-    RefreshControl
 } from "react-native";
-import { colors, sizes } from "../styles/Theme";
-import SearchBar from "../components/SearchBar";
-import categories,{serviceList} from "../utils/Categories";
-import { CardCarousel } from "../components/CardCarousel";
-import Category from "../components/Category";
-import Icons from "../utils/Icons";
-import {
-    getUserInfo
-} from "../APIs/userApi"
-import Loader from "../components/Loader";
-import ProductCart from "../components/ProductCart";
-import { useDispatch, useSelector } from "react-redux"
+import { connect } from "react-redux";
 import { getAllProductAction } from "../Redux/action/product";
+import SearchBar from "../components/SearchBar";
+import { CardCarousel } from "../components/CardCarousel";
+import ProductCart from "../components/ProductCart";
+import Loader from "../components/Loader";
+import { colors } from "../styles/Theme";
+import { serviceList } from "../utils/Categories";
+import CSkeleton from "../components/Skeletom";
+import { getNotificationAction } from "../Redux/action/product";
+import * as Notifications from 'expo-notifications';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+    registerForPushNotificationsAsync,
+    schedulePushNotification
+} from "../utils/NotificationService";
+import {
+    Ionicons
+} from "@expo/vector-icons"
+import {
+    Button
+} from "@rneui/themed"
 
+class HomeScreen extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            isReady: false,
+            userInfo: null,
+            refreshing: false,
+            product: [],
+            currentUser: null,
+            token: null,
+            notificationListner: null,
+            notificationResponse: null
+        };
+    }
 
-export default function HomeScreen({ navigation }) {
-    const dispatch = useDispatch()
-    const [userAuth, setUserAuth] = useState(null);
-    const [isReady, setIsReady] = useState(true);
-    const [userInfo, setUserInfo] = useState(null);
-    const [product, setProduct] = useState([])
-    const [refreshing, setRefreshing] = useState(false);
-
-    const {
-        productListStatus,
-        productListError,
-        productListResponse
-    } = useSelector((state) => state.product)
-
-    useEffect(() => {
-        if (productListStatus === "success") {
-            setProduct(productListResponse)
+    async componentDidMount() {
+        const { navigation } = this.props
+        const user = await AsyncStorage.getItem("currentUser")
+        if (user) {
+            const currentUser = JSON.parse(user)
+            this.setState({
+                currentUser: currentUser
+            }, () => {
+                this.props.getNotificationAction(currentUser._id)
+                registerForPushNotificationsAsync().then((token) => {
+                    this.setState({
+                        token
+                    }, () => {
+                        this.notificationListener = Notifications.addNotificationReceivedListener(notification => {
+                            this.setState({
+                                notificationListner: notification
+                            })
+                        })
+                        this.responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+                            this.setState({
+                                notificationResponse: response
+                            })
+                        })
+                    })
+                })
+            })
         }
-    }, [productListStatus])
+        this.fetchFirstProduct();
 
-    useEffect(() => {
-        fetchFirstProduct()
-    }, [])
-
-    function fetchFirstProduct() {
-        dispatch(getAllProductAction(0, 10))
+        this.blurListener = navigation.addListener("blur", () => {
+            this.setState({
+                product: [],
+                isReady: false
+            })
+        });
+    }
+    componentWillUnmount() {
+        this.focusListener && this.focusListener()
+        this.blurListener && this.blurListener()
+        this.notificationListener && this.notificationListener.remove()
+        this.responseListener && this.responseListener.remove()
     }
 
-    //NAVIGATION
-    function goToCalendar() {
-        navigation.navigate("CalendarScreen");
-    }
+    componentDidUpdate(prevProps) {
+        const { productListStatus, productListResponse } = this.props;
 
-    //NAVIGATION
-    function goToNotifications() {
-        navigation.navigate("NotificationsScreen");
-    }
-
-    const handleSearch = () => {
-        navigation.navigate("SearchScreen",{category:null,type:"all"});
-    };
-
-    const handleCategorySelect = (selectedCategory, type) => {
-        navigation.navigate("SearchScreen", { category: { ...selectedCategory }, type: type });
-    };
-    const goToLogin = () => {
-        navigation.navigate("LoginScreen");
-    }
-    const goToPropertyRegister = () => {
-        navigation.navigate("PropertyRegisterScreen")
-    }
-    const goToProductDatils = (category) => {
-        navigation.navigate("ServiceDetailScreen", { item: category })
-    };
-
-    const RenderProduct = () => {
-        if (product.length === 0) return null
-        return (
-            <React.Fragment>
-                {
-                    product.map((item) => {
-                        return (
-                            <ProductCart
-                                category={item}
-                                isSelected={""}
-                                onPress={() => goToProductDatils(item)}
-                                key={item.title}
-                            />
-                        )
+        if (
+            productListStatus === "success" &&
+            prevProps.productListStatus !== "success"
+        ) {
+            this.setState({
+                product: productListResponse,
+                isReady: true
+            });
+        }
+        if (this.props.productListStatus === "started" && this.props.productListStatus != prevProps.productListStatus) {
+            this.setState({
+                isReady: false
+            })
+        }
+        if (this.props.getNotificationStatus === "started" && this.props.getNotificationStatus != prevProps.getNotificationStatus) {
+            this.setState({
+                isReady: false
+            })
+        }
+        if (this.props.getNotificationStatus === "success" && this.props.getNotificationStatus != prevProps.getNotificationStatus) {
+            this.setState({
+                isReady: true
+            }, () => {
+                if (this.props.getNotificationResponse && Array.isArray(this.props.getNotificationResponse)) {
+                    this.props.getNotificationResponse.map(async (item) => {
+                        await schedulePushNotification({
+                            title: item.title,
+                            body: item.message,
+                            data: {}
+                        })
                     })
                 }
-            </React.Fragment>
-        )
+            })
+        }
     }
-    const onRefresh = useCallback(() => {
-        setRefreshing(true);
-        fetchFirstProduct()
+
+    fetchFirstProduct = () => {
+        this.props.getAllProductAction(0, 10);
+    };
+
+    goTo = (screen, params = {}) => {
+        this.props.navigation.navigate(screen, params);
+    };
+
+    handleSearch = () => {
+        this.props.navigation.navigate("SearchScreen", { category: null, type: "all" });
+    };
+
+    handleCategorySelect = (selectedCategory, type) => {
+        this.props.navigation.navigate("SearchScreen", { category: { ...selectedCategory }, type });
+    };
+
+    goToProductDetails = (item) => {
+        this.props.navigation.navigate("ServiceDetailScreen", { item });
+    };
+
+    onRefresh = () => {
+        this.setState({ refreshing: true });
+        this.fetchFirstProduct();
         setTimeout(() => {
-            setRefreshing(false);
+            this.setState({ refreshing: false });
         }, 2000);
-    }, []);
-    return (
-        <ScrollView
-            refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-        >
-            {isReady && (
-                <View style={styles.container}>
-                    <View style={styles.top_container}>
-                        <View style={styles.header_container}>
-                            <Text style={styles.header_text}>HomeKart</Text>
-                        </View>
-                        <ImageBackground
-                            style={styles.card_container}
-                            imageStyle={{ borderRadius: 20, overflow: "hidden" }}
-                            source={require("../../assets/backgroundsearch.png")}
-                        >
-                            <View style={styles.welcome_container}>
-                                <Text style={styles.welcome_text}>
-                                    Find Your Comfort place one
-                                </Text>
-                            </View>
-                            <Text style={styles.detail_text}>
-                                Find comfort place one with one click
-                            </Text>
-                            <View style={styles.search_container}>
-                                <SearchBar
-                                    placeholder_text={"Search..."}
-                                    onSearch={handleSearch}
+    };
+
+    renderProduct = () => {
+        const { product } = this.state;
+        if (!product.length) return null;
+
+        return product.map((item) => (
+            <ProductCart
+                key={item.title}
+                category={item}
+                isSelected={""}
+                onPress={() => this.goToProductDetails(item)}
+            />
+        ));
+    };
+
+    render() {
+        const { isReady, refreshing, product } = this.state;
+        const { productListStatus } = this.props;
+
+        return (
+            <ScrollView
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={this.onRefresh}
+                    />
+                }
+            >
+                {
+                    !isReady && product.length == 0 && (
+                        <CSkeleton />
+                    )
+                }
+                {isReady && (
+                    <View style={styles.container}>
+                        <View style={styles.top_container}>
+                            <View style={styles.header_container}>
+                                <Text style={styles.header_text}>HomeKart</Text>
+                                <Button
+                                    type='outline'
+                                    icon={<Ionicons name="notifications-sharp" size={24} color="gray" />}
+                                    title={
+                                        this.props.getNotificationResponse && Array.isArray(this.props.getNotificationResponse) ?
+                                            `${this.props.getNotificationResponse.length}` : ""
+                                    }
+                                    titleStyle={{
+                                        position:'absolute',
+                                        color:'white'
+                                    }}
+                                    onPress={()=> {
+                                        this.props.navigation.navigate("Setting",{
+                                            screen:"NotificationsScreen"
+                                        })
+                                    }}
                                 />
                             </View>
-                        </ImageBackground>
-                    </View>
-                    <View style={styles.app_container}>
-                        <Text style={styles.text}>Explore More</Text>
-                        <View>
+                            <ImageBackground
+                                style={styles.card_container}
+                                imageStyle={{ borderRadius: 20, overflow: "hidden" }}
+                                source={require("../../assets/backgroundsearch.png")}
+                            >
+                                <View style={styles.welcome_container}>
+                                    <Text style={styles.welcome_text}>
+                                        Find Your Comfort place one
+                                    </Text>
+                                </View>
+                                <Text style={styles.detail_text}>
+                                    Find comfort place one with one click
+                                </Text>
+                                <View style={styles.search_container}>
+                                    <SearchBar
+                                        placeholder_text={"Search..."}
+                                        onSearch={this.handleSearch}
+                                    />
+                                </View>
+                            </ImageBackground>
+                        </View>
+
+                        <View style={styles.app_container}>
+                            <Text style={styles.text}>Explore More</Text>
                             <CardCarousel
                                 list={serviceList}
-                                onSelectCategory={handleCategorySelect}
+                                onSelectCategory={this.handleCategorySelect}
                             />
+                            <Text style={styles.text}>Recently Uploaded Properties</Text>
                         </View>
-                        <Text style={styles.text}>Recently Uploaded Properties</Text>
+
+                        <View>{product.length > 0 && this.renderProduct()}</View>
                     </View>
-                    <View>
-                        {
-                            product.length > 0 && RenderProduct()
-                        }
-                    </View>
-                </View>
-            )}
-            {(
-                !isReady || productListStatus === "started"
-            ) && (
-                    <Loader />
                 )}
-        </ScrollView>
-    );
+            </ScrollView>
+        );
+    }
 }
 
 const styles = StyleSheet.create({
@@ -179,13 +261,13 @@ const styles = StyleSheet.create({
     card_container: {
         marginVertical: 10,
         padding: 16,
-        overflow: 'hidden'
+        overflow: "hidden",
     },
     header_container: {
         marginVertical: 16,
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: 'center'
+        justifyContent: "center",
     },
     welcome_container: {
         marginTop: 8,
@@ -209,12 +291,11 @@ const styles = StyleSheet.create({
         marginVertical: 8,
         flexDirection: "row",
         flexWrap: "wrap",
-        justifyContent: 'center',
-        alignItems: 'center'
+        justifyContent: "center",
+        alignItems: "center",
     },
     header_text: {
         fontSize: 34,
-        // //fontFamily: "Mulish-Medium",
         color: colors.color_primary,
         flex: 1,
     },
@@ -222,12 +303,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         fontSize: 24,
         color: colors.color_white,
-        // //fontFamily: "Mulish-Medium",
     },
     text: {
         flex: 1,
         fontSize: 18,
-        // //fontFamily: "Mulish-Medium",
     },
     detail_text: {
         flex: 1,
@@ -236,18 +315,21 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         paddingHorizontal: 8,
         color: colors.color_white,
-        // //fontFamily: "Mulish-Medium",
-    },
-    welcome_text_bold: {
-        color: colors.color_white,
-        fontSize: 24,
-        // //fontFamily: "Mulish-Bold",
-    },
-    icon: {
-        color: colors.color_primary,
-    },
-    loading_container: {
-        alignContent: "center",
-        justifyContent: "center",
     },
 });
+
+const mapStateToProps = (state) => ({
+    productListStatus: state.product.productListStatus,
+    productListError: state.product.productListError,
+    productListResponse: state.product.productListResponse,
+    getNotificationStatus: state.product.getNotificationStatus,
+    getNotificationResponse: state.product.getNotificationResponse,
+    getNotificationError: state.product.getNotificationError
+});
+
+const mapDispatchToProps = {
+    getAllProductAction,
+    getNotificationAction
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);
