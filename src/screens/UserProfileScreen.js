@@ -73,7 +73,7 @@ class UserProfileScreen extends Component {
                 if (this.props.metaDataResponse && this.props.metaDataResponse.hasOwnProperty('metaData')) {
                     AsyncStorage.setItem("currentUser", JSON.stringify(this.props.metaDataResponse.metaData))
                     this.setState({
-                        userData: this.props.metaDataResponse.metaData
+                        userData: this.props.metaDataResponse
                     })
                 }
             })
@@ -167,7 +167,7 @@ class UserProfileScreen extends Component {
                     </View>
                     <Divider />
                     {
-                        userData && userData.hasOwnProperty('userName') ? (
+                        metaData && Object.entries(metaData).length && userData && userData.hasOwnProperty('userName') ? (
                             <View style={styles.infoConteinr}>
                                 <Text style={{
                                     textAlign: 'center',

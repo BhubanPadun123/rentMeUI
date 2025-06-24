@@ -21,11 +21,19 @@ import PlatformEarning from "../screens/Earning";
 import ForgetPassword from "../screens/ForgetPassword";
 
 import app from "../../firebaseConfig";
-import iconPref, { customTabButton, SettingStackHeaderCustomer, SettingStackHeaderVendor } from "../utils/NavBarUtils";
+import iconPref, {
+    customTabButton, 
+    SettingStackHeaderAdmin, 
+    SettingStackHeaderCustomer, 
+    SettingStackHeaderSupperAdmin, 
+    SettingStackHeaderVendor,
+    SettingStackHeaderStuff
+} from "../utils/NavBarUtils";
 import { useState } from "react";
 import { getAuth } from "firebase/auth";
 import { useEffect } from "react";
 import { View } from "react-native-web";
+import ManageUser from "../screens/ManageUser";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -48,13 +56,99 @@ function AuthStack() {
                 component={UserProfileScreen}
                 options={{ headerShown: false }}
             />
-            <Stack.Screen 
-               name="ForgetPassword"
-               component={ForgetPassword}
-               options={{headerShown:false}}
+            <Stack.Screen
+                name="ForgetPassword"
+                component={ForgetPassword}
+                options={{ headerShown: false }}
             />
         </Stack.Navigator>
     );
+}
+function SupperAdminSettingStack() {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen
+                name="Record"
+                component={Record}
+                options={{
+                    headerShown: true,
+                    header: () => <SettingStackHeaderSupperAdmin route={"Record"} />
+                }}
+            />
+            <Stack.Screen
+                name="NotificationsScreen"
+                component={NotificationsScreen}
+                options={{
+                    headerShown: true,
+                    header: () => <SettingStackHeaderSupperAdmin route={"NotificationsScreen"} />,
+                }}
+            />
+            <Stack.Screen
+                name="ServiceBookingScreen"
+                component={ServiceBookingScreen}
+                options={{
+                    headerShown: true,
+                    header: () => <SettingStackHeaderSupperAdmin route={"ServiceBookingScreen"} />
+                }}
+            />
+            <Stack.Screen
+                name="PropertyRegisterScreen"
+                component={PropertyRegisterScreen}
+                options={{
+                    headerShown: true,
+                    header: () => <SettingStackHeaderSupperAdmin route={"PropertyRegisterScreen"} />
+                }}
+            />
+            <Stack.Screen
+                name="PropertyLocationScreen"
+                component={PropertyLocationScreen}
+                options={{
+                    headerShown: true,
+                    header: () => <SettingStackHeaderSupperAdmin route={"PropertyLocationScreen"} />
+                }}
+            />
+            <Stack.Screen
+                name="FeedBackScreen"
+                component={FeedBackScreen}
+                options={{
+                    headerShown: true,
+                    header: () => <SettingStackHeaderSupperAdmin route={"FeedBackScreen"} />
+                }}
+            />
+            <Stack.Screen
+                name="UpdateProductStock"
+                component={UpdateVendorStock}
+                options={{
+                    headerShown: true,
+                    header: () => <SettingStackHeaderSupperAdmin route={"UpdateProductStock"} />
+                }}
+            />
+            <Stack.Screen
+                name="Earning"
+                component={PlatformEarning}
+                options={{
+                    headerShown: true,
+                    header: () => <SettingStackHeaderSupperAdmin route={"Earning"} />
+                }}
+            />
+            <Stack.Screen
+                name="BookingHistoryScreen"
+                component={BookingHistoryScreen}
+                options={{
+                    headerShown: true,
+                    header: () => <SettingStackHeaderSupperAdmin route={"BookingHistoryScreen"} />
+                }}
+            />
+            <Stack.Screen
+                name="ManageUser"
+                component={ManageUser}
+                options={{
+                    headerShown: true,
+                    header: () => <SettingStackHeaderSupperAdmin route={"ManageUser"} />
+                }}
+            />
+        </Stack.Navigator>
+    )
 }
 function AdminSettingStack() {
     return (
@@ -64,7 +158,7 @@ function AdminSettingStack() {
                 component={Record}
                 options={{
                     headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"Record"} />
+                    header: () => <SettingStackHeaderAdmin route={"Record"} />
                 }}
             />
             <Stack.Screen
@@ -72,63 +166,37 @@ function AdminSettingStack() {
                 component={NotificationsScreen}
                 options={{
                     headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"NotificationsScreen"} />,
+                    header: () => <SettingStackHeaderAdmin route={"NotificationsScreen"} />,
                 }}
             />
             <Stack.Screen
-                name="ServiceBookingScreen"
-                component={ServiceBookingScreen}
+                name="ManageUser"
+                component={ManageUser}
                 options={{
                     headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"ServiceBookingScreen"} />
+                    header: () => <SettingStackHeaderAdmin route={"ManageUser"} />
+                }}
+            />
+        </Stack.Navigator>
+    )
+}
+function StuffSettingStack() {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen
+                name="NotificationsScreen"
+                component={NotificationsScreen}
+                options={{
+                    headerShown: true,
+                    header: () => <SettingStackHeaderStuff route={"NotificationsScreen"} />,
                 }}
             />
             <Stack.Screen
-                name="PropertyRegisterScreen"
-                component={PropertyRegisterScreen}
+                name="Record"
+                component={Record}
                 options={{
                     headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"PropertyRegisterScreen"} />
-                }}
-            />
-            <Stack.Screen
-                name="PropertyLocationScreen"
-                component={PropertyLocationScreen}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"PropertyLocationScreen"} />
-                }}
-            />
-            <Stack.Screen
-                name="FeedBackScreen"
-                component={FeedBackScreen}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"FeedBackScreen"} />
-                }}
-            />
-            <Stack.Screen
-                name="UpdateProductStock"
-                component={UpdateVendorStock}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"UpdateProductStock"} />
-                }}
-            />
-            <Stack.Screen
-                name="Earning"
-                component={PlatformEarning}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"Earning"} />
-                }}
-            />
-            <Stack.Screen
-                name="BookingHistoryScreen"
-                component={BookingHistoryScreen}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"BookingHistoryScreen"} />
+                    header: () => <SettingStackHeaderStuff route={"Record"} />
                 }}
             />
         </Stack.Navigator>
@@ -194,14 +262,6 @@ function VendorSettingStack() {
                 }}
             />
             <Stack.Screen
-                name="Earning"
-                component={PlatformEarning}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"Earning"} />
-                }}
-            />
-            <Stack.Screen
                 name="BookingHistoryScreen"
                 component={BookingHistoryScreen}
                 options={{
@@ -254,7 +314,7 @@ function HomeStack() {
             <Stack.Screen
                 name="SearchScreen"
                 component={SearchScreen}
-                options={{ headerShown: true, title: "Catagory Search"}}
+                options={{ headerShown: true, title: "Catagory Search" }}
             />
             <Stack.Screen
                 name="ServiceDetailScreen"
@@ -282,57 +342,74 @@ function MapStack() {
     );
 }
 
-export default Navigation = () => {
-    const [user, setUser] = useState(null);
-    useEffect(() => {
-        const fetchUserInfo = async () => {
-            const userInfo = await AsyncStorage.getItem("currentUser")
-            if (userInfo) {
-                setUser(JSON.parse(userInfo))
-            }
+class Navigation extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            user: null
         }
-        fetchUserInfo()
-    }, []);
+    }
+    async componentDidMount() {
+        const userInfo = await AsyncStorage.getItem("currentUser");
+        if (userInfo) {
+            this.setState({ user: JSON.parse(userInfo) });
+        }
+    }
+    findStack = (role) => {
+        switch (role) {
+            case "customer":
+                return CustomerSettingStack
+            case "supper_admin":
+                return SupperAdminSettingStack
+            case "admin":
+                return AdminSettingStack
+            case "stuff":
+                return StuffSettingStack
+            case "owner":
+                return VendorSettingStack
+            default:
+                return CustomerSettingStack
+        }
+    }
+    render() {
+        const { user } = this.state
+        const SettingStack = user && user?.userType ? this.findStack(user.userType) : CustomerSettingStack;
 
-
-    return (
-        <>
-            <Tab.Navigator
-                screenOptions={iconPref}
-                initialRouteName={!user ? "Profile" : "Home"}
-                screenListeners={{
-                    state:(e)=>{
-                        // console.log("state change",e.data)
-                    }
-                }}
-            >
-                <Tab.Screen 
-                    name="Home" 
-                    component={HomeStack} 
-                    options={{unmountOnBlur:true}} 
-                />
-                <Tab.Screen
-                    name="Setting"
-                    component={
-                        user && user.hasOwnProperty('userType') && user.userType === "owner" ? 
-                        VendorSettingStack : user && user.hasOwnProperty('userType') && 
-                        (user.userType === "supper_admin" || user.userType === "admin") ? 
-                        AdminSettingStack :
-                        CustomerSettingStack
-                    }
-                    options={{
-                        tabBarButton: customTabButton,
-                        unmountOnBlur: true
+        return (
+            <>
+                <Tab.Navigator
+                    screenOptions={iconPref}
+                    initialRouteName={!user ? "Profile" : "Home"}
+                    screenListeners={{
+                        state: (e) => {
+                            // console.log("state change",e.data)
+                        }
                     }}
-                />
-                <Tab.Screen
-                    name="Profile"
-                    component={AuthStack}
-                    options={{
-                        unmountOnBlur:true
-                    }}
-                />
-            </Tab.Navigator>
-        </>
-    );
+                >
+                    <Tab.Screen
+                        name="Home"
+                        component={HomeStack}
+                        options={{ unmountOnBlur: true }}
+                    />
+                    <Tab.Screen
+                        name="Setting"
+                        component={SettingStack}
+                        options={{
+                            tabBarButton: customTabButton,
+                            unmountOnBlur: true
+                        }}
+                    />
+                    <Tab.Screen
+                        name="Profile"
+                        component={AuthStack}
+                        options={{
+                            unmountOnBlur: true
+                        }}
+                    />
+                </Tab.Navigator>
+            </>
+        );
+    }
 };
+
+export default Navigation

@@ -149,7 +149,9 @@ class ServiceBookingScreen extends Component {
 
     goToCompletedScreen = () => this.props.navigation.navigate("SearchScreen");
     goToLoginScreen = () => this.props.navigation.navigate("LoginScreen");
-    goToHome = () => this.props.navigation.navigate("HomeScreen");
+    goToHome = () => this.props.navigation.navigate("Home",{
+        screen:"HomeScreen"
+    });
 
     render() {
         const { orderList, product, loading, openStatus, status, findBookingCode, itemsInfo, openPayment, userInfo } = this.state;
@@ -174,9 +176,10 @@ class ServiceBookingScreen extends Component {
                             '3) It helps us continuously improve app performance, add new features, and provide a seamless experience.',
                             '4) It supports backend infrastructure, customer support, and platform maintenance.',
                             '5) The ₹99 fee is charged only once per booking or transaction — no hidden costs or recurring charges.',
-                            '6) Your contribution allows us to keep the app clean and ad-free for a better user experience.'
+                            '6) Your contribution allows us to keep the app clean and ad-free for a better user experience.',
+                            '7) Procced with pay for make confirm your booking'
                         ]}
-                        button={{ title: ' GET STARTED', icon: 'flight-takeoff' }}
+                        button={{ title: ' Pay ₹99 Only', icon: 'flight-takeoff' }}
                         infoStyle={{
                             fontSize:10,
                             textAlign:'left'

@@ -138,3 +138,89 @@ export const forgetPasswordAction=(data)=>{
         }
     }
 }
+
+export const getUserAction=(id)=>{
+    return async(dispatch)=>{
+        dispatch({
+            type:actionType.GET_USER,
+            payload:{}
+        })
+        const {
+            response,
+            error
+        } = await apiRequest('get',`${apiPath.auth}/user?id=${id}`)
+        if(response){
+            dispatch({
+                type:actionType.GET_USER_RESPONSE,
+                payload:response.data
+            })
+        }
+        if(error){
+            dispatch({
+                type:actionType.GET_USER_ERROR,
+                payload:error.message ? error.message : error
+            })
+        }
+    }
+}
+
+export const clearUserAction=()=>{
+    return (dispatch)=>{
+        dispatch({
+            type:actionType.CLEAR_USER,
+            payload:{}
+        })
+    }
+}
+
+export const getOrgUsersAction=()=>{
+    return async(dispatch)=>{
+        dispatch({
+            type:actionType.ORG_USERS,
+            payload:{}
+        })
+
+        const {
+            response,
+            error
+        } = await apiRequest('get',`${apiPath.auth}/all`)
+
+        if(response){
+            dispatch({
+                type:actionType.ORG_USERS_RESPONSE,
+                payload:response.data
+            })
+        }
+        if(error){
+            dispatch({
+                type:actionType.ORG_USERS_ERROR,
+                payload:error.message ? error.message : error
+            })
+        }
+    }
+}
+
+export const updateUserRoleAction=(data)=>{
+    return async(dispatch)=>{
+        dispatch({
+            type:actionType.UPDATE_ORG_ROLE,
+            payload:{}
+        })
+        const {
+            response,
+            error
+        } = await apiRequest('put',`${apiPath.auth}/user`,data)
+        if(response){
+            dispatch({
+                type:actionType.UPDATE_ORG_ROLE_RESPONSE,
+                payload:response.data
+            })
+        }
+        if(error){
+            dispatch({
+                type:actionType.UPDATE_ORG_ROLE_ERROR,
+                payload:error.message ? error.message : error
+            })
+        }
+    }
+}

@@ -42,6 +42,7 @@ class SignUpScreen extends Component {
         this.state = {
             loading: false,
             isAggree: false,
+            userType:""
         };
     }
 
@@ -84,7 +85,7 @@ class SignUpScreen extends Component {
             userName: formValues.userName,
             userEmail: formValues.usermail,
             userContactNumber: formValues.userContactNumber,
-            userType: formValues.userType,
+            userType: this.state.userType,
             password: formValues.password,
         };
 
@@ -120,50 +121,79 @@ class SignUpScreen extends Component {
                 {({ values, handleChange, handleSubmit }) => (
                     <>
                         <View style={styles.input_container}>
-                            <InputBar
-                                onType={handleChange("userName")}
+                            <Input
+                                placeholder="Enter User Name"
                                 value={values.userName}
-                                placeholder="User Name"
+                                onChangeText={handleChange('userName')}
                             />
-                            <InputBar
-                                onType={handleChange("userContactNumber")}
+                            <Input 
+                                placeholder="Enter Phone Number"
                                 value={values.userContactNumber}
-                                placeholder="Phone Number"
+                                onChangeText={handleChange('userContactNumber')}
+                                keyboardType='phone-pad'
                             />
-                            <InputBar
-                                onType={handleChange("usermail")}
-                                value={values.usermail}
-                                placeholder="Email address"
+                            <Input 
+                               placeholder="Enter User Email"
+                               value={values.usermail}
+                               onChangeText={handleChange("usermail")}
                             />
-                            <InputBar
-                                onType={handleChange("password")}
+                            <Input
+                                onChangeText={handleChange("password")}
                                 value={values.password}
                                 placeholder="Password"
                                 isSecure={false}
                             />
-                            <InputBar
-                                onType={handleChange("cPassword")}
+                            <Input
+                                onChangeText={handleChange("cPassword")}
                                 value={values.cPassword}
                                 placeholder="Confirm Password"
                                 isSecure={false}
                             />
-                            <Dropdown
-                                placeholder="Select User Type"
-                                options={[
-                                    { value: "owner", label: "Property Owner" },
-                                    { value: "customer", label: "Customer" },
-                                ]}
-                                onValueChange={handleChange("userType")}
-                                selectedValue={values.userType}
-                            />
-                        </View>
-                        <View style={styles.button_container}>
+                            <ListItem bottomDivider onPress={()=>{
+                                this.setState({
+                                    userType:"owner"
+                                })
+                            }}>
+                                <ListItem.CheckBox
+                                    iconType="material-community"
+                                    checkedIcon="checkbox-marked"
+                                    uncheckedIcon="checkbox-blank-outline"
+                                    checked={this.state.userType === "owner"}
+                                />
+                                <ListItem.Content>
+                                    <ListItem.Title>Property Owner</ListItem.Title>
+                                </ListItem.Content>
+                            </ListItem>
+                            <ListItem bottomDivider onPress={()=>{
+                                this.setState({
+                                    userType:"customer"
+                                })
+                            }}>
+                                <ListItem.CheckBox
+                                    iconType="material-community"
+                                    checkedIcon="checkbox-marked"
+                                    uncheckedIcon="checkbox-blank-outline"
+                                    checked={this.state.userType === "customer"}
+                                />
+                                <ListItem.Content>
+                                    <ListItem.Title>Customer</ListItem.Title>
+                                </ListItem.Content>
+                            </ListItem>
+
                             <Button
                                 title="Signup"
                                 onPress={handleSubmit}
                                 loading={this.state.loading}
                                 size='lg'
                             />
+                        </View>
+                        <View style={styles.button_container}>
+                            {/* <Button
+                                title="Signup"
+                                onPress={handleSubmit}
+                                loading={this.state.loading}
+                                size='lg'
+                            /> */}
                         </View>
                     </>
                 )}
@@ -219,8 +249,8 @@ const styles = StyleSheet.create({
     button_container: {
         flexDirection: "row",
         margin: 16,
-        justifyContent:'center',
-        marginBottom:50
+        justifyContent: 'center',
+        marginBottom: 50
     },
 });
 

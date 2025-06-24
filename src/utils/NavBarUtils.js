@@ -110,6 +110,8 @@ function findIcon(name) {
             return <AntDesign name="gift" size={24} color="black" />
         case "Record":
             return <AntDesign name="windowso" size={24} color="black" />
+        case "ManageUser":
+            return <MaterialIcons name="manage-accounts" size={24} color="black" />
         default:
             return null
     }
@@ -153,7 +155,7 @@ export function SettingStackHeaderCustomer(props) {
         </View>
     )
 }
-const VendorSetingHeaderNavList = ["BookingHistoryScreen","Earning","UpdateProductStock","FeedBackScreen","PropertyLocationScreen","Record","NotificationsScreen","ServiceBookingScreen","PropertyRegisterScreen"]
+const VendorSetingHeaderNavList = ["BookingHistoryScreen","UpdateProductStock","FeedBackScreen","PropertyLocationScreen","Record","NotificationsScreen","ServiceBookingScreen","PropertyRegisterScreen"]
 export function SettingStackHeaderVendor(props) {
     const navigate = useNavigation()
     const handleClickNav = (name)=>{
@@ -163,7 +165,7 @@ export function SettingStackHeaderVendor(props) {
     return (
         <View style={{
             width: sizes.width,
-            height: 80,
+            height: 60,
             backgroundColor: colors.color_primary,
             alignItems: 'flex-end',
             justifyContent: 'flex-end',
@@ -174,6 +176,144 @@ export function SettingStackHeaderVendor(props) {
         }}>
             {
                 VendorSetingHeaderNavList.map((item, index) => {
+                    if (!findIcon(item)) return
+                    return (
+                        <TouchableOpacity key={item} onPress={()=> handleClickNav(item)}
+                            style={{
+                                backgroundColor: props.route === item && "red",
+                                padding: 1
+                            }}
+                        >
+                            {
+                                findIcon(item)
+                            }
+                        </TouchableOpacity>
+                    )
+                })
+            }
+        </View>
+    )
+}
+
+const SupperAdminSetingHeaderNavList = [
+    "BookingHistoryScreen",
+    "Earning",
+    "UpdateProductStock",
+    "FeedBackScreen",
+    "PropertyLocationScreen",
+    "Record",
+    "NotificationsScreen",
+    "ServiceBookingScreen",
+    "PropertyRegisterScreen",
+    "ManageUser"
+]
+export function SettingStackHeaderSupperAdmin(props) {
+    const navigate = useNavigation()
+    const handleClickNav = (name)=>{
+        if(!name) return
+        navigate.navigate(name)
+    }
+    return (
+        <View style={{
+            width: sizes.width,
+            height: 60,
+            backgroundColor: colors.color_primary,
+            alignItems: 'flex-end',
+            justifyContent: 'flex-end',
+            paddingBottom: 4,
+            paddingRight: 20,
+            flexDirection: 'row',
+            gap: 10
+        }}>
+            {
+                SupperAdminSetingHeaderNavList.map((item, index) => {
+                    if (!findIcon(item)) return
+                    return (
+                        <TouchableOpacity key={item} onPress={()=> handleClickNav(item)}
+                            style={{
+                                backgroundColor: props.route === item && "red",
+                                padding: 1
+                            }}
+                        >
+                            {
+                                findIcon(item)
+                            }
+                        </TouchableOpacity>
+                    )
+                })
+            }
+        </View>
+    )
+}
+
+const AdminSetingHeaderNavList = [
+    "Record",
+    "NotificationsScreen",
+    "ManageUser"
+]
+export function SettingStackHeaderAdmin(props) {
+    const navigate = useNavigation()
+    const handleClickNav = (name)=>{
+        if(!name) return
+        navigate.navigate(name)
+    }
+    return (
+        <View style={{
+            width: sizes.width,
+            height: 60,
+            backgroundColor: colors.color_primary,
+            alignItems: 'flex-end',
+            justifyContent: 'flex-end',
+            paddingBottom: 4,
+            paddingRight: 20,
+            flexDirection: 'row',
+            gap: 14
+        }}>
+            {
+                AdminSetingHeaderNavList.map((item, index) => {
+                    if (!findIcon(item)) return
+                    return (
+                        <TouchableOpacity key={item} onPress={()=> handleClickNav(item)}
+                            style={{
+                                backgroundColor: props.route === item && "red",
+                                padding: 1
+                            }}
+                        >
+                            {
+                                findIcon(item)
+                            }
+                        </TouchableOpacity>
+                    )
+                })
+            }
+        </View>
+    )
+}
+
+const StuffSetingHeaderNavList = [
+    "Record",
+    "NotificationsScreen"
+]
+export function SettingStackHeaderStuff(props) {
+    const navigate = useNavigation()
+    const handleClickNav = (name)=>{
+        if(!name) return
+        navigate.navigate(name)
+    }
+    return (
+        <View style={{
+            width: sizes.width,
+            height: 60,
+            backgroundColor: colors.color_primary,
+            alignItems: 'flex-end',
+            justifyContent: 'flex-end',
+            paddingBottom: 4,
+            paddingRight: 20,
+            flexDirection: 'row',
+            gap: 14
+        }}>
+            {
+                StuffSetingHeaderNavList.map((item, index) => {
                     if (!findIcon(item)) return
                     return (
                         <TouchableOpacity key={item} onPress={()=> handleClickNav(item)}
