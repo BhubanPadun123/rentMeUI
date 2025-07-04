@@ -9,11 +9,15 @@ import {
 } from "react-native";
 import { colors, sizes } from "../styles/Theme";
 import { Animated } from "react-native";
+import {
+    Card
+} from "@rneui/themed"
 
 const CARD_WIDTH = sizes.width - 100;
 const CARD_HEIGHT = 180;
+import ProductCart from "./ProductCart";
 
-export const CardCarousel = ({ list, onSelectCategory }) => {
+export const CardCarousel = ({ list, onSelectCategory, type = "catagory" }) => {
     const av = new Animated.Value(0);
     av.addListener(() => {
         return;
@@ -24,51 +28,68 @@ export const CardCarousel = ({ list, onSelectCategory }) => {
             horizontal
             snapToInterval={CARD_WIDTH + 10}
             decelerationRate={"fast"}
-            showsHorizontalScrollIndicator={false}
+            showsHorizontalScrollIndicator={true}
             initialNumToRender={3}
-            keyExtractor={(item) => item.name}
-            renderItem={({ item, index }) => {
-                return (
+            keyExtractor={(item) => item.name || item._id}
+            renderItem={({ item, index }) =>
+                type === "catagory" ? (
                     <TouchableOpacity
                         style={{
-                            marginLeft: index === 0 ? 0 : 24,
-                            marginRight: index === list.length - 1 ? 24 : 0,
-                            marginVertical: 16,
+                            marginLeft: index === 0 ? 0 : 2,
                         }}
-                        onPress={() => onSelectCategory(item,"catagoryClick")}
+                        onPress={() => onSelectCategory(item, "catagoryClick")}
                     >
-                        <View style={styles.card}>
-                            <View style={styles.button_box}>
-                                <TouchableOpacity
-                                    style={styles.button}
-                                    onPress={() => onSelectCategory(item)}
-                                >
-                                    <Text style={styles.button_text}>
-                                        Explore
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                            <View style={styles.image_box}>
-                                <Image
-                                    source={item.image}
-                                    style={styles.category_image}
-                                />
-                            </View>
-                            <View style={styles.title_box}>
-                                <Text style={styles.category}>
-                                    {item.name},
+                        <Card
+                            containerStyle={{
+                                padding: 8,
+                                width: sizes.width / 3,
+                                minHeight: 100,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: index > 0 && "#d9d0c7"
+                            }}
+                        >
+                            <Card.Title
+                                style={{
+                                    padding: 0,
+                                    textAlign: 'center',
+                                    fontWeight: "bold",
+                                    fontSize: 10
+                                }}
+                            >
+                                {item.name}
+                            </Card.Title>
+                            <Card.Image
+                                source={item.image}
+                                style={{
+                                    width: 40,
+                                    height: 40
+                                }}
+                            />
+                            <View style={styles.countDetail_container}>
+                                <Text style={styles.detail}>
+                                    {item.count}
+                                    {"  and More"}
                                 </Text>
-                                <View style={styles.countDetail_container}>
-                                    <Text style={styles.detail}>
-                                        {item.count}
-                                        {" + and More"}
-                                    </Text>
-                                </View>
                             </View>
-                        </View>
+                        </Card>
                     </TouchableOpacity>
-                );
-            }}
+                ) : (
+                    <TouchableOpacity
+                        style={{
+                            marginLeft: index === 0 ? 0 : 2,
+                        }}
+                        onPress={() => onSelectCategory(item)}
+                    >
+                        <ProductCart
+                            key={item.title}
+                            category={item}
+                            isSelected={""}
+                            onPress={onSelectCategory}
+                        />
+                    </TouchableOpacity>
+                )
+            }
         />
     );
 };

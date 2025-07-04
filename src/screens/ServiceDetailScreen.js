@@ -352,6 +352,7 @@ const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
         paddingHorizontal: 1,
+        backgroundColor:"black"
     },
     header_container: {
         marginVertical: 10,

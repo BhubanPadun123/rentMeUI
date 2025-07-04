@@ -7,14 +7,15 @@ import {
     Image,
     View,
 } from "react-native";
-import { colors } from "../styles/Theme";
+import { colors, sizes } from "../styles/Theme";
 import CardSmall from "./CardSmall";
 import {
     Card,
     Tab,
     Button,
     ListItem,
-    Divider
+    Divider,
+    Chip
 } from "@rneui/themed"
 import { formatDate } from "../utils/utils";
 
@@ -48,10 +49,11 @@ const ProductCart = ({ category, isSelected, onPress }) => {
     }
 
     return (
-        <Card>
-            <Card.Title style={{ color: colors.color_primary }}>{category.productTitle}</Card.Title>
-            <Card.Title>Posted At:{localTime}</Card.Title>
-            <Card.Divider />
+        <Card containerStyle={{
+            padding: 0,
+            width: sizes.width / 2,
+            minHeight: 150
+        }}>
             <View style={{
                 position: "relative",
                 alignItems: "center",
@@ -63,139 +65,31 @@ const ProductCart = ({ category, isSelected, onPress }) => {
                     resizeMode='stretch'
                 />
             </View>
-            <Card.FeaturedTitle>
-                <Tab
-                    value={filterCode}
-                    variant="primary"
-                    indicatorStyle={{
-                        padding: 0,
-                        margin: 0,
-                    }}
-                    onChange={(e) => setFilterCode(e)}
-                >
-                    <Tab.Item
-                        title={"Description"}
-                        dense={true}
-                        titleStyle={{
-                            fontSize: 8,
-                            padding: 2,
-                            margin: 0
-                        }}
-                    />
-                    <Tab.Item
-                        title={"is available?"}
-                        dense={true}
-                        titleStyle={{
-                            fontSize: 8,
-                            padding: 2,
-                            margin: 0
-                        }}
-                    />
-                    <Tab.Item
-                        title={"Property type?"}
-                        dense={true}
-                        titleStyle={{
-                            fontSize: 8,
-                            padding: 2,
-                            margin: 0
-                        }}
-                    />
-                    <Tab.Item
-                        title={"Rent Info"}
-                        dense={true}
-                        titleStyle={{
-                            fontSize: 8,
-                            padding: 0,
-                            margin: 0
-                        }}
-                    />
-                </Tab>
-            </Card.FeaturedTitle>
-            <Card.FeaturedSubtitle>
+            <Card.Divider />
+            <Card.Title style={{ color: colors.color_primary, padding: 0 }}>{category.productTitle}</Card.Title>
+            <View style={{
+                // height: 35,
+                backgroundColor: '#aba196',
+                width: "100%",
+                flexDirection:'column',
+                padding:4,
+                justifyContent:'space-between'
+            }}>
                 {
-                    filterCode === 0 && (
-                        <View style={styles.content_container}>
-                            <Text style={styles.text}>{description}</Text>
-                            <Text style={styles.text}>{`Property is located at ${addressData}`}</Text>
-                            <Text style={styles.text}>{`This property hold importain aminities of, ${availableData}`}</Text>
-                        </View>
-                    )
-                }
-                {
-                    filterCode === 1 && (
-                        <View style={styles.content_container}>
+                    rent && (
+                        <Text style={styles.text}>
                             {
-                                total == 0 ? (
-                                    <Text style={styles.text}>
-                                        Property is fully occupied – no availability at the moment.
-                                    </Text>
-                                ) : (
-                                    <Text style={styles.text}>
-                                        {total} Properties are available for onboarding – rooms are open for booking.
-                                        Click View button for explore the property and booking.
-                                    </Text>
-                                )
+                                `Rent/Month : ${rent} only`
                             }
-                        </View>
+                        </Text>
                     )
                 }
                 {
-                    filterCode === 2 && (
-                        <View style={[styles.content_container,{justifyContent:'center'}]}>
-                            {
-                                propertyOccupancy && Array.isArray(propertyOccupancy) && propertyOccupancy.length &&
-                                propertyOccupancy.map((item, index) => (
-                                    <ListItem key={index + item}
-                                        pad={0}
-                                        containerStyle={{
-                                            padding: 0,
-                                            margin: 0,
-                                            width:"100%",
-                                        }}
-                                    >
-                                        <ListItem.Title style={styles.text}>{index+1} .</ListItem.Title>
-                                        <ListItem.Title style={styles.text}>{item}</ListItem.Title>
-                                    </ListItem>
-                                ))
-                            }
-                        </View>
+                    deposite && (
+                        <Text style={styles.text}>{`Deposite Amount: ${deposite} only`}</Text>
                     )
                 }
-                {
-                    filterCode === 3 && (
-                        <View style={styles.content_container}>
-                            {
-                                deposite && (
-                                    <View style={styles.content_container}>
-                                        <Text style={styles.text}>Deposite Amount Rs({deposite}) only</Text>
-                                        <Text style={styles.text}>A one-time refundable security deposit collected before moving in.</Text>
-                                        <Text style={styles.text}>Upfront amount required to secure the property – refundable upon checkout.</Text>
-                                        <Text style={styles.text}>Security deposit paid in advance to cover potential damages or unpaid dues.</Text>
-                                        {
-                                            rent && (
-                                                <>
-                                                  <Divider/>
-                                                  <Text style={styles.text}>Rent/Month Rs({rent}) only</Text>
-                                                  <Text style={styles.text}>Monthly rental charge payable by the tenant.</Text>
-                                                  <Text style={styles.text}>Recurring rent amount to be paid each month.</Text>
-                                                  <Text style={styles.text}>Fixed monthly cost for staying at the property.</Text>
-                                                </>
-                                            )
-                                        }
-                                    </View>
-                                )
-                            }
-                        </View>
-                    )
-                }
-            </Card.FeaturedSubtitle>
-            <Button
-                title={"View"}
-                type='outline'
-                size='sm'
-                onPress={onPress}
-                style={{marginTop:4}}
-            />
+            </View>
         </Card>
     );
 };

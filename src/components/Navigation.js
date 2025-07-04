@@ -19,24 +19,22 @@ import PropertyLocationScreen from "../screens/PropertyLocationScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import PlatformEarning from "../screens/Earning";
 import ForgetPassword from "../screens/ForgetPassword";
-
-import app from "../../firebaseConfig";
 import iconPref, {
     customTabButton, 
     SettingStackHeaderAdmin, 
     SettingStackHeaderCustomer, 
     SettingStackHeaderSupperAdmin, 
     SettingStackHeaderVendor,
-    SettingStackHeaderStuff
+    SettingStackHeaderStuff,
+    CustomerHomeHeader
 } from "../utils/NavBarUtils";
-import { useState } from "react";
-import { getAuth } from "firebase/auth";
-import { useEffect } from "react";
-import { View } from "react-native-web";
 import ManageUser from "../screens/ManageUser";
+import { createDrawerNavigator } from '@react-navigation/drawer';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
+const Drawer = createDrawerNavigator();
+
 
 function AuthStack() {
     return (
@@ -309,17 +307,28 @@ function HomeStack() {
             <Stack.Screen
                 name="HomeScreen"
                 component={HomeScreen}
-                options={{ headerShown: false, }}
+                options={{ 
+                    headerShown: true, 
+                    header:()=> <CustomerHomeHeader/>
+                }}
             />
             <Stack.Screen
                 name="SearchScreen"
                 component={SearchScreen}
-                options={{ headerShown: true, title: "Catagory Search" }}
+                options={{
+                    headerShown: true, 
+                    title: "Catagory Search",
+                    header:()=> <CustomerHomeHeader/>
+                }}
             />
             <Stack.Screen
                 name="ServiceDetailScreen"
                 component={ServiceDetailScreen}
-                options={{ headerShown: true, title: "Property Details" }}
+                options={{ 
+                    headerShown: true, 
+                    title: "Property Details",
+                    header:()=> <CustomerHomeHeader/>
+                }}
             />
         </Stack.Navigator>
     );
@@ -380,22 +389,19 @@ class Navigation extends React.Component {
                 <Tab.Navigator
                     screenOptions={iconPref}
                     initialRouteName={!user ? "Profile" : "Home"}
-                    screenListeners={{
-                        state: (e) => {
-                            // console.log("state change",e.data)
-                        }
-                    }}
                 >
                     <Tab.Screen
                         name="Home"
                         component={HomeStack}
-                        options={{ unmountOnBlur: true }}
+                        options={{ 
+                            unmountOnBlur: true
+                        }}
                     />
                     <Tab.Screen
                         name="Setting"
                         component={SettingStack}
                         options={{
-                            tabBarButton: customTabButton,
+                            // tabBarButton: customTabButton,
                             unmountOnBlur: true
                         }}
                     />

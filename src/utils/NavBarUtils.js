@@ -1,57 +1,220 @@
-import { StyleSheet, TouchableOpacity, View, Image, Button } from "react-native";
+import React from "react";
+import { StyleSheet, TouchableOpacity, View, Image } from "react-native";
 import { colors, sizes } from "../styles/Theme";
 import tabsImages from "./TabsImages";
 import {
+    Card,
+    Button,
+    Text,
+    Tab,
+    Divider,
+    Dialog,
+    CheckBox,
+    ListItem
+} from "@rneui/themed"
+import {
+    FontAwesome5,
+    MaterialCommunityIcons
+} from "@expo/vector-icons"
+import {
     Feather,
     SimpleLineIcons,
-    MaterialCommunityIcons,
     MaterialIcons,
     AntDesign,
     FontAwesome,
-    Entypo
+    Entypo,
+    Ionicons
 } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native";
 
 //ICONS
-const iconPref = ({ route }) => {
+const iconPref = ({ route, ...props }) => {
     const hiddenRoutes = [
     ]
     const isTabHidden = hiddenRoutes.includes(route.name)
+    const handleNav = (name) => props.navigation.navigate(name)
     return {
         tabBarIcon: ({ color }) => {
-            let iconName;
 
-            if (route.name === "Home") {
-                iconName = tabsImages.Home
-            } else if (route.name === "Profile") {
-                iconName = tabsImages.Profile
-            } else if (route.name === "Calander") {
-                iconName = tabsImages.Calander
-            } else if (route.name === "Search") {
-                iconName = tabsImages.Search
-            }
-            //returns in each icon
-            return <Image source={iconName} style={{ height: 40, width: 40 }} />
+            return (
+                <Tab
+                    onChange={() => handleNav(route.name)}
+                    containerStyle={{
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: "center",
+                        display: 'flex',
+                        backgroundColor: "#826012",
+                        paddingTop: 4,
+                    }}
+                >
+                    <Tab.Item
+                        title={
+                            route.name === "Home" ?
+                                "Home" :
+                                route.name === "Setting" ?
+                                    "Dashboard" : "News"
+                        }
+                        titleStyle={{ color: 'white', fontSize: 10 }}
+                        icon={
+                            route.name === "Home" ?
+                                <MaterialCommunityIcons name="home" size={24} color="white" /> :
+                                route.name === "Setting" ?
+                                    <MaterialCommunityIcons name="view-dashboard" size={24} color="white" />
+                                    : <Ionicons name="newspaper-outline" size={24} color="white" />
+                        }
+                    />
+                </Tab>
+            )
         },
-        tabBarStyle: {
-            ...styles.shadow,
-            // position: "absolute",
-            // bottom: 40,
-            // left: 20,
-            // right: 20,
-            // borderRadius: 20,
-            // height: 80,
-            // justifyContent: "center",
-            // alignItems: "center",
-            // paddingBottom: 0,
-            backgroundColor: 'pink',
-        },
-        tabBarActiveTintColor: colors.color_primary,
+        tabBarActiveTintColor: "red",
         tabBarInactiveTintColor: colors.color_gray,
         headerShown: false,
         tabBarShowLabel: false,
     };
 };
+
+export const CustomerHomeHeader = () => {
+    const [openDialog, setOpen] = React.useState(false)
+    const [selectLang,setLang] = React.useState("English")
+    return (
+        <View style={homeHeaderStyles.root}>
+            <View style={homeHeaderStyles.wrapper}>
+                <Image style={homeHeaderStyles.logo}
+                    source={tabsImages.icon}
+                />
+                <View style={homeHeaderStyles.actionWrapper}>
+                    <Card
+                        containerStyle={{
+                            padding: 0,
+                            borderRadius: 10,
+                            backgroundColor: "#826012",
+                            justifyContent: 'center',
+                            alignItems: "center"
+                        }}
+                    >
+                        <View style={homeHeaderStyles.cardWrapper}>
+                            <Text style={homeHeaderStyles.text}>Lang</Text>
+                            <Divider orientation='vertical' />
+                            <Text style={homeHeaderStyles.text}>{selectLang}</Text>
+                            <Divider orientation='vertical' />
+                            <TouchableOpacity onPress={()=> setOpen(!openDialog)}>
+                                <AntDesign name="caretdown" size={18} color="gray" />
+                            </TouchableOpacity>
+                        </View>
+                    </Card>
+                    <Button
+                        icon={<FontAwesome5 name="user-cog" size={24} color="#4b3ec2" />}
+                        color={'warning'}
+                        buttonStyle={{
+                            borderRadius: 40
+                        }}
+                    />
+                </View>
+            </View>
+            {
+                openDialog && (
+                    <Dialog
+                        isVisible={openDialog}
+                        onBackdropPress={() => setOpen(false)}
+                        overlayStyle={{
+                            padding: 0,
+                            margin: 0
+                        }}
+                    >
+                        <Dialog.Title title="Select Language" titleStyle={{
+                            textAlign: 'center',
+                            fontSize: 16
+                        }} />
+                        <Divider orientation='horizontal' />
+                        <View style={{
+                            padding: 0,
+                            margin: 0,
+                            justifyContent: 'flex-start',
+                            width: "100%",
+                            alignItems:'flex-start'
+                        }}>
+                            <Dialog.Button size='sm'
+                                title={"English"}
+                                icon={<CheckBox checked={selectLang === "English"} style={{
+                                    padding: 0
+                                }} />}
+                                style={{
+                                    padding: 0,
+                                    justifyContent: 'flex-start',
+                                    alignItems: 'flex-start'
+                                }}
+                                onPress={()=> {
+                                    setLang("English")
+                                    setOpen(false)
+                                }}
+                            />
+                            <Dialog.Button size="sm"
+                                title={"Assamese"}
+                                icon={<CheckBox checked={selectLang === "Assamese"} />}
+                                style={{
+                                    padding: 0,
+                                    justifyContent: 'flex-start',
+                                    alignItems: 'flex-start'
+                                }}
+                                onPress={()=> {
+                                    setLang("Assamese")
+                                    setOpen(false)
+                                }}
+                            />
+                        </View>
+                    </Dialog>
+                )
+            }
+        </View>
+    )
+}
+
+const homeHeaderStyles = StyleSheet.create({
+    root: {
+        height: 100,
+        backgroundColor: "white",
+        maxWidth: sizes.width
+    },
+    wrapper: {
+        height: 100,
+        backgroundColor: "#826012",
+        borderBottomStartRadius: 40,
+        borderBottomEndRadius: 40,
+        width: sizes.width,
+        justifyContent: "space-between",
+        alignItems: "flex-end",
+        flexDirection: 'row',
+        paddingLeft: 20,
+        paddingBottom: 10
+    },
+    logo: {
+        height: 100,
+        width: 100,
+        borderRadius: 100,
+        bottom: -10,
+    },
+    actionWrapper: {
+        paddingRight: 20,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    cardWrapper: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: "center",
+        gap: 2,
+        height: 40,
+        padding: 2
+    },
+    text: {
+        fontSize: 10,
+        fontWeight: 'bold',
+        color: "white"
+    }
+})
 
 export const customTabButton = ({ children, onPress }) => (
     <TouchableOpacity
@@ -116,11 +279,11 @@ function findIcon(name) {
             return null
     }
 }
-const CustomerSetingHeaderNavList = ["NotificationsScreen",'ServiceBookingScreen','BookingHistoryScreen']
+const CustomerSetingHeaderNavList = ["NotificationsScreen", 'ServiceBookingScreen', 'BookingHistoryScreen']
 export function SettingStackHeaderCustomer(props) {
     const navigate = useNavigation()
-    const handleClickNav = (name)=>{
-        if(!name) return
+    const handleClickNav = (name) => {
+        if (!name) return
         navigate.navigate(name)
     }
     return (
@@ -139,7 +302,7 @@ export function SettingStackHeaderCustomer(props) {
                 CustomerSetingHeaderNavList.map((item, index) => {
                     if (!findIcon(item)) return
                     return (
-                        <TouchableOpacity key={item} onPress={()=> handleClickNav(item)}
+                        <TouchableOpacity key={item} onPress={() => handleClickNav(item)}
                             style={{
                                 backgroundColor: props.route === item && "red",
                                 padding: 1
@@ -155,11 +318,11 @@ export function SettingStackHeaderCustomer(props) {
         </View>
     )
 }
-const VendorSetingHeaderNavList = ["BookingHistoryScreen","UpdateProductStock","FeedBackScreen","PropertyLocationScreen","Record","NotificationsScreen","ServiceBookingScreen","PropertyRegisterScreen"]
+const VendorSetingHeaderNavList = ["BookingHistoryScreen", "UpdateProductStock", "FeedBackScreen", "PropertyLocationScreen", "Record", "NotificationsScreen", "ServiceBookingScreen", "PropertyRegisterScreen"]
 export function SettingStackHeaderVendor(props) {
     const navigate = useNavigation()
-    const handleClickNav = (name)=>{
-        if(!name) return
+    const handleClickNav = (name) => {
+        if (!name) return
         navigate.navigate(name)
     }
     return (
@@ -178,7 +341,7 @@ export function SettingStackHeaderVendor(props) {
                 VendorSetingHeaderNavList.map((item, index) => {
                     if (!findIcon(item)) return
                     return (
-                        <TouchableOpacity key={item} onPress={()=> handleClickNav(item)}
+                        <TouchableOpacity key={item} onPress={() => handleClickNav(item)}
                             style={{
                                 backgroundColor: props.route === item && "red",
                                 padding: 1
@@ -209,8 +372,8 @@ const SupperAdminSetingHeaderNavList = [
 ]
 export function SettingStackHeaderSupperAdmin(props) {
     const navigate = useNavigation()
-    const handleClickNav = (name)=>{
-        if(!name) return
+    const handleClickNav = (name) => {
+        if (!name) return
         navigate.navigate(name)
     }
     return (
@@ -229,7 +392,7 @@ export function SettingStackHeaderSupperAdmin(props) {
                 SupperAdminSetingHeaderNavList.map((item, index) => {
                     if (!findIcon(item)) return
                     return (
-                        <TouchableOpacity key={item} onPress={()=> handleClickNav(item)}
+                        <TouchableOpacity key={item} onPress={() => handleClickNav(item)}
                             style={{
                                 backgroundColor: props.route === item && "red",
                                 padding: 1
@@ -253,8 +416,8 @@ const AdminSetingHeaderNavList = [
 ]
 export function SettingStackHeaderAdmin(props) {
     const navigate = useNavigation()
-    const handleClickNav = (name)=>{
-        if(!name) return
+    const handleClickNav = (name) => {
+        if (!name) return
         navigate.navigate(name)
     }
     return (
@@ -273,7 +436,7 @@ export function SettingStackHeaderAdmin(props) {
                 AdminSetingHeaderNavList.map((item, index) => {
                     if (!findIcon(item)) return
                     return (
-                        <TouchableOpacity key={item} onPress={()=> handleClickNav(item)}
+                        <TouchableOpacity key={item} onPress={() => handleClickNav(item)}
                             style={{
                                 backgroundColor: props.route === item && "red",
                                 padding: 1
@@ -296,8 +459,8 @@ const StuffSetingHeaderNavList = [
 ]
 export function SettingStackHeaderStuff(props) {
     const navigate = useNavigation()
-    const handleClickNav = (name)=>{
-        if(!name) return
+    const handleClickNav = (name) => {
+        if (!name) return
         navigate.navigate(name)
     }
     return (
@@ -316,7 +479,7 @@ export function SettingStackHeaderStuff(props) {
                 StuffSetingHeaderNavList.map((item, index) => {
                     if (!findIcon(item)) return
                     return (
-                        <TouchableOpacity key={item} onPress={()=> handleClickNav(item)}
+                        <TouchableOpacity key={item} onPress={() => handleClickNav(item)}
                             style={{
                                 backgroundColor: props.route === item && "red",
                                 padding: 1

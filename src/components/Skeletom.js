@@ -22,22 +22,88 @@ class CSkeleton extends React.Component {
 
     render() {
         return (
-            <View style={styles.root}>
-                <Skeleton
-                    animation="wave"
-                    width={"100%"}
-                    height={"100%"}
-                    LinearGradientComponent={LinearProgress}
-                />
+            <View style={{
+                width:sizes.width,
+                flex:1,
+                display:'flex',
+                flexDirection:'row',
+                gap:4
+            }}>
+                <View style={styles.root}>
+                    <Skeleton
+                        animation='pulse'
+                        width={sizes.width / 2}
+                        height={100}
+                        LinearGradientComponent={LinearProgress}
+                    />
+                    <Skeleton
+                        animation='pulse'
+                        width={sizes.width / 2}
+                        height={100}
+                        LinearGradientComponent={LinearProgress}
+                    />
+                    <Skeleton
+                        animation='pulse'
+                        width={sizes.width / 2}
+                        height={100}
+                        LinearGradientComponent={LinearProgress}
+                    />
+                    <Skeleton
+                        animation='pulse'
+                        width={sizes.width / 2}
+                        height={100}
+                        LinearGradientComponent={LinearProgress}
+                    />
+                    <Skeleton
+                        animation='pulse'
+                        width={sizes.width / 2}
+                        height={100}
+                        LinearGradientComponent={LinearProgress}
+                    />
+                </View>
+                <View style={styles.root}>
+                    <Skeleton
+                        animation='pulse'
+                        width={sizes.width / 2}
+                        height={100}
+                        LinearGradientComponent={LinearProgress}
+                    />
+                    <Skeleton
+                        animation='pulse'
+                        width={sizes.width / 2}
+                        height={100}
+                        LinearGradientComponent={LinearProgress}
+                    />
+                    <Skeleton
+                        animation='pulse'
+                        width={sizes.width / 2}
+                        height={100}
+                        LinearGradientComponent={LinearProgress}
+                    />
+                    <Skeleton
+                        animation='pulse'
+                        width={sizes.width / 2}
+                        height={100}
+                        LinearGradientComponent={LinearProgress}
+                    />
+                    <Skeleton
+                        animation='pulse'
+                        width={sizes.width / 2}
+                        height={100}
+                        LinearGradientComponent={LinearProgress}
+                    />
+                </View>
             </View>
+
         )
     }
 }
 
 const styles = StyleSheet.create({
     root: {
-        width: sizes.width,
-        height: sizes.height
+        display:'flex',
+        flexDirection:'column',
+        gap:4
     },
     items: {
         display: "flex",

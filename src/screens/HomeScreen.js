@@ -6,6 +6,7 @@ import {
     ScrollView,
     RefreshControl,
     ImageBackground,
+    TouchableOpacity,
 } from "react-native";
 import { connect } from "react-redux";
 import { getAllProductAction } from "../Redux/action/product";
@@ -14,7 +15,10 @@ import { CardCarousel } from "../components/CardCarousel";
 import ProductCart from "../components/ProductCart";
 import Loader from "../components/Loader";
 import { colors } from "../styles/Theme";
-import { serviceList } from "../utils/Categories";
+import {
+    serviceList,
+    serviceList_ass
+} from "../utils/Categories";
 import CSkeleton from "../components/Skeletom";
 import { getNotificationAction } from "../Redux/action/product";
 import * as Notifications from 'expo-notifications';
@@ -29,12 +33,16 @@ import {
 import {
     Button
 } from "@rneui/themed"
+import tabsImages from "../utils/TabsImages";
+import { InfoCart } from "../components/Banner/Home";
+import { Divider } from "@rneui/base";
+import { homeText } from "../utils/text";
 
 class HomeScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            isReady: false,
+            isReady: true,
             userInfo: null,
             refreshing: false,
             product: [],
@@ -155,20 +163,6 @@ class HomeScreen extends Component {
         }, 2000);
     };
 
-    renderProduct = () => {
-        const { product } = this.state;
-        if (!product.length) return null;
-
-        return product.map((item) => (
-            <ProductCart
-                key={item.title}
-                category={item}
-                isSelected={""}
-                onPress={() => this.goToProductDetails(item)}
-            />
-        ));
-    };
-
     render() {
         const { isReady, refreshing, product } = this.state;
         const { productListStatus } = this.props;
@@ -181,67 +175,110 @@ class HomeScreen extends Component {
                         onRefresh={this.onRefresh}
                     />
                 }
+                contentContainerStyle={{
+                    backgroundColor: 'white'
+                }}
             >
                 {
-                    !isReady && product.length == 0 && (
+                    !isReady && product.length > 0 && (
                         <CSkeleton />
                     )
                 }
                 {isReady && (
                     <View style={styles.container}>
-                        <View style={styles.top_container}>
-                            <View style={styles.header_container}>
-                                <Text style={styles.header_text}>HomeKart</Text>
-                                <Button
-                                    type='outline'
-                                    icon={<Ionicons name="notifications-sharp" size={24} color="gray" />}
-                                    title={
-                                        this.props.getNotificationResponse && Array.isArray(this.props.getNotificationResponse) ?
-                                            `${this.props.getNotificationResponse.length}` : ""
-                                    }
-                                    titleStyle={{
-                                        position:'absolute',
-                                        color:'white'
-                                    }}
-                                    onPress={()=> {
-                                        this.props.navigation.navigate("Setting",{
-                                            screen:"NotificationsScreen"
-                                        })
-                                    }}
-                                />
-                            </View>
-                            <ImageBackground
-                                style={styles.card_container}
-                                imageStyle={{ borderRadius: 20, overflow: "hidden" }}
-                                source={require("../../assets/backgroundsearch.png")}
-                            >
-                                <View style={styles.welcome_container}>
-                                    <Text style={styles.welcome_text}>
-                                        Find Your Comfort place one
-                                    </Text>
-                                </View>
-                                <Text style={styles.detail_text}>
-                                    Find comfort place one with one click
-                                </Text>
-                                <View style={styles.search_container}>
-                                    <SearchBar
-                                        placeholder_text={"Search..."}
-                                        onSearch={this.handleSearch}
-                                    />
-                                </View>
-                            </ImageBackground>
+                        <InfoCart />
+                        <View style={{
+                            paddingVertical: 4,
+                            display: "flex",
+                            flexDirection: 'row',
+                            gap: 4,
+                            justifyContent: 'flex-start',
+                            marginTop: 16,
+                            paddingLeft: 20
+                        }}>
+                            <Divider
+                                orientation='vertical'
+                                style={{
+                                    backgroundColor: "#826012",
+                                    height: 20,
+                                    width: 8,
+                                    borderRadius: 4
+                                }}
+                            />
+                            <Text style={{
+                                fontWeight: "bold",
+                                fontSize: 18
+                            }}>
+                                {homeText.assQuickTab}
+                            </Text>
                         </View>
-
-                        <View style={styles.app_container}>
-                            <Text style={styles.text}>Explore More</Text>
+                        <View>
                             <CardCarousel
-                                list={serviceList}
+                                list={serviceList_ass}
                                 onSelectCategory={this.handleCategorySelect}
                             />
-                            <Text style={styles.text}>Recently Uploaded Properties</Text>
                         </View>
-
-                        <View>{product.length > 0 && this.renderProduct()}</View>
+                        <View style={{
+                            display: "flex",
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            paddingRight: 20
+                        }}>
+                            <View style={{
+                                paddingVertical: 4,
+                                display: "flex",
+                                flexDirection: 'row',
+                                gap: 4,
+                                justifyContent: 'flex-start',
+                                marginTop: 16,
+                                paddingLeft: 20
+                            }}>
+                                <Divider
+                                    orientation='vertical'
+                                    style={{
+                                        backgroundColor: "#826012",
+                                        height: 20,
+                                        width: 8,
+                                        borderRadius: 4
+                                    }}
+                                />
+                                <Text style={{
+                                    fontWeight: "bold",
+                                    fontSize: 18
+                                }}>
+                                    {homeText.assQuickTab}
+                                </Text>
+                            </View>
+                            <View style={{
+                                justifyContent:'flex-end',
+                                alignItems:'baseline',
+                                marginTop:10
+                            }}>
+                                <TouchableOpacity style={{
+                                    display:"flex",
+                                    flexDirection:"row",
+                                    gap:4,
+                                    alignItems:'center',
+                                    justifyContent:'center'
+                                }}>
+                                    <Text style={{
+                                        fontSize: 10,
+                                        borderBottomColor: "pink",
+                                        borderBottomWidth: 1
+                                    }}>View All</Text>
+                                    <Ionicons name="arrow-forward-circle-sharp" size={24} color="gray" />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <View>
+                            <CardCarousel
+                                list={product}
+                                onSelectCategory={this.goToProductDetails}
+                                type="product"
+                            />
+                        </View>
+                        {/* <View>{product.length > 0 && this.renderProduct()}</View> */}
                     </View>
                 )}
             </ScrollView>
@@ -252,7 +289,6 @@ class HomeScreen extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: 48,
         marginBottom: 120,
     },
     top_container: {
@@ -278,10 +314,6 @@ const styles = StyleSheet.create({
     search_container: {
         flex: 1,
         paddingBottom: 8,
-    },
-    app_container: {
-        flex: 1,
-        paddingHorizontal: 24,
     },
     list_container: {
         flex: 1,

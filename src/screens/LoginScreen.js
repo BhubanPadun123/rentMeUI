@@ -9,11 +9,14 @@ import { connect } from "react-redux";
 import { Formik } from "formik";
 
 import InputBar from "../components/InputBar";
-import Button from "../components/Button/Button";
 import { showTopMessage } from "../utils/ErrorHandler";
 import { userLoginAction, cleanUpLogin } from "../Redux/action/auth";
 import { colors } from "../styles/Theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+    Button,
+    Input
+} from "@rneui/themed"
 
 const initialFormValues = {
     usermail: "",
@@ -27,11 +30,11 @@ class LoginScreen extends Component {
             loading: false
         };
     }
-    async componentDidMount(){
+    async componentDidMount() {
         const currentUser = await AsyncStorage.getItem('currentUser')
-        if(currentUser){
+        if (currentUser) {
             const data = JSON.parse(currentUser)
-            if(data && data.hasOwnProperty('_id')){
+            if (data && data.hasOwnProperty('_id')) {
                 this.props.navigation.navigate("UserProfileScreen")
             }
         }
@@ -61,6 +64,11 @@ class LoginScreen extends Component {
     }
 
     handleFormSubmit = (formValues) => {
+        console.log(formValues)
+        if(!formValues.usermail || !formValues.password){
+            alert("Please fill the user email and password")
+            return
+        }
         const data = {
             userEmail: formValues.usermail,
             password: formValues.password,
@@ -73,9 +81,9 @@ class LoginScreen extends Component {
     };
 
     goToUserProfile = () => {
-        this.props.navigation.navigate("UserProfileScreen");
+        this.props.navigation.navigate("Home");
     };
-    gotToForgetPassword=()=>{
+    gotToForgetPassword = () => {
         this.props.navigation.navigate("ForgetPassword")
     }
 
@@ -92,36 +100,33 @@ class LoginScreen extends Component {
                     {({ values, handleChange, handleSubmit }) => (
                         <>
                             <View style={styles.input_container}>
-                                <InputBar
-                                    onType={handleChange("usermail")}
+                                <Input
+                                    onChangeText={handleChange("usermail")}
                                     value={values.usermail}
                                     placeholder={"Email Address"}
                                 />
-                                <InputBar
-                                    onType={handleChange("password")}
+                                <Input
+                                    onChangeText={handleChange("password")}
                                     value={values.password}
                                     placeholder={"Password"}
-                                    isSecure
                                 />
                                 <TouchableOpacity style={styles.button} onPress={this.gotToForgetPassword}>
                                     <Text style={styles.detail}>Forget password?</Text>
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.button_container}>
-                                <View style={styles.button}>
-                                    <Button
-                                        text="Login"
-                                        onPress={handleSubmit}
-                                        loading={loading}
-                                    />
-                                </View>
-                                <View style={styles.button}>
-                                    <Button
-                                        text="Signup"
-                                        onPress={this.goToMemberSignUp}
-                                        theme="secondary"
-                                    />
-                                </View>
+                                <Button
+                                    title="Login"
+                                    onPress={handleSubmit}
+                                    loading={loading}
+                                    size='lg'
+                                />
+                                <Button
+                                    title="Signup"
+                                    onPress={this.goToMemberSignUp}
+                                    type='outline'
+                                    size='lg'
+                                />
                             </View>
                         </>
                     )}
@@ -150,6 +155,7 @@ const styles = StyleSheet.create({
     },
     button_container: {
         paddingVertical: 8,
+        gap:4
     },
     button: {
         paddingVertical: 8,

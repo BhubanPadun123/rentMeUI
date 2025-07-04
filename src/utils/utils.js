@@ -33,7 +33,7 @@ You must provide accurate and up-to-date information.
 Your personal data will be kept secure and confidential.
 We do not use your data for marketing or share it without consent.`
 
-export const baseUrl = "http://192.168.67.166:8080"
+export const baseUrl = "https://homekart-fyazhphmembuhnag.centralindia-01.azurewebsites.net"
 //"http://192.168.67.166:8080"
 //"https://homekart-fyazhphmembuhnag.centralindia-01.azurewebsites.net"
 export const apiPath = {
