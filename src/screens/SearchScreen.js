@@ -4,18 +4,25 @@ import {
     FlatList,
     StyleSheet,
     ActivityIndicator,
-    Text
+    Text,
+    Image,
+    TouchableOpacity
 } from "react-native";
 import { connect } from "react-redux";
-import CardMedium from "../components/CardMedium";
 import ProductCart from "../components/ProductCart";
 import { colors, sizes } from "../styles/Theme";
-import userImages from "../utils/UserImageUtils";
 import {
     getAllSpecifictProductAction,
     getAllProductAction,
 } from "../Redux/action/product.js";
 import SearchBar from "../components/SearchBar.js";
+import CSkeleton from "../components/Skeletom.js";
+import {
+    Card
+} from "@rneui/themed"
+import {
+    FontAwesome6
+} from "@expo/vector-icons"
 
 class SearchScreen extends Component {
     constructor(props) {
@@ -41,7 +48,7 @@ class SearchScreen extends Component {
             this.fetchProduct(this.category.value);
         }
         if (this.type === "all") {
-            this.props.getAllProductAction(this.state.state, 5)
+            this.props.getAllProductAction(this.state.state, 5,"room")
         }
         this.onBlur = navigation.addListener('blur', () => {
             this.setState({
@@ -108,7 +115,7 @@ class SearchScreen extends Component {
     };
 
     goToProductDetails = (item) => {
-        this.props.navigation.navigate("ServiceDetailScreen", { item });
+        this.props.navigation.replace("ServiceDetailScreen", { item });
     };
 
     handleSearch = (text) => {
@@ -120,14 +127,14 @@ class SearchScreen extends Component {
         const { product } = this.state;
 
         if (!searchedText) {
-            if(areaProductResponse.length){
+            if (areaProductResponse.length) {
                 this.setState({
-                    product:areaProductResponse
+                    product: areaProductResponse
                 })
             }
-            if(productListResponse.length){
+            if (productListResponse.length) {
                 this.setState({
-                    product:productListResponse
+                    product: productListResponse
                 })
             }
             return;
@@ -157,13 +164,32 @@ class SearchScreen extends Component {
 
 
     renderCategory = ({ item }) => {
+        const metaData = item && item.hasOwnProperty('metaData') ? JSON.parse(item.metaData) : null
+        const images = metaData && metaData.hasOwnProperty('images') ? JSON.parse(metaData.images) : []
         return (
-            <ProductCart
-                category={item}
-                isSelected={this.state.selectedCategory === item.title}
+            <TouchableOpacity
+                style={{ flex: 1 }}
                 onPress={() => this.goToProductDetails(item)}
-                key={item.title}
-            />
+            >
+                <Card containerStyle={{
+                    // width: "40%",
+                    flex: 1,
+                    padding: 0
+                }}>
+                    {
+                        Array.isArray(images) && images.length > 0 && (
+                            <Image
+                                source={{ uri: images[0] }}
+                                style={{
+                                    width: "100%",
+                                    height: 100
+                                }}
+                            />
+                        )
+                    }
+                    <Card.Title>{item.productTitle}</Card.Title>
+                </Card>
+            </TouchableOpacity>
         );
     };
 
@@ -179,11 +205,7 @@ class SearchScreen extends Component {
         return (
             <View style={styles.container}>
                 {(loading) ? (
-                    <ActivityIndicator
-                        style={styles.loadingIndicator}
-                        size="large"
-                        color={colors.color_primary}
-                    />
+                    <CSkeleton />
                 ) : (
                     <View style={styles.container}>
                         <View style={styles.search_container}>
@@ -202,9 +224,16 @@ class SearchScreen extends Component {
                                         showsHorizontalScrollIndicator={false}
                                         snapToInterval={sizes.width}
                                         decelerationRate={"normal"}
+                                        numColumns={2}
                                         data={product}
                                         keyExtractor={(category) => category._id}
                                         renderItem={this.renderCategory}
+                                        columnWrapperStyle={{
+                                            gap: 1,
+                                            padding: 0,
+                                            justifyContent: 'center',
+                                            marginRight: 2
+                                        }}
                                     />
                                 </View>
                             )}
@@ -213,20 +242,40 @@ class SearchScreen extends Component {
                             product.length > 0 &&
                             this.type === "all" && (
                                 <FlatList
-                                    horizontal={false}
+                                    // horizontal={false}
                                     showsHorizontalScrollIndicator={false}
                                     snapToInterval={sizes.width}
                                     decelerationRate={"normal"}
                                     data={product}
                                     keyExtractor={(category) => category._id}
                                     renderItem={this.renderCategory}
+                                    numColumns={2}
+                                    columnWrapperStyle={{
+                                        gap: 1,
+                                        padding: 0,
+                                        justifyContent: "space-between",
+                                        margin: 0
+                                    }}
                                 />
                             )}
                         {
                             !loading && product.length === 0 && (
-                                <Text style={[styles.search_container]}>
-                                    Property Not Available In This Catagory Yet!
-                                </Text>
+                                <View style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignContent: 'center'
+                                }}>
+                                    <View style={{
+                                        width:"100%",
+                                        justifyContent:'center',
+                                        alignItems:'center'
+                                    }}>
+                                        <FontAwesome6 name="note-sticky" size={50} color="gray" />
+                                    </View>
+                                    <Text style={[styles.search_container]}>
+                                        Properties not listed at your searching location.
+                                    </Text>
+                                </View>
                             )
                         }
                     </View>
@@ -241,8 +290,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     search_container: {
-        marginTop: 10,
-        marginBottom: 12,
+        marginTop: 2,
+        marginBottom: 4,
         marginHorizontal: 24,
     },
     category_container: {

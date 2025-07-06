@@ -36,7 +36,7 @@ export const cleanUpAddProductAction=()=>{
     }
 }
 
-export const getAllProductAction=(start,end)=>{
+export const getAllProductAction=(start,end,tag)=>{
     return async(dispatch)=>{
         dispatch({
             type:actionTypes.GET_ALL_PRODUCT,
@@ -45,7 +45,7 @@ export const getAllProductAction=(start,end)=>{
         const {
             response,
             error
-        } = await apiRequest("get",`${apiPath.product}/list?start=${start}&end=${end}`)
+        } = await apiRequest("get",`${apiPath.product}/list?start=${start}&end=${end}&&tag=${tag}`)
         if(response){
             dispatch({
                 type:actionTypes.GET_ALL_PRODUCT_RESPONSE,

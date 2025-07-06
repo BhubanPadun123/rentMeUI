@@ -52,7 +52,7 @@ const ProductCart = ({ category, isSelected, onPress }) => {
         <Card containerStyle={{
             padding: 0,
             width: sizes.width / 2,
-            minHeight: 150
+            minHeight: 150,
         }}>
             <View style={{
                 position: "relative",
@@ -86,7 +86,7 @@ const ProductCart = ({ category, isSelected, onPress }) => {
                 }
                 {
                     deposite && (
-                        <Text style={styles.text}>{`Deposite Amount: ${deposite} only`}</Text>
+                        <Text style={styles.text}>{`Deposit Amount: ${deposite} only`}</Text>
                     )
                 }
             </View>

@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, TouchableOpacity, View, Image } from "react-native";
+import { StyleSheet, TouchableOpacity, View, Image, ScrollView } from "react-native";
 import { colors, sizes } from "../styles/Theme";
 import tabsImages from "./TabsImages";
 import {
@@ -25,19 +25,22 @@ import {
     Entypo,
     Ionicons
 } from "@expo/vector-icons"
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 //ICONS
 const iconPref = ({ route, ...props }) => {
     const hiddenRoutes = [
+        "Profile"
     ]
     const isTabHidden = hiddenRoutes.includes(route.name)
+
     const handleNav = (name) => props.navigation.navigate(name)
     return {
         tabBarIcon: ({ color }) => {
 
             return (
                 <Tab
+                    disableIndicator
                     onChange={() => handleNav(route.name)}
                     containerStyle={{
                         flexDirection: 'column',
@@ -53,15 +56,19 @@ const iconPref = ({ route, ...props }) => {
                             route.name === "Home" ?
                                 "Home" :
                                 route.name === "Setting" ?
-                                    "Dashboard" : "News"
+                                    "Room" :
+                                    route.name === "Books" ?
+                                        "Book" : "User"
                         }
                         titleStyle={{ color: 'white', fontSize: 10 }}
                         icon={
                             route.name === "Home" ?
                                 <MaterialCommunityIcons name="home" size={24} color="white" /> :
                                 route.name === "Setting" ?
-                                    <MaterialCommunityIcons name="view-dashboard" size={24} color="white" />
-                                    : <Ionicons name="newspaper-outline" size={24} color="white" />
+                                    <MaterialCommunityIcons name="view-dashboard" size={24} color="white" /> :
+                                    route.name === "Books" ?
+                                        <Ionicons name="newspaper-outline" size={24} color="white" />
+                                        : <FontAwesome name="user-o" size={24} color="white" />
                         }
                     />
                 </Tab>
@@ -74,9 +81,14 @@ const iconPref = ({ route, ...props }) => {
     };
 };
 
-export const CustomerHomeHeader = () => {
+export const CustomerHomeHeader = ({ props }) => {
     const [openDialog, setOpen] = React.useState(false)
-    const [selectLang,setLang] = React.useState("English")
+    const [selectLang, setLang] = React.useState("English")
+    const handleNavToUser = () => {
+        props.navigation.navigate("Profile", {
+            screen: "UserProfileScreen"
+        })
+    }
     return (
         <View style={homeHeaderStyles.root}>
             <View style={homeHeaderStyles.wrapper}>
@@ -84,31 +96,13 @@ export const CustomerHomeHeader = () => {
                     source={tabsImages.icon}
                 />
                 <View style={homeHeaderStyles.actionWrapper}>
-                    <Card
-                        containerStyle={{
-                            padding: 0,
-                            borderRadius: 10,
-                            backgroundColor: "#826012",
-                            justifyContent: 'center',
-                            alignItems: "center"
-                        }}
-                    >
-                        <View style={homeHeaderStyles.cardWrapper}>
-                            <Text style={homeHeaderStyles.text}>Lang</Text>
-                            <Divider orientation='vertical' />
-                            <Text style={homeHeaderStyles.text}>{selectLang}</Text>
-                            <Divider orientation='vertical' />
-                            <TouchableOpacity onPress={()=> setOpen(!openDialog)}>
-                                <AntDesign name="caretdown" size={18} color="gray" />
-                            </TouchableOpacity>
-                        </View>
-                    </Card>
                     <Button
                         icon={<FontAwesome5 name="user-cog" size={24} color="#4b3ec2" />}
                         color={'warning'}
                         buttonStyle={{
                             borderRadius: 40
                         }}
+                        onPress={handleNavToUser}
                     />
                 </View>
             </View>
@@ -132,7 +126,7 @@ export const CustomerHomeHeader = () => {
                             margin: 0,
                             justifyContent: 'flex-start',
                             width: "100%",
-                            alignItems:'flex-start'
+                            alignItems: 'flex-start'
                         }}>
                             <Dialog.Button size='sm'
                                 title={"English"}
@@ -144,7 +138,7 @@ export const CustomerHomeHeader = () => {
                                     justifyContent: 'flex-start',
                                     alignItems: 'flex-start'
                                 }}
-                                onPress={()=> {
+                                onPress={() => {
                                     setLang("English")
                                     setOpen(false)
                                 }}
@@ -157,7 +151,7 @@ export const CustomerHomeHeader = () => {
                                     justifyContent: 'flex-start',
                                     alignItems: 'flex-start'
                                 }}
-                                onPress={()=> {
+                                onPress={() => {
                                     setLang("Assamese")
                                     setOpen(false)
                                 }}
@@ -246,253 +240,407 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
 });
-const SettingStackScreen = [
-    "BookingHistoryScreen",
-    "Earning",
-    "UpdateProductStock",
-    "FeedBackScreen",
-    "PropertyRegisterScreen",
-    "Record",
-    "NotificationsScreen",
-    "ServiceBookingScreen",
 
-]
 function findIcon(name) {
     switch (name) {
         case "Earning":
-            return <Entypo name="database" size={24} color="black" />
+            return <Entypo name="database" size={24} color="white" />
         case "NotificationsScreen":
-            return <MaterialIcons name="notifications" size={24} color="black" />
+            return <MaterialIcons name="notifications" size={24} color="white" />
         case "UpdateProductStock":
-            return <MaterialIcons name="browser-updated" size={24} color="black" />
+            return <AntDesign name="edit" size={24} color="white" />
         case "PropertyRegisterScreen":
-            return <AntDesign name="plussquareo" size={24} color="black" />
+            return <Entypo name="upload" size={24} color="white" />
         case "ServiceBookingScreen":
-            return <Feather name="shopping-cart" size={24} color="black" />
+            return <Feather name="shopping-cart" size={24} color="white" />
         case "FeedBackScreen":
-            return <AntDesign name="gift" size={24} color="black" />
+            return <AntDesign name="gift" size={24} color="white" />
         case "Record":
-            return <AntDesign name="windowso" size={24} color="black" />
+            return <MaterialCommunityIcons name="card-account-details-outline" size={24} color="white" />
         case "ManageUser":
-            return <MaterialIcons name="manage-accounts" size={24} color="black" />
+            return <MaterialIcons name="manage-accounts" size={24} color="white" />
         default:
             return null
     }
 }
-const CustomerSetingHeaderNavList = ["NotificationsScreen", 'ServiceBookingScreen', 'BookingHistoryScreen']
+const CustomerSetingHeaderNavList = [
+    {
+        nav: "NotificationsScreen",
+        label: "Notification"
+    },
+
+    {
+        nav: "ServiceBookingScreen",
+        label: "My Booking"
+    }
+]
 export function SettingStackHeaderCustomer(props) {
+    const [currentNav, setNav] = React.useState(0)
     const navigate = useNavigation()
     const handleClickNav = (name) => {
         if (!name) return
         navigate.navigate(name)
     }
+    const RenderTabs = () => {
+        return (
+            <Tab
+                disableIndicator
+                onChange={(e) => {
+                    setNav(e)
+                    const findNav = CustomerSetingHeaderNavList[e].nav
+                    handleClickNav(findNav)
+                }}
+                containerStyle={{
+                    minHeight: 60,
+                    justifyContent: 'center',
+                    alignItems: 'baseline',
+                    padding: 0,
+                    backgroundColor: "#826012"
+                }}>
+                {
+                    CustomerSetingHeaderNavList.map((item, key) => {
+                        if (!findIcon(item.nav)) return null
+                        return (
+                            <Tab.Item
+                                key={item.label}
+                                icon={findIcon(item.nav)}
+                                title={item.label}
+                                dense={true}
+                                size='lg'
+                                containerStyle={{
+                                    // alignItems: 'baseline',
+                                    // justifyContent: 'flex-end',
+                                    backgroundColor: "#826012",
+                                    marginTop: 40,
+                                }}
+                                titleStyle={{
+                                    color: "white"
+                                }}
+                                active={true}
+                            />
+                        )
+                    })
+                }
+            </Tab>
+        )
+    }
     return (
-        <View style={{
-            width: sizes.width,
-            height: 80,
-            backgroundColor: colors.color_primary,
-            alignItems: 'flex-end',
-            justifyContent: 'flex-end',
-            paddingBottom: 4,
-            paddingRight: 20,
-            flexDirection: 'row',
-            gap: 14
-        }}>
-            {
-                CustomerSetingHeaderNavList.map((item, index) => {
-                    if (!findIcon(item)) return
-                    return (
-                        <TouchableOpacity key={item} onPress={() => handleClickNav(item)}
-                            style={{
-                                backgroundColor: props.route === item && "red",
-                                padding: 1
-                            }}
-                        >
-                            {
-                                findIcon(item)
-                            }
-                        </TouchableOpacity>
-                    )
-                })
-            }
-        </View>
+        <RenderTabs />
     )
 }
-const VendorSetingHeaderNavList = ["BookingHistoryScreen", "UpdateProductStock", "FeedBackScreen", "PropertyLocationScreen", "Record", "NotificationsScreen", "ServiceBookingScreen", "PropertyRegisterScreen"]
+const VendorSetingHeaderNavList = [
+    {
+        nav: "UpdateProductStock",
+        label: "Edit Properties"
+    },
+    {
+        nav: "FeedBackScreen",
+        label: "Update Booking"
+    },
+    {
+        nav: "NotificationsScreen",
+        label: "Notification"
+    },
+    {
+        nav: "ServiceBookingScreen",
+        label: "My Booking"
+    },
+    {
+        nav: "PropertyRegisterScreen",
+        label: "Register Property"
+    }
+]
 export function SettingStackHeaderVendor(props) {
+    const [currentNav, setNav] = React.useState(0)
     const navigate = useNavigation()
     const handleClickNav = (name) => {
         if (!name) return
         navigate.navigate(name)
     }
+    const RenderTabs = () => {
+        return (
+            <Tab
+                disableIndicator
+                onChange={(e) => {
+                    setNav(e)
+                    const findNav = VendorSetingHeaderNavList[e].nav
+                    handleClickNav(findNav)
+                }}
+                containerStyle={{
+                    minHeight: 60,
+                    justifyContent: 'center',
+                    alignItems: 'baseline',
+                    padding: 0,
+                    backgroundColor: "#826012"
+                }}>
+                {
+                    VendorSetingHeaderNavList.map((item, key) => {
+                        if (!findIcon(item.nav)) return null
+                        return (
+                            <Tab.Item
+                                key={item.label}
+                                icon={findIcon(item.nav)}
+                                title={item.label}
+                                dense={true}
+                                size='lg'
+                                containerStyle={{
+                                    // alignItems: 'baseline',
+                                    // justifyContent: 'flex-end',
+                                    backgroundColor: "#826012",
+                                    marginTop: 40
+                                }}
+                                titleStyle={{
+                                    color: "white"
+                                }}
+                                active={true}
+                            />
+                        )
+                    })
+                }
+            </Tab>
+        )
+    }
     return (
-        <View style={{
-            width: sizes.width,
-            height: 60,
-            backgroundColor: colors.color_primary,
-            alignItems: 'flex-end',
-            justifyContent: 'flex-end',
-            paddingBottom: 4,
-            paddingRight: 20,
-            flexDirection: 'row',
-            gap: 14
-        }}>
-            {
-                VendorSetingHeaderNavList.map((item, index) => {
-                    if (!findIcon(item)) return
-                    return (
-                        <TouchableOpacity key={item} onPress={() => handleClickNav(item)}
-                            style={{
-                                backgroundColor: props.route === item && "red",
-                                padding: 1
-                            }}
-                        >
-                            {
-                                findIcon(item)
-                            }
-                        </TouchableOpacity>
-                    )
-                })
-            }
-        </View>
+        <ScrollView
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+        >
+            <RenderTabs />
+        </ScrollView>
     )
 }
 
 const SupperAdminSetingHeaderNavList = [
-    "BookingHistoryScreen",
-    "Earning",
-    "UpdateProductStock",
-    "FeedBackScreen",
-    "PropertyLocationScreen",
-    "Record",
-    "NotificationsScreen",
-    "ServiceBookingScreen",
-    "PropertyRegisterScreen",
-    "ManageUser"
+    {
+        nav: "Earning",
+        label: "Platform Earning"
+    },
+    {
+        nav: "UpdateProductStock",
+        label: "Edit Properties"
+    },
+    {
+        nav: "FeedBackScreen",
+        label: "Update Booking"
+    },
+    {
+        nav: "Record",
+        label: "Record's"
+    },
+    {
+        nav: "NotificationsScreen",
+        label: "Notification"
+    },
+    {
+        nav: "ServiceBookingScreen",
+        label: "My Booking"
+    },
+    {
+        nav: "PropertyRegisterScreen",
+        label: "Upload Properties"
+    },
+    {
+        nav: "ManageUser",
+        label: "Manage Users"
+    }
 ]
 export function SettingStackHeaderSupperAdmin(props) {
+    const [currentNav, setNav] = React.useState(0)
     const navigate = useNavigation()
     const handleClickNav = (name) => {
         if (!name) return
         navigate.navigate(name)
     }
+    const RenderTabs = () => {
+        return (
+            <Tab
+                disableIndicator
+                onChange={(e) => {
+                    setNav(e)
+                    const findNav = SupperAdminSetingHeaderNavList[e].nav
+                    handleClickNav(findNav)
+                }}
+                containerStyle={{
+                    minHeight: 60,
+                    justifyContent: 'center',
+                    alignItems: 'baseline',
+                    padding: 0,
+                    backgroundColor: "#826012"
+                }}>
+                {
+                    SupperAdminSetingHeaderNavList.map((item, key) => {
+                        if (!findIcon(item.nav)) return null
+                        return (
+                            <Tab.Item
+                                key={item.label}
+                                icon={findIcon(item.nav)}
+                                title={item.label}
+                                dense={true}
+                                size='lg'
+                                containerStyle={{
+                                    // alignItems: 'baseline',
+                                    // justifyContent: 'flex-end',
+                                    backgroundColor: "#826012",
+                                    marginTop: 40
+                                }}
+                                titleStyle={{
+                                    color: "white"
+                                }}
+                                active={true}
+                            />
+                        )
+                    })
+                }
+            </Tab>
+        )
+    }
     return (
-        <View style={{
-            width: sizes.width,
-            height: 60,
-            backgroundColor: colors.color_primary,
-            alignItems: 'flex-end',
-            justifyContent: 'flex-end',
-            paddingBottom: 4,
-            paddingRight: 20,
-            flexDirection: 'row',
-            gap: 10
-        }}>
-            {
-                SupperAdminSetingHeaderNavList.map((item, index) => {
-                    if (!findIcon(item)) return
-                    return (
-                        <TouchableOpacity key={item} onPress={() => handleClickNav(item)}
-                            style={{
-                                backgroundColor: props.route === item && "red",
-                                padding: 1
-                            }}
-                        >
-                            {
-                                findIcon(item)
-                            }
-                        </TouchableOpacity>
-                    )
-                })
-            }
-        </View>
+        <ScrollView
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+        >
+            <RenderTabs />
+        </ScrollView>
     )
 }
 
 const AdminSetingHeaderNavList = [
-    "Record",
-    "NotificationsScreen",
-    "ManageUser"
+    {
+        nav: "Record",
+        label: "Record"
+    },
+    {
+        nav: "NotificationsScreen",
+        label: "Notification"
+    },
+    {
+        nav: "ManageUser",
+        label: "Manage User"
+    }
 ]
 export function SettingStackHeaderAdmin(props) {
+    const [currentNav, setNav] = React.useState(0)
     const navigate = useNavigation()
     const handleClickNav = (name) => {
         if (!name) return
         navigate.navigate(name)
     }
+    const RenderTabs = () => {
+        return (
+            <Tab
+                disableIndicator
+                onChange={(e) => {
+                    setNav(e)
+                    const findNav = AdminSetingHeaderNavList[e + 1].nav
+                    handleClickNav(findNav)
+                }}
+                containerStyle={{
+                    minHeight: 60,
+                    // justifyContent: 'center',
+                    // alignItems: 'baseline',
+                    padding: 0,
+                    backgroundColor: "#826012"
+                }}>
+                {
+                    AdminSetingHeaderNavList.map((item, key) => {
+                        if (!findIcon(item.nav)) return null
+                        return (
+                            <Tab.Item
+                                key={item.label}
+                                icon={findIcon(item.nav)}
+                                title={item.label}
+                                dense={true}
+                                size='lg'
+                                containerStyle={{
+                                    // alignItems: 'baseline',
+                                    // justifyContent: 'flex-end',
+                                    backgroundColor: "#826012",
+                                    marginTop: 40
+                                }}
+                                titleStyle={{
+                                    color: "white"
+                                }}
+                                active={true}
+                            />
+                        )
+                    })
+                }
+            </Tab>
+        )
+    }
+
     return (
-        <View style={{
-            width: sizes.width,
-            height: 60,
-            backgroundColor: colors.color_primary,
-            alignItems: 'flex-end',
-            justifyContent: 'flex-end',
-            paddingBottom: 4,
-            paddingRight: 20,
-            flexDirection: 'row',
-            gap: 14
-        }}>
-            {
-                AdminSetingHeaderNavList.map((item, index) => {
-                    if (!findIcon(item)) return
-                    return (
-                        <TouchableOpacity key={item} onPress={() => handleClickNav(item)}
-                            style={{
-                                backgroundColor: props.route === item && "red",
-                                padding: 1
-                            }}
-                        >
-                            {
-                                findIcon(item)
-                            }
-                        </TouchableOpacity>
-                    )
-                })
-            }
-        </View>
+        <ScrollView
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+        >
+            <RenderTabs />
+        </ScrollView>
     )
 }
 
 const StuffSetingHeaderNavList = [
-    "Record",
-    "NotificationsScreen"
+    {
+        nav: "Record",
+        label: "Record"
+    },
+    {
+        nav: "NotificationsScreen",
+        label: "Notification"
+    }
 ]
 export function SettingStackHeaderStuff(props) {
+    const [currentNav, setNav] = React.useState(0)
     const navigate = useNavigation()
     const handleClickNav = (name) => {
         if (!name) return
         navigate.navigate(name)
     }
+    const RenderTabs = () => {
+        return (
+            <Tab
+                disableIndicator
+                onChange={(e) => {
+                    setNav(e)
+                    const findNav = StuffSetingHeaderNavList[e].nav
+                    handleClickNav(findNav)
+                }}
+                containerStyle={{
+                    minHeight: 60,
+                    justifyContent: 'center',
+                    alignItems: 'baseline',
+                    padding: 0,
+                    backgroundColor: "#826012"
+                }}>
+                {
+                    StuffSetingHeaderNavList.map((item, key) => {
+                        if (!findIcon(item.nav)) return null
+                        return (
+                            <Tab.Item
+                                key={item.label}
+                                icon={findIcon(item.nav)}
+                                title={item.label}
+                                dense={true}
+                                size='lg'
+                                containerStyle={{
+                                    // alignItems: 'baseline',
+                                    // justifyContent: 'flex-end',
+                                    backgroundColor: "#826012",
+                                    marginTop: 40
+                                }}
+                                titleStyle={{
+                                    color: "white"
+                                }}
+                                active={true}
+                            />
+                        )
+                    })
+                }
+            </Tab>
+        )
+    }
     return (
-        <View style={{
-            width: sizes.width,
-            height: 60,
-            backgroundColor: colors.color_primary,
-            alignItems: 'flex-end',
-            justifyContent: 'flex-end',
-            paddingBottom: 4,
-            paddingRight: 20,
-            flexDirection: 'row',
-            gap: 14
-        }}>
-            {
-                StuffSetingHeaderNavList.map((item, index) => {
-                    if (!findIcon(item)) return
-                    return (
-                        <TouchableOpacity key={item} onPress={() => handleClickNav(item)}
-                            style={{
-                                backgroundColor: props.route === item && "red",
-                                padding: 1
-                            }}
-                        >
-                            {
-                                findIcon(item)
-                            }
-                        </TouchableOpacity>
-                    )
-                })
-            }
-        </View>
+        <RenderTabs />
     )
 }
 export default iconPref;

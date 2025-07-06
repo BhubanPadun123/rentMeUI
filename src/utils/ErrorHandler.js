@@ -33,5 +33,6 @@ export function showTopMessage(messageText, messageType) {
     showMessage({
         message: messageText,
         type: messageType,
+        position:"center"
     });
 }
