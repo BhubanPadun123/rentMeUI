@@ -19,24 +19,230 @@ import PropertyLocationScreen from "../screens/PropertyLocationScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import PlatformEarning from "../screens/Earning";
 import ForgetPassword from "../screens/ForgetPassword";
+import BookLibrary from "../screens/BookLibrary";
+import MyLiBrary from "../screens/MyLibrary"
+import UploadBooks from "../screens/UploadBook"
 import iconPref, {
-    customTabButton, 
-    SettingStackHeaderAdmin, 
-    SettingStackHeaderCustomer, 
-    SettingStackHeaderSupperAdmin, 
+    customTabButton,
+    SettingStackHeaderAdmin,
+    SettingStackHeaderCustomer,
+    SettingStackHeaderSupperAdmin,
     SettingStackHeaderVendor,
     SettingStackHeaderStuff,
     CustomerHomeHeader
 } from "../utils/NavBarUtils";
 import ManageUser from "../screens/ManageUser";
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import {
+    Tab as CTab
+} from "@rneui/themed"
+import {
+    Ionicons,
+    MaterialCommunityIcons,
+    FontAwesome5
+} from "@expo/vector-icons"
+import { useDispatch, useSelector, connect } from "react-redux";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
-
-function AuthStack() {
+function BookStack(props) {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen
+                name="Library"
+                component={BookLibrary}
+                options={{
+                    headerShown: true,
+                    unmountOnBlur: true,
+                    header: () => {
+                        return (
+                            <CTab
+                                dense
+                                disableIndicator
+                                containerStyle={{
+                                    minHeight: 60,
+                                    justifyContent: 'center',
+                                    alignItems: 'baseline',
+                                    padding: 0,
+                                    backgroundColor: "#826012"
+                                }}
+                                onChange={async (e) => {
+                                    if (e == 1) {
+                                        props.navigation.navigate("UploadBook")
+                                    } else if (e == 0) {
+                                        props.navigation.navigate("MyBook")
+                                    }
+                                }}
+                            >
+                                <CTab.Item
+                                    title={"Library"}
+                                    iconPosition='top'
+                                    icon={<MaterialCommunityIcons name="library" size={24} color="white" />}
+                                    dense={true}
+                                    size='lg'
+                                    containerStyle={{
+                                        // alignItems: 'flex-end',
+                                        // justifyContent: 'flex-end',
+                                        backgroundColor: "#826012",
+                                        marginTop: 40
+                                    }}
+                                    titleStyle={{
+                                        color: 'white'
+                                    }}
+                                />
+                                <CTab.Item
+                                    title={"Upload"}
+                                    iconPosition='top'
+                                    icon={<FontAwesome5 name="upload" size={24} color="white" />}
+                                    dense={true}
+                                    size='lg'
+                                    containerStyle={{
+                                        // alignItems: 'flex-end',
+                                        // justifyContent: 'flex-end',
+                                        backgroundColor: "#826012",
+                                        marginTop: 40
+                                    }}
+                                    titleStyle={{
+                                        color: 'white'
+                                    }}
+                                />
+                            </CTab>
+                        )
+                    }
+                }}
+            />
+            <Stack.Screen
+                name="MyBook"
+                component={MyLiBrary}
+                options={{
+                    headerShown: true,
+                    unmountOnBlur: true,
+                    header: () => {
+                        return (
+                            <CTab
+                                dense
+                                disableIndicator
+                                containerStyle={{
+                                    minHeight: 60,
+                                    justifyContent: 'center',
+                                    alignItems: 'baseline',
+                                    padding: 0,
+                                    backgroundColor: "#826012"
+                                }}
+                                onChange={async (e) => {
+                                    if (e == 1) {
+                                        props.navigation.navigate("UploadBook")
+                                    } else if (e == 0) {
+                                        props.navigation.navigate("MyBook")
+                                    }
+                                }}
+                            >
+                                <CTab.Item
+                                    title={"Library"}
+                                    iconPosition='top'
+                                    icon={<MaterialCommunityIcons name="library" size={24} color="white" />}
+                                    dense={true}
+                                    size='lg'
+                                    containerStyle={{
+                                        // alignItems: 'flex-end',
+                                        // justifyContent: 'flex-end',
+                                        backgroundColor: "#826012",
+                                        marginTop: 40
+                                    }}
+                                    titleStyle={{
+                                        color: 'white'
+                                    }}
+                                />
+                                <CTab.Item
+                                    title={"Upload"}
+                                    iconPosition='top'
+                                    icon={<FontAwesome5 name="upload" size={24} color="white" />}
+                                    dense={true}
+                                    size='lg'
+                                    containerStyle={{
+                                        // alignItems: 'flex-end',
+                                        // justifyContent: 'flex-end',
+                                        backgroundColor: "#826012",
+                                        marginTop: 40
+                                    }}
+                                    titleStyle={{
+                                        color: 'white'
+                                    }}
+                                />
+                            </CTab>
+                        )
+                    }
+                }}
+            />
+            <Stack.Screen
+                name="UploadBook"
+                component={UploadBooks}
+                options={{
+                    headerShown: true,
+                    unmountOnBlur: true,
+                    header: () => {
+                        return (
+                            <CTab
+                                dense
+                                disableIndicator
+                                containerStyle={{
+                                    minHeight: 60,
+                                    justifyContent: 'center',
+                                    alignItems: 'baseline',
+                                    padding: 0,
+                                    backgroundColor: "#826012"
+                                }}
+                                onChange={async (e) => {
+                                    if (e == 1) {
+                                        props.navigation.navigate("UploadBook")
+                                    } else if (e == 0) {
+                                        props.navigation.navigate("MyBook")
+                                    }
+                                }}
+                            >
+                                <CTab.Item
+                                    title={"Library"}
+                                    iconPosition='top'
+                                    icon={<MaterialCommunityIcons name="library" size={24} color="white" />}
+                                    dense={true}
+                                    size='lg'
+                                    containerStyle={{
+                                        // alignItems: 'flex-end',
+                                        // justifyContent: 'flex-end',
+                                        backgroundColor: "#826012",
+                                        marginTop: 40
+                                    }}
+                                    titleStyle={{
+                                        color: 'white'
+                                    }}
+                                />
+                                <CTab.Item
+                                    title={"Upload"}
+                                    iconPosition='top'
+                                    icon={<FontAwesome5 name="upload" size={24} color="white" />}
+                                    dense={true}
+                                    size='lg'
+                                    containerStyle={{
+                                        // alignItems: 'flex-end',
+                                        // justifyContent: 'flex-end',
+                                        backgroundColor: "#826012",
+                                        marginTop: 40
+                                    }}
+                                    titleStyle={{
+                                        color: 'white'
+                                    }}
+                                />
+                            </CTab>
+                        )
+                    }
+                }}
+            />
+        </Stack.Navigator>
+    )
+}
+function AuthStack(props) {
     return (
         <Stack.Navigator>
             <Stack.Screen
@@ -52,12 +258,72 @@ function AuthStack() {
             <Stack.Screen
                 name="UserProfileScreen"
                 component={UserProfileScreen}
-                options={{ headerShown: false }}
+                options={{
+                    headerShown: true,
+                    title: "User Profile",
+                    header: () => {
+                        return (
+                            <CTab
+                                dense
+                                disableIndicator
+                                containerStyle={{
+                                    minHeight: 60,
+                                    justifyContent: 'center',
+                                    alignItems: 'baseline',
+                                    padding: 0,
+                                    backgroundColor: "#826012"
+                                }}
+                                onChange={async (e) => {
+                                    if (e == 1) {
+                                        props.navigation.navigate("LoginScreen")
+                                    } else if (e == 0) {
+                                        props.navigation.navigate("Home")
+                                    }
+                                }}
+                            >
+                                <CTab.Item
+                                    title={"Back"}
+                                    iconPosition='left'
+                                    icon={<Ionicons name="arrow-back" size={24} color="white" />}
+                                    dense={true}
+                                    size='lg'
+                                    containerStyle={{
+                                        alignItems: 'baseline',
+                                        justifyContent: 'flex-end',
+                                        backgroundColor: "#826012",
+                                        marginTop: 40
+                                    }}
+                                />
+                                <CTab.Item
+                                    title={"Logout"}
+                                    iconPosition='right'
+                                    icon={<MaterialCommunityIcons name="logout" size={24} color="white" />}
+                                    dense={true}
+                                    size='lg'
+                                    containerStyle={{
+                                        alignItems: 'flex-end',
+                                        justifyContent: 'flex-end',
+                                        backgroundColor: "#826012",
+                                        marginTop: 40
+                                    }}
+                                />
+                            </CTab>
+                        )
+                    }
+                }}
             />
             <Stack.Screen
                 name="ForgetPassword"
                 component={ForgetPassword}
                 options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="HomeScreen"
+                component={HomeScreen}
+                options={{
+                    headerShown: true,
+                    header: () => <CustomerHomeHeader props={props} />
+                }}
             />
         </Stack.Navigator>
     );
@@ -301,35 +567,56 @@ function CustomerSettingStack() {
         </Stack.Navigator>
     )
 }
-function HomeStack() {
+function HomeStack(props) {
     return (
         <Stack.Navigator>
             <Stack.Screen
                 name="HomeScreen"
                 component={HomeScreen}
-                options={{ 
-                    headerShown: true, 
-                    header:()=> <CustomerHomeHeader/>
+                options={{
+                    headerShown: true,
+                    header: () => <CustomerHomeHeader props={props} />
                 }}
             />
             <Stack.Screen
                 name="SearchScreen"
                 component={SearchScreen}
                 options={{
-                    headerShown: true, 
-                    title: "Catagory Search",
-                    header:()=> <CustomerHomeHeader/>
+                    headerShown: true,
+                    title: "Search Properties",
+                    cardShadowEnabled: true,
+                    cardStyle: {
+                        backgroundColor: "#d9d0c7"
+                    },
+                    headerStyle: {
+                        backgroundColor: '#826012',
+                    },
+                    headerTintColor: '#fff',
+                    headerTitleStyle: {
+                        fontWeight: 'bold',
+                    }
                 }}
             />
             <Stack.Screen
                 name="ServiceDetailScreen"
                 component={ServiceDetailScreen}
-                options={{ 
-                    headerShown: true, 
+                options={{
+                    headerShown: true,
                     title: "Property Details",
-                    header:()=> <CustomerHomeHeader/>
+                    cardShadowEnabled: true,
+                    cardStyle: {
+                        backgroundColor: "#d9d0c7"
+                    },
+                    headerStyle: {
+                        backgroundColor: '#826012',
+                    },
+                    headerTintColor: '#fff',
+                    headerTitleStyle: {
+                        fontWeight: 'bold',
+                    }
                 }}
             />
+
         </Stack.Navigator>
     );
 }
@@ -359,6 +646,17 @@ class Navigation extends React.Component {
         }
     }
     async componentDidMount() {
+        this.findUser()
+        if (this.props.loginResponse && this.props.loginResponse.hasOwnProperty('userData')) {
+            this.setState({
+                user: this.props.loginResponse.userData
+            })
+        }
+    }
+    async componentDidUpdate(prevProps) {
+        this.findUser()
+    }
+    findUser = async () => {
         const userInfo = await AsyncStorage.getItem("currentUser");
         if (userInfo) {
             this.setState({ user: JSON.parse(userInfo) });
@@ -381,41 +679,77 @@ class Navigation extends React.Component {
         }
     }
     render() {
+        this.findUser()
         const { user } = this.state
         const SettingStack = user && user?.userType ? this.findStack(user.userType) : CustomerSettingStack;
 
         return (
             <>
-                <Tab.Navigator
-                    screenOptions={iconPref}
-                    initialRouteName={!user ? "Profile" : "Home"}
-                >
-                    <Tab.Screen
-                        name="Home"
-                        component={HomeStack}
-                        options={{ 
-                            unmountOnBlur: true
-                        }}
-                    />
-                    <Tab.Screen
-                        name="Setting"
-                        component={SettingStack}
-                        options={{
-                            // tabBarButton: customTabButton,
-                            unmountOnBlur: true
-                        }}
-                    />
-                    <Tab.Screen
-                        name="Profile"
-                        component={AuthStack}
-                        options={{
-                            unmountOnBlur: true
-                        }}
-                    />
-                </Tab.Navigator>
+                {
+                    !user ? (
+                        <Tab.Navigator
+                            screenOptions={{
+                                tabBarShowLabel:false
+                            }}
+                            initialRouteName={"LoginScreen"}
+                        >
+                            <Tab.Screen
+                                name="Profile"
+                                component={AuthStack}
+                                options={{
+                                    unmountOnBlur: true,
+                                    headerShown: false,
+                                    tabBarStyle:{
+                                        display:'none'
+                                    }
+                                }}
+                            />
+                        </Tab.Navigator>
+                    ) : (
+                        <Tab.Navigator
+                            screenOptions={iconPref}
+                            initialRouteName={"Home"}
+                        >
+                            <Tab.Screen
+                                name="Home"
+                                component={HomeStack}
+                                options={{
+                                    unmountOnBlur: true
+                                }}
+                            />
+                            <Tab.Screen
+                                name="Setting"
+                                component={SettingStack}
+                                options={{
+                                    // tabBarButton: customTabButton,
+                                    unmountOnBlur: true
+                                }}
+                            />
+                            <Tab.Screen
+                                name="Books"
+                                component={BookStack}
+                                options={{
+                                    unmountOnBlur: true
+                                }}
+                            />
+                            <Tab.Screen
+                                name="Profile"
+                                component={AuthStack}
+                                options={{
+                                    unmountOnBlur: true
+                                }}
+                            />
+                        </Tab.Navigator>
+                    )
+                }
             </>
         );
     }
 };
-
-export default Navigation
+const mapStateToProps = (state) => {
+    return {
+        loginResponse: state.auth.loginResponse,
+        loginStatus: state.auth.loginStatus
+    }
+}
+export default connect(mapStateToProps)(Navigation)

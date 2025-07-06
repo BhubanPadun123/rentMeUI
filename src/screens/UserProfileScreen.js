@@ -4,7 +4,8 @@ import {
     StyleSheet,
     ScrollView,
     KeyboardAvoidingView,
-    Platform
+    Platform,
+    TouchableOpacity
 } from "react-native";
 import {
     Text,
@@ -24,6 +25,9 @@ import { colors, sizes } from "../styles/Theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import UploadImage from "../components/UploadImage";
 import Loader from "../components/Loader"
+import {
+    AntDesign
+} from "@expo/vector-icons"
 
 class UserProfileScreen extends Component {
     constructor(props) {
@@ -40,7 +44,8 @@ class UserProfileScreen extends Component {
             localAddress: "",
             photoURL: "",
             pinCode: "",
-            town: ""
+            town: "",
+            isEdit:false
         };
     }
 
@@ -132,7 +137,7 @@ class UserProfileScreen extends Component {
                 keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
             >
                 <ScrollView
-                    contentContainerStyle={{ flexGrow: 1, marginTop: 50 }}
+                    contentContainerStyle={{ flexGrow: 1 }}
                     keyboardShouldPersistTaps="handled"
                 >
                     <View style={{
@@ -142,7 +147,7 @@ class UserProfileScreen extends Component {
                         padding: 4
                     }}>
                         {
-                            metaData && metaData.hasOwnProperty('photoURL') ? (
+                            !this.state.isEdit && metaData && metaData.hasOwnProperty('photoURL') ? (
                                 <Avatar
                                     size={50}
                                     rounded
@@ -164,52 +169,79 @@ class UserProfileScreen extends Component {
                                 />
                             )
                         }
+                        <Text style={{
+                            textAlign: 'center',
+                            fontSize: 20,
+                            color: colors.color_primary,
+                            fontWeight: 'bold'
+                        }}>{userData && userData.userName}</Text>
                     </View>
                     <Divider />
                     {
-                        metaData && Object.entries(metaData).length && userData && userData.hasOwnProperty('userName') ? (
+                        !this.state.isEdit && metaData && Object.entries(metaData).length && userData && userData.hasOwnProperty('userName') ? (
                             <View style={styles.infoConteinr}>
-                                <Text style={{
-                                    textAlign: 'center',
-                                    fontSize: 20,
-                                    color: colors.color_primary,
-                                    fontWeight: 'bold'
-                                }}>{userData.userName}</Text>
-                                <ListItem.Accordion style={{ marginTop: 30 }}
-                                    content={
-                                        <ListItem.Content>
-                                            <ListItem.Title>Address detail</ListItem.Title>
-                                        </ListItem.Content>
-                                    }
-                                    isExpanded={this.state.openAddress}
-                                    onPress={() => this.setState({ openAddress: !this.state.openAddress })}
-                                >
-                                    <Card>
-                                        <Card.Title>{addsData}</Card.Title>
-                                    </Card>
-                                </ListItem.Accordion>
-                                <ListItem.Accordion content={
-                                    <ListItem.Content>
-                                        <ListItem.Title>Contact detail</ListItem.Title>
-                                    </ListItem.Content>
-                                }
-                                    isExpanded={this.state.openContact}
-                                    onPress={() => this.setState({ openContact: !this.state.openContact })}
-                                >
-                                    <Card>
-                                        <Card.Title>Phone Number {`(${userData.hasOwnProperty('userContactNumber') && userData.userContactNumber})`}</Card.Title>
-                                        <Card.Title>Email Address {`(${userData.hasOwnProperty('userEmail') && userData.userEmail})`}</Card.Title>
-                                    </Card>
-                                </ListItem.Accordion>
-                                <Button
-                                    title={"LOGOUT"}
-                                    type='outline'
-                                    size='sm'
-                                    onPress={async () => {
-                                        await AsyncStorage.clear()
-                                        this.props.navigation.navigate("LoginScreen")
-                                    }}
-                                />
+                                <View style={{
+                                    justifyContent:'space-around',
+                                    flexDirection:'row'
+                                }}>
+                                    <Text style={{
+                                        fontSize: 20,
+                                        padding: 4,
+                                    }}>Registration Details</Text>
+                                    <TouchableOpacity onPress={()=>{
+                                        this.setState({
+                                            isEdit:!this.state.isEdit
+                                        })
+                                    }}>
+                                        <AntDesign name="edit" size={24} color="black" />
+                                    </TouchableOpacity>
+                                </View>
+                                <Card containerStyle={{
+                                    // padding:0
+                                }}>
+                                    <View style={{
+                                        justifyContent: 'flex-start',
+                                        gap: 4
+                                    }}>
+                                        <Text style={{
+                                            fontSize: 10,
+                                            fontWeight: '100'
+                                        }}>Phone Number</Text>
+                                        <Text style={{
+                                            fontSize: 16,
+                                            fontWeight: '100'
+                                        }}>{`${userData.hasOwnProperty('userContactNumber') && userData.userContactNumber}`}</Text>
+                                    </View>
+                                    <Card.Divider />
+                                    <View style={{
+                                        justifyContent: 'flex-start',
+                                        gap: 4
+                                    }}>
+                                        <Text style={{
+                                            fontSize: 10,
+                                            fontWeight: '100'
+                                        }}>Email Address</Text>
+                                        <Text style={{
+                                            fontSize: 16,
+                                            fontWeight: '100'
+                                        }}>{`${userData.hasOwnProperty('userEmail') && userData.userEmail}`}</Text>
+                                    </View>
+                                    <Card.Divider />
+                                    <View style={{
+                                        justifyContent: 'flex-start',
+                                        gap: 4
+                                    }}>
+                                        <Text style={{
+                                            fontSize: 10,
+                                            fontWeight: '100'
+                                        }}>Address Details</Text>
+                                        <Text style={{
+                                            fontSize: 16,
+                                            fontWeight: '100'
+                                        }}>{addsData}</Text>
+                                    </View>
+                                </Card>
+
                             </View>
                         ) : (
                             <View style={styles.infoConteinr}>
@@ -246,6 +278,16 @@ class UserProfileScreen extends Component {
                                     color={'secondary'}
                                     onPress={this.handleUpdateMetadata}
                                 />
+                                <Button
+                                    title={"CANCEL"}
+                                    size='lg'
+                                    color={'secondary'}
+                                    onPress={()=>{
+                                        this.setState({
+                                            isEdit:false
+                                        })
+                                    }}
+                                />
                             </View>
                         )
                     }
@@ -277,8 +319,6 @@ const mapDispatchToProps = {
 
 const styles = StyleSheet.create({
     root: {
-        // flex: 1,
-        paddingTop: 50,
         backgroundColor: colors.color_light_gray
     },
     infoConteinr: {

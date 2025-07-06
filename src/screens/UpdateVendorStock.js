@@ -25,14 +25,16 @@ import tabsImages from "../utils/TabsImages";
 import {
     AntDesign,
     MaterialCommunityIcons,
-    MaterialIcons
+    MaterialIcons,
+    SimpleLineIcons
 } from "@expo/vector-icons"
 import DropdownSelect from "../components/SingleSelect";
 import { showTopMessage } from "../utils/ErrorHandler";
 import {
     Tab,
     Button,
-    Card
+    Card,
+    Dialog
 } from "@rneui/themed"
 import { ListItem } from "@rneui/base";
 
@@ -44,6 +46,7 @@ export default function UpdateVendorStock() {
     const [selectedProduct, setSelectedProduct] = useState(null)
     const [filterCode, setFilterCode] = useState(0)
     const [expandId, setExpandId] = useState(null)
+    const [openDialog, setOpenDialog] = useState(false)
     const [productData, setProductData] = useState({
         propertyOccupancy: [],
         productTitle: "",
@@ -150,14 +153,16 @@ export default function UpdateVendorStock() {
         const metaData = item && item.hasOwnProperty('metaData') ? JSON.parse(item.metaData) : null
         const images = metaData && metaData.hasOwnProperty('images') ? JSON.parse(metaData.images) : []
         const total = metaData && metaData.hasOwnProperty('total') ? metaData.total : null
-        if(filterCode === 1){
-            if(total != 0) return null
+        if (filterCode === 1) {
+            if (total != 0) return null
         }
-        if(filterCode === 2){
-            if(total == 0) return null
+        if (filterCode === 2) {
+            if (total == 0) return null
         }
         return (
-            <Card>
+            <Card containerStyle={{
+                padding: 0
+            }}>
                 <ImageSlider
                     images={images}
                 />
@@ -181,30 +186,23 @@ export default function UpdateVendorStock() {
                             <ListItem.Title>Total Available Property : {total}</ListItem.Title>
                         </ListItem.Content>
                     </ListItem>
-                    <ListItem style={{width:"100%"}}>
-                        <ListItem.Content style={{
-                            width:"100%",
-                            justifyContent:'center',
-                            alignItems:'center',
-                            gap:4
-                        }}>
-                            <Button
-                                title={"Update"}
-                                onPress={() => handleUpdate(item)}
-                                icon={<MaterialCommunityIcons name="update" size={24} color="red" />}
-                                style={{width:"100%"}}
-                                size='lg'
-                                type='outline'
-                            />
-                            <Button
-                                title={"Delete"}
-                                icon={<MaterialIcons name="delete" size={24} color="red" />}
-                                onPress={() => hanldeDeleteProduct(item._id)}
-                                style={{width:"100%"}}
-                                size='lg'
-                                type='outline'
-                            />
-                        </ListItem.Content>
+                    <ListItem style={{ width: "100%",justifyContent:'center' }}>
+                        <Button
+                            title={"Update"}
+                            onPress={() => handleUpdate(item)}
+                            icon={<MaterialCommunityIcons name="update" size={24} color="red" />}
+                            style={{ width: "100%" }}
+                            size='lg'
+                            type='outline'
+                        />
+                        <Button
+                            title={"Delete"}
+                            icon={<MaterialIcons name="delete" size={24} color="red" />}
+                            onPress={() => hanldeDeleteProduct(item._id)}
+                            style={{ width: "100%" }}
+                            size='lg'
+                            type='outline'
+                        />
                     </ListItem>
                 </ListItem.Accordion>
             </Card>
@@ -213,7 +211,53 @@ export default function UpdateVendorStock() {
 
     return (
         <View style={styles.container}>
-            <Tab
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-around',
+                alignItems: 'center',
+                padding: 4
+            }}>
+                <Text style={{
+                    textAlign: 'center',
+                    fontSize: 20,
+                    fontWeight: 'bold'
+                }}>
+                    Select Product for Edit
+                </Text>
+                <Button
+                    icon={<SimpleLineIcons name="menu" size={24} color="black" />}
+                    size='md'
+                    type='outline'
+                    onPress={() => setOpenDialog(!openDialog)}
+                />
+                <Dialog
+                    isVisible={openDialog}
+                    onBackdropPress={() => setOpenDialog(false)}
+                >
+                    <ListItem onPress={() => {
+                        setFilterCode(0)
+                        setOpenDialog(false)
+                    }}>
+                        <ListItem.CheckBox checked={filterCode === 0} />
+                        <ListItem.Title>All Product</ListItem.Title>
+                    </ListItem>
+                    <ListItem onPress={() => {
+                        setFilterCode(1)
+                        setOpenDialog(false)
+                    }}>
+                        <ListItem.CheckBox checked={filterCode === 1} />
+                        <ListItem.Title>Empty Product</ListItem.Title>
+                    </ListItem>
+                    <ListItem onPress={() => {
+                        setFilterCode(2)
+                        setOpenDialog(false)
+                    }}>
+                        <ListItem.CheckBox checked={filterCode === 2} />
+                        <ListItem.Title>Available Product</ListItem.Title>
+                    </ListItem>
+                </Dialog>
+            </View>
+            {/* <Tab
                 variant="primary"
                 indicatorStyle={{
                     padding: 0,
@@ -249,7 +293,7 @@ export default function UpdateVendorStock() {
                     }}
                     title={"Available Stock"}
                 />
-            </Tab>
+            </Tab> */}
             {
                 product && product.length > 0 ? (
                     <FlatList
