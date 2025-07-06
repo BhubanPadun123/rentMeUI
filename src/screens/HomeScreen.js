@@ -31,8 +31,7 @@ import {
     Ionicons
 } from "@expo/vector-icons"
 import {
-    Button,
-    Card
+    Button
 } from "@rneui/themed"
 import tabsImages from "../utils/TabsImages";
 import { InfoCart } from "../components/Banner/Home";
@@ -79,10 +78,6 @@ class HomeScreen extends Component {
                         })
                     })
                 })
-            })
-        } else {
-            this.props.navigation.navigate("Profile", {
-                screen: "LoginScreen"
             })
         }
         this.fetchFirstProduct();
@@ -141,7 +136,7 @@ class HomeScreen extends Component {
     }
 
     fetchFirstProduct = () => {
-        this.props.getAllProductAction(0, 10,"room");
+        this.props.getAllProductAction(0, 10);
     };
 
     goTo = (screen, params = {}) => {
@@ -256,20 +251,17 @@ class HomeScreen extends Component {
                                 </Text>
                             </View>
                             <View style={{
-                                justifyContent: 'flex-end',
-                                alignItems: 'baseline',
-                                marginTop: 10
+                                justifyContent:'flex-end',
+                                alignItems:'baseline',
+                                marginTop:10
                             }}>
-                                <TouchableOpacity
-                                    onPress={() => { this.handleSearch() }}
-                                    style={{
-                                        display: "flex",
-                                        flexDirection: "row",
-                                        gap: 4,
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}
-                                >
+                                <TouchableOpacity style={{
+                                    display:"flex",
+                                    flexDirection:"row",
+                                    gap:4,
+                                    alignItems:'center',
+                                    justifyContent:'center'
+                                }}>
                                     <Text style={{
                                         fontSize: 10,
                                         borderBottomColor: "pink",
@@ -286,19 +278,7 @@ class HomeScreen extends Component {
                                 type="product"
                             />
                         </View>
-                        <Card containerStyle={{
-                            // padding:0,
-                            backgroundColor:"#826012",
-                            borderRadius:20
-                        }}>
-                            <Card.Title style={{
-                                color:"white"
-                            }}>Buy & Sell Old Books with Ease</Card.Title>
-                            <Card.Divider />
-                            <Card.Title style={{
-                                color:"white"
-                            }}>List, Sell, or Buy Used Books Today!</Card.Title>
-                        </Card>
+                        {/* <View>{product.length > 0 && this.renderProduct()}</View> */}
                     </View>
                 )}
             </ScrollView>

@@ -113,10 +113,6 @@ class Record extends Component {
                     await this.props.getOrderInRangeAction(this.state.start, this.state.start + 5);
                 }
             }
-        }else{
-            this.props.navigation.navigate("Profile",{
-                screen:"LoginScreen"
-            })
         }
     };
 

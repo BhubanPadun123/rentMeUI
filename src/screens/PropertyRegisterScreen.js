@@ -90,7 +90,6 @@ class PropertyRegisterScreen extends Component {
 
         const propertyData = {
             vendorRef: user._id,
-            tag:"room",
             productTitle: formValues.title,
             availableStatus: true,
             productType: formValues.propertyType,

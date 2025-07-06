@@ -1,16 +1,7 @@
 import React, { Component } from "react";
-import {
-    View,
-    StyleSheet,
-    Text,
-    Image,
-    ScrollView,
-    Share,
-    TouchableOpacity,
-    Platform,
-    KeyboardAvoidingView
-} from "react-native";
+import { View, StyleSheet, Text, Image, ScrollView, Share, TouchableOpacity, Platform } from "react-native";
 import { connect } from "react-redux";
+import Button from "../components/Button/Button";
 import { colors, sizes } from "../styles/Theme";
 import ImageSlider from "../components/ImagesViewer";
 import Icons from "../utils/Icons";
@@ -23,22 +14,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from "../components/Loader";
 import { configureNotifications } from "../utils/NotificationService";
 import * as Notifications from 'expo-notifications';
-import CSkeleton from "../components/Skeletom";
-import {
-    Card,
-    Dialog,
-    Input,
-    Button,
-    Divider
-} from "@rneui/themed"
-import {
-    Fontisto,
-    MaterialIcons,
-    MaterialCommunityIcons,
-    Ionicons,
-    AntDesign
-} from "@expo/vector-icons"
-import { Calendar } from "react-native-calendars"
 
 class ServiceDetailScreen extends Component {
     constructor(props) {
@@ -47,9 +22,6 @@ class ServiceDetailScreen extends Component {
             notification: null,
             userInfo: null,
             channels: null,
-            loading: true,
-            openDialog: false,
-            customerData: null
         };
     }
 
@@ -72,11 +44,6 @@ class ServiceDetailScreen extends Component {
         this.responseListener = Notifications.addNotificationResponseReceivedListener(
             response => console.log(response)
         );
-        setTimeout(() => {
-            this.setState({
-                loading: false
-            })
-        }, 2000)
     }
 
     componentWillUnmount() {
@@ -131,8 +98,8 @@ class ServiceDetailScreen extends Component {
     };
 
     goToBookingScreen = () => {
-        this.props.navigation.navigate("Setting", {
-            screen: "ServiceBookingScreen"
+        this.props.navigation.navigate("Setting",{
+            screen:"ServiceBookingScreen"
         });
     };
 
@@ -166,7 +133,7 @@ class ServiceDetailScreen extends Component {
             bookingStatus: "1",
             customerRef: customerInfo._id,
             productRef: item._id,
-            bookingDate: JSON.stringify(this.state.customerData)
+            bookingDate: JSON.stringify(customerInfo)
         };
 
         // Validate data
@@ -208,286 +175,156 @@ class ServiceDetailScreen extends Component {
             createNotificationStatus === "started";
 
         return (
-            <React.Fragment>
-                {
-                    this.state.loading ? (
-                        <CSkeleton />
-                    ) : (
-                        <View style={styles.out_container}>
-                            <ScrollView style={styles.container}>
-                                <View style={styles.header_container}>
-                                    <ImageSlider images={images} />
-                                </View>
-
-                                <Card containerStyle={{
-                                    padding: 0,
-                                    backgroundColor: colors.color_light_gray,
-                                    elevation: 0,
-                                    borderWidth: 0
-                                }}>
-                                    <Card.Title>
-                                        {item?.productTitle}
-                                    </Card.Title>
-                                    <Card.Title>
-                                        {metaData?.description}
-                                    </Card.Title>
-                                    <Card.Title>
-                                        {<Text style={styles.text_content}>{address.state},{address.district},{address.localAdd},{address.town}</Text>}
-                                    </Card.Title>
-                                    <Card.Divider />
-                                    <View style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-around'
-                                    }}>
-                                        <View style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            justifyContent: 'center',
-                                            alignItems: 'center'
-                                        }}>
-                                            <Text style={styles.desc}>
-                                                Deposit Amount
-                                            </Text>
-                                            <Text style={styles.desc}>
-                                                Rs-{metaData?.deposite}
-                                            </Text>
-                                        </View>
-                                        <View style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            justifyContent: 'center',
-                                            alignItems: 'center'
-                                        }}>
-                                            <Text style={styles.desc}>
-                                                Rent/Month
-                                            </Text>
-                                            <Text style={styles.desc}>
-                                                Rs - {metaData?.rent} only
-                                            </Text>
-                                        </View>
-                                        <View style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            justifyContent: 'center',
-                                            alignItems: 'center'
-                                        }}>
-                                            <Text style={styles.desc}>
-                                                Notice Period
-                                            </Text>
-                                            <Text style={styles.desc}>
-                                                1 Month
-                                            </Text>
-                                        </View>
-                                    </View>
-                                    <Card.Divider />
-                                    <View style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-around'
-                                    }}>
-                                        <View style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            justifyContent: 'center',
-                                            alignItems: 'center'
-                                        }}>
-                                            <Text style={styles.desc}>Available for</Text>
-                                            <Text style={styles.desc}>{propertyType}</Text>
-                                        </View>
-                                        <View style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            justifyContent: 'center',
-                                            alignItems: 'center'
-                                        }}>
-                                            <Text style={styles.desc}>Preferred Tenants</Text>
-                                            <Text style={styles.desc}>{propertyType}</Text>
-                                        </View>
-                                        <View style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            justifyContent: 'center',
-                                            alignItems: 'center'
-                                        }}>
-                                            <Text style={styles.desc}>Total Rooms</Text>
-                                            <Text style={styles.desc} >{total ? total : "Not provided yet"}</Text>
-                                        </View>
-                                    </View>
-                                    <Card.Divider />
-                                    <View style={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        justifyContent: 'space-around'
-                                    }}>
-                                        <Text style={styles.depositNote}>Available Properties</Text>
-                                        {
-                                            Array.isArray(availableItems) && availableItems.length > 0 && (
-                                                <View style={{
-                                                    display: "flex",
-                                                    justifyContent: "space-around",
-                                                    flexDirection: 'row',
-
-                                                }}>
-                                                    {
-                                                        availableItems.includes('bulb') && (
-                                                            <View style={{
-                                                                display: 'flex',
-                                                                flexDirection: 'column',
-                                                                justifyContent: 'center',
-                                                                alignItems: 'center',
-
-                                                            }}>
-                                                                <Fontisto name="lightbulb" size={24} color="black" />
-                                                                <Text style={styles.desc}>Electricity</Text>
-                                                            </View>
-                                                        )
-                                                    }
-                                                    {
-                                                        availableItems.includes('chair') && (
-                                                            <View style={{
-                                                                display: 'flex',
-                                                                flexDirection: 'column',
-                                                                justifyContent: 'center',
-                                                                alignItems: 'center',
-
-                                                            }}>
-                                                                <MaterialIcons name="chair-alt" size={24} color="black" />
-                                                                <Text style={styles.desc}>Extra Table</Text>
-                                                            </View>
-                                                        )
-                                                    }
-                                                    {
-                                                        availableItems.includes('tabble') && (
-                                                            <View style={{
-                                                                display: 'flex',
-                                                                flexDirection: 'column',
-                                                                justifyContent: 'center',
-                                                                alignItems: 'center',
-
-                                                            }}>
-                                                                <Ionicons name="bed-sharp" size={24} color="black" />
-                                                                <Text style={styles.desc}>Bed</Text>
-                                                            </View>
-                                                        )
-                                                    }
-
-                                                    {
-                                                        availableItems.includes('study table') && (
-                                                            <View style={{
-                                                                display: 'flex',
-                                                                flexDirection: 'column',
-                                                                justifyContent: 'center',
-                                                                alignItems: 'center',
-
-                                                            }}>
-                                                                <MaterialCommunityIcons name="table-chair" size={24} color="black" />
-                                                                <Text style={styles.desc}>Study Table</Text>
-                                                            </View>
-                                                        )
-                                                    }
-                                                </View>
-                                            )
-                                        }
-                                    </View>
-                                </Card>
-                                <Card containerStyle={{
-                                    backgroundColor: colors.color_light_gray,
-                                    elevation: 0,
-                                }}>
-                                    <Card.Title>📌 Booking Terms & Payment</Card.Title>
-                                    <Card.Divider />
-                                    <View style={{
-                                        flexDirection: 'column',
-                                        gap: 4
-                                    }}>
-                                        <Card.FeaturedSubtitle style={styles.depositNote}> 1. Advance payment of 1 month’s rent + security deposit is required to confirm booking.</Card.FeaturedSubtitle>
-                                        <Card.FeaturedSubtitle style={styles.depositNote}>2. Payments can be made via UPI, bank transfer, or cash.</Card.FeaturedSubtitle>
-                                        <Card.FeaturedSubtitle style={styles.depositNote}>3. Rent is to be paid every month on or before the date of your move-in.</Card.FeaturedSubtitle>
-                                    </View>
-                                    <Card.Title>🔐 Security Deposit & Refund Policy</Card.Title>
-                                    <Card.Divider />
-                                    <View style={{
-                                        flexDirection: 'column',
-                                        gap: 4
-                                    }}>
-                                        <Card.FeaturedSubtitle style={styles.depositNote}> 1. A refundable security deposit of one month rent is required at the time of booking.</Card.FeaturedSubtitle>
-                                        <Card.FeaturedSubtitle style={styles.depositNote}>2. The deposit will be fully refunded at the time of leaving, provided:-
-                                            {`
-                                        a. No damages are caused to the property. 
-                                        b. All dues are cleared. 
-                                        c. A proper notice period of 30 days (1 month) is served before vacating.`}</Card.FeaturedSubtitle>
-                                        <Card.FeaturedSubtitle style={styles.depositNote}>3. ⚠️ If you leave without a 1-month prior notice, only 50% of the deposit will be refunded.</Card.FeaturedSubtitle>
-                                    </View>
-                                    <Card.Title>📋 House Rules</Card.Title>
-                                    <Card.Divider />
-                                    <View style={{
-                                        flexDirection: 'column',
-                                        gap: 4,
-                                        justifyContent: 'flex-start'
-                                    }}>
-                                        <Card.FeaturedSubtitle style={styles.depositNote}> 1. 🕒 Gate Timing: 6 AM – 11 PM (exceptions allowed with prior notice)</Card.FeaturedSubtitle>
-                                        <Card.FeaturedSubtitle style={styles.depositNote}>2. 🚭 No Smoking or alcohol consumption inside the premises</Card.FeaturedSubtitle>
-                                        <Card.FeaturedSubtitle style={styles.depositNote}>3. 🔊 Maintain low noise levels after 10 PM</Card.FeaturedSubtitle>
-                                        <Card.FeaturedSubtitle style={styles.depositNote}>4. 👥 Visitors allowed until 9 PM (ID submission required for overnight stay)</Card.FeaturedSubtitle>
-                                        <Card.FeaturedSubtitle style={styles.depositNote}>5. 🧹 Common areas are cleaned weekly – keep your personal area tidy</Card.FeaturedSubtitle>
-                                    </View>
-                                </Card>
-
-                                <Button
-                                    title={"Booking"}
-                                    // onPress={this.handlePlaceOrder}
-                                    onPress={() => this.setState({ openDialog: true })}
-                                    style={{
-                                        margin: 4
-                                    }}
-                                />
-                            </ScrollView>
-
-                            {
-                                this.state.openDialog && (
-
-                                    <Dialog
-                                        isVisible={this.state.openDialog}
-                                        onBackdropPress={() => this.setState({ openDialog: false })}
-                                        overlayStyle={{
-                                            height: sizes.height,
-                                            width: sizes.width,
-                                            backgroundColor: colors.color_light_gray
-                                        }}
-                                    >
-                                        <KeyboardAvoidingView
-                                            style={{ flex: 1, paddingHorizontal: 20,height:"100%" }}
-                                            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                                            keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-                                        >
-                                            <ScrollView
-                                                contentContainerStyle={{ flexGrow: 1, marginTop: 50, paddingBottom: 100 }}
-                                                showsVerticalScrollIndicator={false}
-                                            >
-                                                <CutomerForm
-                                                    onSubmit={(e) => {
-                                                        this.setState({
-                                                            customerData: e,
-                                                            openDialog: false
-                                                        }, () => {
-                                                            this.handlePlaceOrder()
-                                                        })
-                                                    }}
-                                                    onCancel={() => this.setState({
-                                                        openDialog: false
-                                                    })}
-                                                />
-                                            </ScrollView>
-                                        </KeyboardAvoidingView>
-                                    </Dialog>
-                                )
-                            }
-                            {isLoading && <Loader />}
+            <View style={styles.out_container}>
+                <ScrollView style={styles.container}>
+                    <View style={styles.header_container}>
+                        <ImageSlider images={images} />
+                    </View>
+                    <View style={styles.body_container}>
+                        <View style={styles.about_container}>
+                            <Text style={styles.about}>{item?.productTitle}</Text>
+                            {createdAt && (
+                                <Text style={styles.postedDate}>
+                                    Posted At: {formatDate(createdAt).toLowerCase()}
+                                </Text>
+                            )}
+                            <Text style={styles.desc}>{metaData?.description}</Text>
                         </View>
-                    )
-                }
-            </React.Fragment>
+                    </View>
+
+                    {/* Property Details */}
+                    <View style={styles.detail_container}>
+                        {address && (
+                            <View style={styles.detail}>
+                                <Image source={Icons.info} style={styles.icon} />
+                                {propertyType && (
+                                    <Text style={styles.propertyType}>
+                                        Property For: {propertyType}
+                                    </Text>
+                                )}
+                                <Text style={styles.text_content}>{address.state},{address.district},{address.localAdd},{address.town}</Text>
+                                {/* <TouchableOpacity
+                                    onPress={this.goToPropertyLocation}
+                                    style={styles.mapButton}
+                                >
+                                    <Image source={tabsImages.Map} style={styles.mapIcon} />
+                                </TouchableOpacity> */}
+                            </View>
+                        )}
+
+                        {/* <View style={[
+                            styles.detail,
+                            { backgroundColor: item.availableStatus ? "pink" : "yellow" }
+                        ]}>
+                            <Image source={Icons.info} style={styles.icon} />
+                            <Text style={styles.availabilityText}>
+                                {item.availableStatus ? "Available" : "Not Available"}
+                            </Text>
+                            <Text style={styles.availabilityDesc}>
+                                {item.availableStatus
+                                    ? "This property is currently available for booking..."
+                                    : "Sorry, this property is currently not available..."}
+                            </Text>
+                        </View> */}
+                    </View>
+
+                    {/* Available Amenities */}
+                    {availableItems?.length > 0 && (
+                        <View style={styles.amenitiesContainer}>
+                            <View style={styles.amenitiesDetail}>
+                                <Image source={Icons.info} style={styles.icon} />
+                                <Text style={styles.sectionTitle}>Available Amenities</Text>
+                                <ItemList
+                                    data={availableItems}
+                                    renderItem={this.renderItem}
+                                />
+                            </View>
+                        </View>
+                    )}
+
+                    {/* Property Stats */}
+                    <View style={styles.detail_container}>
+                        {total && (
+                            <View style={styles.detail}>
+                                <Image source={Icons.info} style={styles.icon} />
+                                <Text style={styles.sectionTitle}>Total Properties Posted</Text>
+                                <Text style={styles.text_content}>{total}</Text>
+                                <Text style={styles.statsNote}>
+                                    This represents the total count of all properties...
+                                </Text>
+                                <Text style={styles.statsNote}>
+                                    4 out of {total} properties booked.
+                                </Text>
+                            </View>
+                        )}
+
+                        {/* Deposit Information */}
+                        <View style={styles.detail}>
+                            <Image source={Icons.info} style={styles.icon} />
+                            <Text style={styles.sectionTitle}>Deposit Amount</Text>
+                            <Text style={styles.text_content}>
+                                Rs-{metaData?.deposite} Only
+                            </Text>
+                            <Text style={styles.depositNote}>
+                                The full deposit will be refunded...
+                            </Text>
+                            <Text style={styles.warningText}>
+                                ** Vacating without notice deposit not refund **
+                            </Text>
+                            <Text style={styles.warningText}>
+                                ** Without 1-month notice, 50% refund **
+                            </Text>
+                        </View>
+
+                        {/* Rent Information */}
+                        <View style={styles.detail}>
+                            <Image source={Icons.info} style={styles.icon} />
+                            <Text style={styles.sectionTitle}>Monthly Rent</Text>
+                            <Text style={styles.text_content}>
+                                Rs - {metaData?.rent} only
+                            </Text>
+                            <Text style={styles.rentNote}>
+                                Rent calculation begins upon relocation...
+                            </Text>
+                            <Text style={styles.rentNote}>
+                                Due monthly on onboarding date...
+                            </Text>
+                            <Text style={styles.rentNote}>
+                                5-day grace period monthly...
+                            </Text>
+                        </View>
+
+                        {/* Rules & Regulations */}
+                        <View style={styles.detail}>
+                            <Image source={Icons.info} style={styles.icon} />
+                            <Text style={styles.sectionTitle}>Rules & Regulations</Text>
+                            {[
+                                "Maintain cleanliness and hygiene...",
+                                "No loud music/parties...",
+                                "Visitors allowed until 10 PM...",
+                                "No alcohol/drugs/illegal activities...",
+                                "Report property damage immediately...",
+                                "Pets require explicit approval..."
+                            ].map((rule, index) => (
+                                <Text key={index} style={styles.ruleText}>
+                                    {rule}
+                                </Text>
+                            ))}
+                        </View>
+                    </View>
+
+                    {/* Booking Button */}
+                    <View style={styles.buttonContainer}>
+                        <Button
+                            text={"Booking"}
+                            onPress={this.handlePlaceOrder}
+                        />
+                    </View>
+                </ScrollView>
+
+                {/* Loading Indicator */}
+                {isLoading && <Loader />}
+            </View>
         );
     }
 }
@@ -503,9 +340,9 @@ const mapStateToProps = (state) => ({
 });
 
 // Connect component to Redux store
-export default connect(mapStateToProps, {
-    bookingProductAction,
-    clearBookingAction,
+export default connect(mapStateToProps,{
+    bookingProductAction, 
+    clearBookingAction, 
     createNotificationAction
 })(ServiceDetailScreen);
 
@@ -513,8 +350,31 @@ export default connect(mapStateToProps, {
 const styles = StyleSheet.create({
     out_container: { flex: 1 },
     container: {
+        flexGrow: 1,
+        paddingHorizontal: 1,
+        backgroundColor:"black"
     },
     header_container: {
+        marginVertical: 10,
+        padding: 4,
+        borderRadius: 20,
+        backgroundColor: colors.color_white,
+    },
+    body_container: {
+        backgroundColor: colors.color_white,
+        marginVertical: 12,
+        padding: 16,
+        borderRadius: 20,
+    },
+    about_container: {
+        alignItems: 'center',
+    },
+    about: {
+        fontSize: 20,
+        textAlign: 'center',
+        paddingVertical: 2,
+        fontWeight: 'bold',
+        color: colors.color_primary
     },
     postedDate: {
         padding: 6,
@@ -530,6 +390,24 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 8
     },
+    detail_container: {
+        // flexDirection: "row",
+        // alignItems: "center",
+        // marginVertical: 24,
+        // justifyContent: "space-between",
+    },
+    detail: {
+        flex: 1,
+        alignItems: "center",
+        borderRadius: 20,
+        marginHorizontal: 12,
+        minHeight: sizes.width / 3,
+        maxHeight: "auto",
+        justifyContent: "center",
+        backgroundColor: colors.color_white,
+        padding: 16,
+        marginVertical:4
+    },
     icon: {
         height: 24,
         width: 24,
@@ -541,11 +419,88 @@ const styles = StyleSheet.create({
         color: colors.color_primary,
         marginBottom: 4
     },
+    text_content: {
+        color: colors.color_primary,
+        fontSize: 10,
+        textAlign: 'center'
+    },
+    mapButton: {
+        backgroundColor: colors.color_gray,
+        marginVertical: 8,
+        width: "80%",
+        alignItems: 'center',
+        padding: 8,
+        borderRadius: 10
+    },
+    mapIcon: {
+        height: 24,
+        width: 24
+    },
+    availabilityText: {
+        fontSize: 14,
+        color: colors.color_primary,
+        fontWeight: 'bold',
+        marginBottom: 4
+    },
+    availabilityDesc: {
+        color: colors.color_primary,
+        fontSize: 10,
+        padding: 4,
+        textAlign: 'center'
+    },
+    amenitiesContainer: {
+        marginVertical: 24,
+        alignItems: 'center'
+    },
+    amenitiesDetail: {
+        width: "90%",
+        backgroundColor: colors.color_white,
+        borderRadius: 20,
+        padding: 16,
+        alignItems: 'center'
+    },
+    sectionTitle: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: colors.color_primary,
+        marginBottom: 8
+    },
+    statsContainer: {
+        marginVertical: 24,
+        paddingHorizontal: 16
+    },
+    statsNote: {
+        fontSize: 10,
+        color: colors.color_secondary,
+        textAlign: 'center',
+        marginVertical: 2
+    },
     depositNote: {
         fontSize: 10,
         color: colors.color_primary,
         padding: 4,
-        textAlign: 'left'
+        textAlign: 'center'
+    },
+    warningText: {
+        fontSize: 10,
+        color: colors.color_secondary,
+        textAlign: 'center',
+        marginTop: 4,
+        fontWeight: 'bold'
+    },
+    rentNote: {
+        fontSize: 10,
+        color: colors.color_primary,
+        marginVertical: 2,
+        paddingHorizontal: 4,
+        textAlign: 'center'
+    },
+    ruleText: {
+        fontSize: 10,
+        color: colors.color_primary,
+        marginVertical: 2,
+        paddingHorizontal: 4,
+        textAlign: 'center'
     },
     buttonContainer: {
         marginBottom: 20,
@@ -554,106 +509,3 @@ const styles = StyleSheet.create({
         marginHorizontal: 24
     }
 });
-
-function CutomerForm({
-    onSubmit,
-    onCancel
-}) {
-    const [isPressData, setPressData] = React.useState(false)
-    const [name, setName] = React.useState("")
-    const [phoneNumber, setPhoneNumber] = React.useState("")
-    const [addDetails, setAddress] = React.useState("")
-    const [selectedDate, setDate] = React.useState("")
-
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
-
-    // Get one month from today
-    const nextMonth = new Date();
-    nextMonth.setMonth(today.getMonth() + 1);
-    const nextMonthStr = nextMonth.toISOString().split('T')[0];
-
-    const handleSubmit = () => {
-        if (!name || !addDetails || !phoneNumber || !selectedDate) {
-            alert("Please fill all the data!")
-            return
-        }
-        const data = {
-            name,
-            phoneNumber,
-            addDetails,
-            selectedDate
-        }
-        onSubmit(data)
-    }
-    return (
-        <View
-        >
-            <Text style={{
-                fontSize: 20,
-                fontWeight: 'bold',
-                textAlign: 'center',
-                marginTop: 40
-            }}>Complete the form details</Text>
-            <Divider />
-            <Input
-                placeholder="Enter Full Name"
-                value={name}
-                onChangeText={(e) => setName(e)}
-            />
-            <Input
-                placeholder="Enter Phone Number"
-                value={phoneNumber}
-                onChangeText={(e) => setPhoneNumber(e)}
-                keyboardType='phone-pad'
-            />
-            <Input
-                placeholder="Address Details"
-                multiline
-                value={addDetails}
-                onChangeText={(e) => setAddress(e)}
-            />
-            <Input
-                placeholder="When are you planning to relocate?"
-                value={selectedDate}
-                rightIcon={
-                    <TouchableOpacity onPress={() => setPressData(true)}>
-                        <AntDesign name="calendar" size={24} color="black" />
-                    </TouchableOpacity>
-                }
-                onPress={() => setPressData(!isPressData)}
-            />
-            {
-                isPressData && (
-                    <Calendar
-                        current={selectedDate}
-                        minDate={todayStr}
-                        maxDate={nextMonthStr}
-                        onDayPress={(day) => {
-                            setDate(day.dateString)
-                            setPressData(false)
-                        }}
-                        markedDates={{
-                            [todayStr]: { selected: true, marked: true, selectedColor: 'blue' }
-                        }}
-                        theme={{
-                            selectedDayBackgroundColor: '#00adf5',
-                            todayTextColor: '#00adf5',
-                            arrowColor: 'orange',
-                            textSectionTitleColor: '#b6c1cd',
-                        }}
-                    />
-                )
-            }
-            <Button
-                title={"SUBMIT"}
-                onPress={handleSubmit}
-            />
-            <Button
-                title={"CANCEL"}
-                onPress={onCancel}
-                type='outline'
-            />
-        </View>
-    )
-}

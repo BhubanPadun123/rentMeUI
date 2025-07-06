@@ -9,13 +9,12 @@ import {
     Modal,
     Text
 } from 'react-native';
-import Loader from './Loader';
+
 const { width, height } = Dimensions.get('window');
 
 export default function ImageSlider({ images }) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [isFullScreen, setIsFullScreen] = useState(false);
-    const [isLoading,setLoading] = useState(false)
 
     const onViewRef = useRef(({ viewableItems }) => {
         if (viewableItems.length > 0) {
@@ -37,15 +36,6 @@ export default function ImageSlider({ images }) {
                         <Image
                             source={{ uri: item }}
                             style={fullScreen ? styles.fullscreenImage : styles.image}
-                            onLoad={(e)=> {
-                                setLoading(true)
-                            }}
-                            onLoadStart={()=>{
-                                setLoading(true)
-                            }}
-                            onLoadEnd={()=>{
-                                setLoading(false)
-                            }}
                         />
                     </TouchableOpacity>
                 )}
@@ -64,11 +54,6 @@ export default function ImageSlider({ images }) {
                     />
                 ))}
             </View>
-            {
-                isLoading && (
-                    <Loader/>
-                )
-            }
         </View>
     );
 
@@ -109,11 +94,11 @@ const styles = StyleSheet.create({
         width: 8,
         height: 8,
         borderRadius: 4,
-        backgroundColor: 'pink',
+        backgroundColor: '#ccc',
         marginHorizontal: 5,
     },
     activeDot: {
-        backgroundColor: 'white',
+        backgroundColor: '#333',
         width: 10,
         height: 10,
     },

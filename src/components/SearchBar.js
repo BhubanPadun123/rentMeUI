@@ -34,15 +34,13 @@ export default function SearchBar(props) {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: colors.color_white,
-        padding: 4,
-        borderRadius: 8,
+        padding: 12,
+        borderRadius: 20,
         flexDirection: "row",
         shadowColor: colors.color_gray,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         elevation: 6,
-        justifyContent:'center',
-        alignItems:'center'
     },
     icon: { paddingEnd: 8 },
     input_line: {
