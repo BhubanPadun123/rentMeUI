@@ -77,6 +77,14 @@ class BookLibrary extends React.Component {
             })
         }
     }
+    handleViewBook=(book)=>{
+        if(!book) return
+        console.log(book)
+        this.props.navigation.navigate("Home",{
+            screen:"ServiceDetailScreen",
+            params:{book}
+        })
+    }
     render() {
         const {
             product
@@ -108,7 +116,7 @@ class BookLibrary extends React.Component {
                                     const metaData = item.item.hasOwnProperty('metaData') ? JSON.parse(item.item.metaData) : null
                                     const images = metaData && metaData.hasOwnProperty('images') ? JSON.parse(metaData.images) : []
                                     return (
-                                        <TouchableNativeFeedback>
+                                        <TouchableNativeFeedback onPress={()=> this.handleViewBook(item.item)} >
                                             <Card containerStyle={{
                                                 padding: 0,
                                                 width: "auto"

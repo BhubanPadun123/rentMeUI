@@ -24,6 +24,7 @@ import Loader from "../components/Loader";
 import { configureNotifications } from "../utils/NotificationService";
 import * as Notifications from 'expo-notifications';
 import CSkeleton from "../components/Skeletom";
+import BookDetails from "../components/BookDetails";
 import {
     Card,
     Dialog,
@@ -57,7 +58,7 @@ class ServiceDetailScreen extends Component {
     notificationListener = null;
     responseListener = null;
 
-    componentDidMount() {
+    async componentDidMount() {
         // Setup notification channels (Android)
         if (Platform.OS === 'android') {
             Notifications.getNotificationChannelsAsync()
@@ -72,6 +73,19 @@ class ServiceDetailScreen extends Component {
         this.responseListener = Notifications.addNotificationResponseReceivedListener(
             response => console.log(response)
         );
+        const user = await AsyncStorage.getItem('currentUser');
+        let customerInfo = null;
+
+        if (user) {
+            customerInfo = JSON.parse(user);
+            this.setState({
+                userInfo:customerInfo
+            })
+        }else{
+            this.props.navigation.navigate("Profile",{
+                screen:"LoginScreen"
+            })
+        }
         setTimeout(() => {
             this.setState({
                 loading: false
@@ -79,7 +93,7 @@ class ServiceDetailScreen extends Component {
         }, 2000)
     }
 
-    componentWillUnmount() {
+    async componentWillUnmount() {
         // Cleanup notification listeners
         if (this.notificationListener) this.notificationListener.remove();
         if (this.responseListener) this.responseListener.remove();
@@ -144,6 +158,11 @@ class ServiceDetailScreen extends Component {
         this.props.navigation.navigate("LoginScreen");
     };
 
+    handleOrderBook=(data)=>{
+        if(!data) return
+        this.props.bookingProductAction(data);
+    }
+
     handlePlaceOrder = async () => {
         const { item } = this.props.route.params;
         const user = await AsyncStorage.getItem('currentUser');
@@ -188,7 +207,19 @@ class ServiceDetailScreen extends Component {
     );
 
     render() {
-        const { item } = this.props.route.params;
+        const { item } = this.props.route.params
+        if(!item){
+            return (
+                <BookDetails 
+                   product={this.props.route.params.book}
+                   handleOrderBook={this.handleOrderBook}
+                   orderStatus={this.props.bookingProductStatus}
+                   orderResponse={this.props.bookingProductResponse}
+                   orderError={this.props.bookingProductError}
+                   userInfo={this.state.userInfo}
+                />
+            )
+        }
         const metaData = item?.metaData ? JSON.parse(item.metaData) : null;
         const images = metaData?.images ? JSON.parse(metaData.images) : [];
         const address = metaData?.addressInfo || null;

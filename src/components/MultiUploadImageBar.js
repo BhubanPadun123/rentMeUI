@@ -5,7 +5,7 @@ import { Feather } from "@expo/vector-icons";
 import { colors } from "../styles/Theme";
 import Icons from "../utils/Icons";
 import { showTopMessage } from "../utils/ErrorHandler";
-import {uploadImagesToCloudinary} from "../APIs/uploadImage"
+import {uploadImagesToCloudinary} from "../utils/uploadToCloudinary"
 
 export default function ImagePickerBar({ value = [], onType, placeholder,onUpload }) {
     const [loading, setLoading] = React.useState(false);

@@ -72,7 +72,7 @@ function BookStack(props) {
                                     if (e == 1) {
                                         props.navigation.navigate("UploadBook")
                                     } else if (e == 0) {
-                                        props.navigation.navigate("MyBook")
+                                        props.navigation.navigate("Library")
                                     }
                                 }}
                             >
@@ -135,7 +135,7 @@ function BookStack(props) {
                                     if (e == 1) {
                                         props.navigation.navigate("UploadBook")
                                     } else if (e == 0) {
-                                        props.navigation.navigate("MyBook")
+                                        props.navigation.navigate("Library")
                                     }
                                 }}
                             >
@@ -198,7 +198,7 @@ function BookStack(props) {
                                     if (e == 1) {
                                         props.navigation.navigate("UploadBook")
                                     } else if (e == 0) {
-                                        props.navigation.navigate("MyBook")
+                                        props.navigation.navigate("Library")
                                     }
                                 }}
                             >

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { colors } from "../styles/Theme";
 import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
-import { uploadImagesToCloudinary } from "../APIs/uploadImage";
+import {uploadImagesToCloudinary} from "../utils/uploadToCloudinary"
 
 export default function UploadImage({
     photoURL,
