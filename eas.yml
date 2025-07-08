@@ -1,0 +1,21 @@
+jobs:
+  build_android_apk:
+    name: Build Android APK
+    type: build
+    params:
+      platform: android
+      profile: preview         # ← 🔗 uses "preview" from eas.json
+
+  build_android_aab:
+    name: Build Android AAB
+    type: build
+    params:
+      platform: android
+      profile: production      # ← 🔗 uses "production" from eas.json
+
+  build_ios:
+    name: Build iOS app
+    type: build
+    params:
+      platform: ios
+      profile: production      # ← 🔗 uses "production" from eas.json
