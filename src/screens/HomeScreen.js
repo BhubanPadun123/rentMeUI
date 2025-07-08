@@ -214,12 +214,12 @@ class HomeScreen extends Component {
                                 fontWeight: "bold",
                                 fontSize: 18
                             }}>
-                                {homeText.assQuickTab}
+                                {homeText.english_quickTab}
                             </Text>
                         </View>
                         <View>
                             <CardCarousel
-                                list={serviceList_ass}
+                                list={serviceList}
                                 onSelectCategory={this.handleCategorySelect}
                             />
                         </View>
@@ -252,7 +252,7 @@ class HomeScreen extends Component {
                                     fontWeight: "bold",
                                     fontSize: 18
                                 }}>
-                                    {homeText.assQuickTab}
+                                    {homeText.english_quickTab}
                                 </Text>
                             </View>
                             <View style={{
@@ -298,6 +298,13 @@ class HomeScreen extends Component {
                             <Card.Title style={{
                                 color:"white"
                             }}>List, Sell, or Buy Used Books Today!</Card.Title>
+                            <Button 
+                               title={"Explore More"}
+                               type='outline'
+                               onPress={()=>{
+                                this.props.navigation.navigate("Books")
+                               }}
+                            />
                         </Card>
                     </View>
                 )}

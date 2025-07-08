@@ -25,7 +25,7 @@ export function InfoCart(){
                 lineHeight:20
             }}>
                 {
-                    homeText.assamese_c_1
+                    homeText.english_c_1
                 }
             </Card.Title>
             <Card.Divider/>
