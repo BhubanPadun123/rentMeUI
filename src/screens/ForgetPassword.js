@@ -1,4 +1,4 @@
-import React from "react";
+import React,{Component} from "react";
 import {
     Input,
     Text,
@@ -23,7 +23,7 @@ import { showTopMessage } from "../utils/ErrorHandler";
 import { isValidEmail } from "../utils/utils";
 
 
-class ForgetPassword extends React.Component {
+class ForgetPassword extends Component {
     constructor(props) {
         super(props);
         this.state = {

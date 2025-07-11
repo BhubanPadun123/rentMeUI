@@ -1,9 +1,9 @@
-import React from "react";
+import React,{Component} from "react";
 import {
     Text
 } from "@rneui/themed"
 
-class MyLibrary extends React.Component{
+class MyLibrary extends Component{
     constructor(props){
         super(props);
         this.state={

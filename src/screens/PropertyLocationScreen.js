@@ -1,184 +1,89 @@
-import React, { useEffect, useState } from "react";
-import MapView, { Callout, Circle, Marker } from "react-native-maps";
+// MapScreen.js
+import React, { Component } from 'react';
+import { ActivityIndicator, View, StyleSheet } from 'react-native'
+import { LeafletView } from 'react-native-leaflet-view'
+import leafletContent from '../../assets/leafletContent.js'
+import Loader from '../components/Loader'
+import { connect } from 'react-redux'
 import {
-    StyleSheet,
-    View,
-    Text,
-    TouchableOpacity,
-    ActivityIndicator,
-    Platform,
-    Alert,
-} from "react-native";
-import * as Location from "expo-location";
-import { colors, sizes } from "../styles/Theme";
-import { showTopMessage } from "../utils/ErrorHandler";
+    getAllProductAction
+} from "../Redux/action/product.js"
+import { sizes } from '../styles/Theme.js';
 
-export default function PropertyLocationScreen({ route, navigation }) {
-    const { geoLocation, title } = route.params || {};
-    const [loading, setLoading] = useState(true);
-    const [serviceList, setServiceList] = useState([]);
-    const [initialRegion, setInitialRegion] = useState(null);
+class MapScreen extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            webViewContent: null,
+            loading: false,
+            data: []
+        };
+    }
 
-    useEffect(() => {
-        let isMounted = true;
-
-        async function getLocationAsync() {
-            try {
-                let { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== "granted") {
-                    Alert.alert("Permission denied", "Location access is required to view the map.");
-                    return;
-                }
-
-                let location = await Location.getCurrentPositionAsync({});
-                const { latitude, longitude } = location.coords;
-
-                let parsedGeoLocation = geoLocation;
-                if (geoLocation && typeof geoLocation === "string") {
-                    try {
-                        parsedGeoLocation = JSON.parse(geoLocation);
-                    } catch (e) {
-                        parsedGeoLocation = null;
+    componentDidMount() {
+        const { item } = this.props.route.params
+        if(item && item.hasOwnProperty('metaData')){
+            const {
+                metaData
+            } = item
+            const metaDataInfo = JSON.parse(metaData)
+            if(metaDataInfo && metaDataInfo.hasOwnProperty('geoLocation')){
+                const {geoLocation} = metaDataInfo
+                const geoLocationInfo = JSON.parse(geoLocation)
+                const {
+                    latitude,
+                    longitude
+                } = geoLocationInfo.coords
+                const data=[
+                    {
+                        latitude: latitude, longitude: longitude, name: item.productTitle
                     }
-                }
-
-                if (
-                    parsedGeoLocation?.coords?.latitude &&
-                    parsedGeoLocation?.coords?.longitude
-                ) {
-                    if (!isMounted) return;
-                    setInitialRegion({
-                        latitude,
-                        longitude,
-                        latitudeDelta: 0.0922,
-                        longitudeDelta: 0.0421,
-                    });
-
-                    setServiceList([
-                        {
-                            id: 1,
-                            title: title || "Unknown Title",
-                            latitude: parsedGeoLocation.coords.latitude,
-                            longitude: parsedGeoLocation.coords.longitude,
-                            color: "red",
-                        },
-                    ]);
-                } else {
-                    if (!isMounted) return;
-                    setInitialRegion({
-                        latitude,
-                        longitude,
-                        latitudeDelta: 0.0922,
-                        longitudeDelta: 0.0421,
-                    });
-                }
-
-                if (isMounted) setLoading(false);
-            } catch (error) {
-                console.log("Location error:", error);
-                if (isMounted) setLoading(false);
+                ]
+        
+                const html = leafletContent(data);
+                this.setState({ webViewContent: html });
             }
         }
+    }
 
-        getLocationAsync();
+    render() {
+        const { webViewContent } = this.state;
 
-        return () => {
-            isMounted = false;
-        };
-    }, []);
+        if (!webViewContent) {
+            return (
+                <View style={styles.loading_container}>
+                    <ActivityIndicator size="large" />
+                </View>
+            );
+        }
 
-    const handleServiceSelect = (item) => {
-        navigation.navigate("ServiceDetailScreen", { item });
-    };
-
-    return (
-        <View style={styles.container}>
-            {initialRegion && !loading ? (
-                <MapView
-                    style={styles.map}
-                    provider="google"
-                    initialRegion={initialRegion}
-                    loadingIndicatorColor={colors.color_primary}
-                    userLocationUpdateInterval={1000}
-                    showsUserLocation={true}
-                    showsMyLocationButton={true}
-                >
-                    <Circle
-                        center={{
-                            latitude: initialRegion.latitude,
-                            longitude: initialRegion.longitude,
-                        }}
-                        radius={2000}
-                        strokeWidth={2}
-                        strokeColor="rgba(0, 0, 255, 0.5)"
-                        fillColor="rgba(0, 0, 255, 0.2)"
-                    />
-
-                    {serviceList.map((service) => (
-                        <Marker
-                            key={String(service.id)}
-                            coordinate={{
-                                latitude: service.latitude,
-                                longitude: service.longitude,
-                            }}
-                            title={service.title || "Untitled"}
-                            pinColor={service.color || "red"}
-                        >
-                            <Callout style={styles.callout_container}>
-                                <TouchableOpacity
-                                    onPress={() => handleServiceSelect(service)}
-                                >
-                                    <View style={styles.callout_button}>
-                                        <Text style={styles.callout_title}>{service.title}</Text>
-                                        <Text style={styles.callout_text}>Tap for more info</Text>
-                                    </View>
-                                </TouchableOpacity>
-                            </Callout>
-                        </Marker>
-                    ))}
-                </MapView>
-            ) : (
-                <ActivityIndicator
-                    style={styles.loading_container}
-                    size="large"
-                    color={colors.color_primary}
+        return (
+            <View style={styles.container}>
+                <LeafletView
+                    source={{ html: webViewContent }}
+                    renderLoading={() => <Loader />}
                 />
-            )}
-        </View>
-    );
+            </View>
+        );
+    }
 }
 
+const mapStateToProps = (state) => {
+    return {
+        productListResponse: state.product.productListResponse,
+        productListError: state.product.productListError,
+        productListStatus: state.product.productListStatus
+    }
+}
+
+export default connect(mapStateToProps, {
+    getAllProductAction
+})(MapScreen);
+
 const styles = StyleSheet.create({
-    container: {
+    container: { 
         flex: 1,
+        height:sizes.height
     },
-    map: {
-        width: "100%",
-        height: "100%",
-    },
-    callout_container: {
-        flex: 1,
-        flexDirection: "row",
-        justifyContent: "center",
-        backgroundColor: colors.color_white,
-        paddingLeft: 8,
-    },
-    callout_title: {
-        fontSize: 18,
-        color: "black",
-    },
-    callout_text: {
-        fontSize: 13,
-        color: "gray",
-    },
-    callout_button: {
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 8,
-    },
-    loading_container: {
-        position: "absolute",
-        top: sizes.height / 2,
-        left: sizes.width / 2,
-    },
+    loading_container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });

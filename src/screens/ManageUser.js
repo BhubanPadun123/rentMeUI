@@ -1,4 +1,4 @@
-import React from "react";
+import React,{Component} from "react";
 import {
     Text,
     ListItem,
@@ -17,7 +17,7 @@ import Loader from "../components/Loader";
 import { showTopMessage } from "../utils/ErrorHandler"
 import { colors } from "../styles/Theme";
 
-class ManageUser extends React.Component {
+class ManageUser extends Component {
     constructor(props) {
         super(props);
         this.state = {

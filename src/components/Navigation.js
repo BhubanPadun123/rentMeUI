@@ -1,4 +1,4 @@
-import * as React from "react";
+import React,{Component} from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import HomeScreen from "../screens/HomeScreen";
@@ -616,6 +616,44 @@ function HomeStack(props) {
                     }
                 }}
             />
+            <Stack.Screen
+                name="MapScreen"
+                component={MapScreen}
+                options={{
+                    headerShown: true,
+                    title: "Room Location",
+                    cardShadowEnabled: true,
+                    cardStyle: {
+                        backgroundColor: "#d9d0c7"
+                    },
+                    headerStyle: {
+                        backgroundColor: '#826012',
+                    },
+                    headerTintColor: '#fff',
+                    headerTitleStyle: {
+                        fontWeight: 'bold',
+                    }
+                }}
+            />
+            <Stack.Screen
+                name="PropertyLocationScreen"
+                component={PropertyLocationScreen}
+                options={{
+                    headerShown: true,
+                    title: "Location",
+                    cardShadowEnabled: true,
+                    cardStyle: {
+                        backgroundColor: "#d9d0c7"
+                    },
+                    headerStyle: {
+                        backgroundColor: '#826012',
+                    },
+                    headerTintColor: '#fff',
+                    headerTitleStyle: {
+                        fontWeight: 'bold',
+                    }
+                }}
+            />
 
         </Stack.Navigator>
     );
@@ -638,7 +676,7 @@ function MapStack() {
     );
 }
 
-class Navigation extends React.Component {
+class Navigation extends Component {
     constructor(props) {
         super(props);
         this.state = {

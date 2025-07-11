@@ -1,191 +1,110 @@
 // MapScreen.js
-import React, { useEffect, useState } from "react";
-import MapView, { Callout, Circle, Marker } from "react-native-maps";
-import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
-import * as Location from "expo-location";
-import { colors, sizes } from "../styles/Theme";
-import { useDispatch, useSelector } from "react-redux";
-import { getAllSpecifictProductAction } from "../Redux/action/product";
-import Loader from "../components/Loader";
+import React,{Component} from 'react';
+import { ActivityIndicator, View, StyleSheet } from 'react-native'
+import { LeafletView } from 'react-native-leaflet-view'
+import leafletContent from '../../assets/leafletContent.js'
+import Loader from '../components/Loader'
+import { connect } from 'react-redux'
+import {
+    getAllProductAction
+} from "../Redux/action/product.js"
 
-export default function MapScreen({ navigation }) {
-    const dispatch = useDispatch();
-    const [loading, setLoading] = useState(false);
-    const [locationDetail, setLocationDetail] = useState(null);
-    const [serviceList, setServiceList] = useState([]);
-    const [isAllOk, setIsAllOk] = useState(false);
-    const [initialRegion, setInitialRegion] = useState(null);
-
-    const {
-        areaProductStatus,
-        areaProductResponse,
-        areaProductError
-    } = useSelector((state) => state.product);
-
-    useEffect(() => {
-        if (
-            areaProductStatus === "success" &&
-            Array.isArray(areaProductResponse) &&
-            areaProductResponse.length > 0
-        ) {
-            setServiceList(areaProductResponse);
-            setLoading(false);
-            setIsAllOk(true);
-        }
-        if (areaProductStatus === "started") {
-            setLoading(true);
-        }
-    }, [areaProductStatus]);
-
-    useEffect(() => {
-        let isMounted = true;
-
-        async function getLocationAsync() {
-            try {
-                const { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== "granted") return;
-
-                const location = await Location.getCurrentPositionAsync({});
-                const { latitude, longitude } = location.coords;
-
-                if (!isMounted) return;
-
-                setInitialRegion({
-                    latitude,
-                    longitude,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
-                });
-
-                try {
-                    const address = await Location.reverseGeocodeAsync({ latitude, longitude });
-                    if (isMounted && address.length > 0) {
-                        setLocationDetail(address[0]);
-                    }
-                } catch (err) {
-                    console.log("Reverse geocode error:", err);
-                }
-            } catch (err) {
-                console.log("Location error:", err);
-            }
-        }
-
-        getLocationAsync();
-        return () => {
-            isMounted = false;
+class MapScreen extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            webViewContent: null,
+            loading: false,
+            data: []
         };
-    }, []);
-
-    useEffect(() => {
-        if (locationDetail && locationDetail.city) {
-            dispatch(getAllSpecifictProductAction(locationDetail.city, "map"));
-        }
-    }, [locationDetail]);
-
-    const handleServiceSelect = (item) => {
-        navigation.navigate("ServiceDetailScreen", { item });
-    };
-
-    if (!isAllOk) {
-        return <Loader />;
     }
 
-    return (
-        <View style={styles.container}>
-            {initialRegion && !loading ? (
-                <MapView
-                    style={styles.map}
-                    provider="google"
-                    initialRegion={initialRegion}
-                    loadingIndicatorColor={colors.color_primary}
-                    userLocationUpdateInterval={1000}
-                    showsUserLocation={true}
-                    showsMyLocationButton={true}
-                >
-                    <Circle
-                        center={{
-                            latitude: initialRegion.latitude,
-                            longitude: initialRegion.longitude,
-                        }}
-                        radius={2000}
-                        strokeWidth={2}
-                        strokeColor="rgba(0, 0, 255, 0.5)"
-                        fillColor="rgba(0, 0, 255, 0.2)"
-                    />
+    componentDidMount() {
+        // Example: multiple locations
+        this.props.getAllProductAction(0, 10000, "room")
+        const locations = [
+            { latitude: 28.6139, longitude: 77.2090, name: 'New Delhi' },
+            { latitude: 19.0760, longitude: 72.8777, name: 'Mumbai' },
+            { latitude: 13.0827, longitude: 80.2707, name: 'Chennai' },
+            { latitude: 12.9716, longitude: 77.5946, name: 'Bengaluru' },
+        ];
 
-                    {serviceList
-                        .filter(
-                            (s) =>
-                                typeof s.latitude === "number" &&
-                                typeof s.longitude === "number" &&
-                                !isNaN(s.latitude) &&
-                                !isNaN(s.longitude)
-                        )
-                        .map((service) => (
-                            <Marker
-                                key={String(service.id)}
-                                coordinate={{
-                                    latitude: service.latitude,
-                                    longitude: service.longitude,
-                                }}
-                                title={String(service.title)}
-                                pinColor={service.color || "red"}
-                            >
-                                <Callout style={styles.callout_container}>
-                                    <TouchableOpacity onPress={() => handleServiceSelect(service)}>
-                                        <View style={styles.callout_button}>
-                                            <Text style={styles.callout_title}>
-                                                {String(service.id)} {String(service.title)}
-                                            </Text>
-                                            <Text style={styles.callout_text}>{String(service.title)}</Text>
-                                        </View>
-                                    </TouchableOpacity>
-                                </Callout>
-                            </Marker>
-                        ))}
-                </MapView>
-            ) : (
-                <ActivityIndicator
-                    style={styles.loading_container}
-                    size="large"
-                    color={colors.color_primary}
+        const html = leafletContent(locations);
+        this.setState({ webViewContent: html });
+    }
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.productListStatus === "started" && this.props.productListStatus != nextProps.productListStatus) {
+            this.setState({
+                loading: true
+            })
+        }
+        if (nextProps.productListStatus === "success" && this.props.productListStatus != nextProps.productListStatus) {
+            if (nextProps.productListResponse && Array.isArray(nextProps.productListResponse)) {
+                const {
+                    productListResponse
+                } = nextProps
+                const data = []
+                productListResponse.forEach((item) => {
+                    const {
+                        metaData
+                    } = item
+                    const metaDataInfo = metaData ? JSON.parse(metaData) : null
+                    if (metaDataInfo && metaDataInfo.hasOwnProperty('geoLocation')) {
+                        const geoLocationInfo = JSON.parse(metaDataInfo.geoLocation)
+                        const {
+                            latitude,
+                            longitude
+                        } = geoLocationInfo.coords
+                        data.push({
+                            latitude: latitude,
+                            longitude: longitude,
+                            name: item.productTitle
+                        })
+                    }
+                })
+                if (data.length > 0) {
+                    const html = leafletContent(data);
+                    this.setState({ webViewContent: html });
+                }
+            }
+        }
+    }
+
+    render() {
+        const { webViewContent } = this.state;
+
+        if (!webViewContent) {
+            return (
+                <View style={styles.loading_container}>
+                    <ActivityIndicator size="large" />
+                </View>
+            );
+        }
+
+        return (
+            <View style={styles.container}>
+                <LeafletView
+                    source={{ html: webViewContent }}
+                    renderLoading={() => <Loader />}
                 />
-            )}
-        </View>
-    );
+            </View>
+        );
+    }
 }
 
+const mapStateToProps = (state) => {
+    return {
+        productListResponse: state.product.productListResponse,
+        productListError: state.product.productListError,
+        productListStatus: state.product.productListStatus
+    }
+}
+
+export default connect(mapStateToProps, {
+    getAllProductAction
+})(MapScreen);
+
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    map: {
-        width: "100%",
-        height: "100%",
-    },
-    callout_container: {
-        flex: 1,
-        flexDirection: "row",
-        justifyContent: "center",
-        backgroundColor: colors.color_white,
-        paddingLeft: 8,
-    },
-    callout_title: {
-        paddingBottom: 12,
-        fontSize: 18,
-        color: "red",
-    },
-    callout_text: {
-        fontSize: 13,
-    },
-    callout_button: {
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 8,
-    },
-    loading_container: {
-        position: "absolute",
-        top: sizes.height / 2,
-        left: sizes.width / 2,
-    },
+    container: { flex: 1 },
+    loading_container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });

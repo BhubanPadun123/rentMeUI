@@ -1,4 +1,4 @@
-import React from "react";
+import React,{Component} from "react";
 import {
     Text,
     Divider,
@@ -24,7 +24,7 @@ import { addProductAction } from "../Redux/action/product";
 import { connect } from "react-redux";
 import { showTopMessage } from "../utils/ErrorHandler";
 
-class UploadBooks extends React.Component {
+class UploadBooks extends Component {
     constructor(props) {
         super(props);
         this.state = {

@@ -37,7 +37,8 @@ import {
     MaterialIcons,
     MaterialCommunityIcons,
     Ionicons,
-    AntDesign
+    AntDesign,
+    Feather
 } from "@expo/vector-icons"
 import { Calendar } from "react-native-calendars"
 
@@ -265,6 +266,13 @@ class ServiceDetailScreen extends Component {
                                     <Card.Title>
                                         {<Text style={styles.text_content}>{address.state},{address.district},{address.localAdd},{address.town}</Text>}
                                     </Card.Title>
+                                    <Button 
+                                      title={"Map"}
+                                      icon={<Feather name="map-pin" size={24} color="white" />}
+                                      onPress={()=>{
+                                        this.props.navigation.navigate("PropertyLocationScreen",{item})
+                                      }}
+                                    />
                                     <Card.Divider />
                                     <View style={{
                                         display: 'flex',

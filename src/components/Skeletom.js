@@ -1,4 +1,4 @@
-import React from "react";
+import React,{Component} from "react";
 
 import {
     Skeleton,
@@ -12,7 +12,7 @@ import {
     LinearProgress
 } from "@rneui/base"
 
-class CSkeleton extends React.Component {
+class CSkeleton extends Component {
     constructor(props) {
         super(props);
         this.state = {

@@ -28,7 +28,8 @@ import {
     schedulePushNotification
 } from "../utils/NotificationService";
 import {
-    Ionicons
+    Ionicons,
+    Feather
 } from "@expo/vector-icons"
 import {
     Button,
@@ -141,7 +142,7 @@ class HomeScreen extends Component {
     }
 
     fetchFirstProduct = () => {
-        this.props.getAllProductAction(0, 10,"room");
+        this.props.getAllProductAction(0, 10, "room");
     };
 
     goTo = (screen, params = {}) => {
@@ -288,22 +289,40 @@ class HomeScreen extends Component {
                         </View>
                         <Card containerStyle={{
                             // padding:0,
-                            backgroundColor:"#826012",
-                            borderRadius:20
+                            backgroundColor: "#826012",
+                            borderRadius: 20
                         }}>
                             <Card.Title style={{
-                                color:"white"
+                                color: "white"
+                            }}>View All Properties Location</Card.Title>
+                            <Card.Divider />
+                            <Button
+                                title={"Map"}
+                                type='outline'
+                                onPress={() => {
+                                    this.props.navigation.navigate("MapScreen")
+                                }}
+                                icon={<Feather name="map-pin" size={24} color="white" />}
+                            />
+                        </Card>
+                        <Card containerStyle={{
+                            // padding:0,
+                            backgroundColor: "#826012",
+                            borderRadius: 20
+                        }}>
+                            <Card.Title style={{
+                                color: "white"
                             }}>Buy & Sell Old Books with Ease</Card.Title>
                             <Card.Divider />
                             <Card.Title style={{
-                                color:"white"
+                                color: "white"
                             }}>List, Sell, or Buy Used Books Today!</Card.Title>
-                            <Button 
-                               title={"Explore More"}
-                               type='outline'
-                               onPress={()=>{
-                                this.props.navigation.navigate("Books")
-                               }}
+                            <Button
+                                title={"Explore More"}
+                                type='outline'
+                                onPress={() => {
+                                    this.props.navigation.navigate("Books")
+                                }}
                             />
                         </Card>
                     </View>

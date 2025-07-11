@@ -1,4 +1,4 @@
-import React from "react";
+import React,{Component} from "react";
 import {
     ScrollView,
     Text,
@@ -19,7 +19,7 @@ import { showTopMessage } from "../utils/ErrorHandler";
 import Loader from "./Loader";
 
 
-class BookDetails extends React.Component {
+class BookDetails extends Component {
     constructor(props) {
         super(props)
         this.state = {

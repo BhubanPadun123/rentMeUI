@@ -1,4 +1,4 @@
-import React from "react";
+import React,{Component} from "react";
 import {
     Text,
     Card
@@ -18,7 +18,7 @@ import CSkeleton from "../components/Skeletom";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SearchBar from "../components/SearchBar";
 
-class BookLibrary extends React.Component {
+class BookLibrary extends Component {
     constructor(props) {
         super(props);
         this.state = {
