@@ -22,12 +22,7 @@ const TermsAndConditions = ({onAccept}) => {
                 A non-refundable platform fee is applied per booking to support our services and platform maintenance.
             </Text>
 
-            <Text style={styles.sectionTitle}>4. Email Verification</Text>
-            <Text style={styles.text}>
-                You must verify your email to activate your account and access all features.
-            </Text>
-
-            <Text style={styles.sectionTitle}>5. Policy Updates</Text>
+            <Text style={styles.sectionTitle}>4. Policy Updates</Text>
             <Text style={styles.text}>
                 We may update these terms periodically. Continued use implies acceptance of the new terms.
             </Text>

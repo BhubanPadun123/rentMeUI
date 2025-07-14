@@ -275,6 +275,7 @@ function AuthStack(props) {
                                 }}
                                 onChange={async (e) => {
                                     if (e == 1) {
+                                        await AsyncStorage.clear()
                                         props.navigation.navigate("LoginScreen")
                                     } else if (e == 0) {
                                         props.navigation.navigate("Home")

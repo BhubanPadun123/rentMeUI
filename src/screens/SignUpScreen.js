@@ -41,8 +41,8 @@ class SignUpScreen extends Component {
         super(props);
         this.state = {
             loading: false,
-            isAggree: false,
-            userType:""
+            isAggree: true,
+            userType: "vendor"
         };
     }
 
@@ -82,11 +82,11 @@ class SignUpScreen extends Component {
     handleFormSubmit = (formValues) => {
         const { dispatch } = this.props;
         let userData = {
-            userName: formValues.userName,
-            userEmail: formValues.usermail,
-            userContactNumber: formValues.userContactNumber,
-            userType: this.state.userType,
-            password: formValues.password,
+            userName: formValues.userName.trim(),
+            userEmail: formValues.usermail.trim(),
+            userContactNumber: formValues.userContactNumber.trim(),
+            userType: this.state.userType.trim(),
+            password: formValues.password.trim(),
         };
 
         let error = false;
@@ -119,83 +119,43 @@ class SignUpScreen extends Component {
                 onSubmit={this.handleFormSubmit}
             >
                 {({ values, handleChange, handleSubmit }) => (
-                    <>
-                        <View style={styles.input_container}>
-                            <Input
-                                placeholder="Enter User Name"
-                                value={values.userName}
-                                onChangeText={handleChange('userName')}
-                            />
-                            <Input 
-                                placeholder="Enter Phone Number"
-                                value={values.userContactNumber}
-                                onChangeText={handleChange('userContactNumber')}
-                                keyboardType='phone-pad'
-                            />
-                            <Input 
-                               placeholder="Enter User Email"
-                               value={values.usermail}
-                               onChangeText={handleChange("usermail")}
-                            />
-                            <Input
-                                onChangeText={handleChange("password")}
-                                value={values.password}
-                                placeholder="Password"
-                                isSecure={false}
-                            />
-                            <Input
-                                onChangeText={handleChange("cPassword")}
-                                value={values.cPassword}
-                                placeholder="Confirm Password"
-                                isSecure={false}
-                            />
-                            <ListItem bottomDivider onPress={()=>{
-                                this.setState({
-                                    userType:"owner"
-                                })
-                            }}>
-                                <ListItem.CheckBox
-                                    iconType="material-community"
-                                    checkedIcon="checkbox-marked"
-                                    uncheckedIcon="checkbox-blank-outline"
-                                    checked={this.state.userType === "owner"}
-                                />
-                                <ListItem.Content>
-                                    <ListItem.Title>Property Owner</ListItem.Title>
-                                </ListItem.Content>
-                            </ListItem>
-                            <ListItem bottomDivider onPress={()=>{
-                                this.setState({
-                                    userType:"customer"
-                                })
-                            }}>
-                                <ListItem.CheckBox
-                                    iconType="material-community"
-                                    checkedIcon="checkbox-marked"
-                                    uncheckedIcon="checkbox-blank-outline"
-                                    checked={this.state.userType === "customer"}
-                                />
-                                <ListItem.Content>
-                                    <ListItem.Title>Customer</ListItem.Title>
-                                </ListItem.Content>
-                            </ListItem>
+                    <View style={styles.input_container}>
+                        <Input
+                            placeholder="Enter User Name"
+                            value={values.userName}
+                            onChangeText={handleChange('userName')}
+                        />
+                        <Input
+                            placeholder="Enter Phone Number"
+                            value={values.userContactNumber}
+                            onChangeText={handleChange('userContactNumber')}
+                            keyboardType='phone-pad'
+                        />
+                        <Input
+                            placeholder="Enter User Email"
+                            value={values.usermail}
+                            onChangeText={handleChange("usermail")}
+                        />
+                        <Input
+                            onChangeText={handleChange("password")}
+                            value={values.password}
+                            placeholder="Password"
+                            isSecure={false}
+                        />
+                        <Input
+                            onChangeText={handleChange("cPassword")}
+                            value={values.cPassword}
+                            placeholder="Confirm Password"
+                            isSecure={false}
+                        />
 
-                            <Button
-                                title="Signup"
-                                onPress={handleSubmit}
-                                loading={this.state.loading}
-                                size='lg'
-                            />
-                        </View>
-                        <View style={styles.button_container}>
-                            {/* <Button
-                                title="Signup"
-                                onPress={handleSubmit}
-                                loading={this.state.loading}
-                                size='lg'
-                            /> */}
-                        </View>
-                    </>
+                        <Button
+                            title="Signup"
+                            onPress={handleSubmit}
+                            loading={this.state.loading}
+                            size='lg'
+                        />
+                    </View>
                 )}
             </Formik>
         );

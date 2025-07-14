@@ -82,8 +82,8 @@ class LoginScreen extends Component {
             return
         }
         const data = {
-            userEmail: formValues.usermail,
-            password: formValues.password,
+            userEmail: formValues.usermail.trim(),
+            password: formValues.password.trim(),
         };
         this.props.userLoginAction(data);
     };
@@ -228,12 +228,6 @@ class LoginScreen extends Component {
                                             }}>Register</Text>
                                         </TouchableOpacity>
                                     </View>
-                                    {/* <Button
-                                        title="Signup"
-                                        onPress={this.goToMemberSignUp}
-                                        type='outline'
-                                        size='lg'
-                                    /> */}
                                 </View>
                             </>
                         )}
