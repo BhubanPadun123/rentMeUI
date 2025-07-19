@@ -26,7 +26,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import UploadImage from "../components/UploadImage";
 import Loader from "../components/Loader"
 import {
-    AntDesign
+    AntDesign,
+    Entypo,
+    SimpleLineIcons
 } from "@expo/vector-icons"
 
 class UserProfileScreen extends Component {
@@ -45,7 +47,7 @@ class UserProfileScreen extends Component {
             photoURL: "",
             pinCode: "",
             town: "",
-            isEdit:false
+            isEdit: false
         };
     }
 
@@ -131,173 +133,55 @@ class UserProfileScreen extends Component {
             })
         }
         return (
-            <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={{ flex: 1 }}
-                keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-            >
-                <ScrollView
-                    contentContainerStyle={{ flexGrow: 1 }}
-                    keyboardShouldPersistTaps="handled"
-                >
-                    <View style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        // maxHeight: 60,
-                        padding: 4
-                    }}>
-                        {
-                            !this.state.isEdit && metaData && metaData.hasOwnProperty('photoURL') ? (
-                                <Avatar
-                                    size={50}
-                                    rounded
-                                    source={{
-                                        uri: metaData && metaData.hasOwnProperty('photoURL') ? metaData.photoURL : ""
-                                    }}
-                                />
-                            ) : (
-                                <UploadImage
-                                    photoURL={this.state.photoURL}
-                                    imgUrl={this.state.photoURL}
-                                    handleUpdateToDb={(e) => {
-                                        this.setState({
-                                            photoURL: e,
-                                            loading: false
-                                        })
-                                    }}
-                                    onSelect={() => { this.setState({ loading: true }) }}
-                                />
-                            )
-                        }
-                        <Text style={{
-                            textAlign: 'center',
-                            fontSize: 20,
-                            color: colors.color_primary,
-                            fontWeight: 'bold'
-                        }}>{userData && userData.userName}</Text>
+            <ScrollView>
+                <View style={styles.btnContainer}>
+                    <View style={styles.btnWrapper}>
+                        <Button
+                            title={"HOME"}
+                            icon={<AntDesign name="home" size={40} color="white" />}
+                            color={'secondary'}
+                            iconPosition='top'
+                        />
+                        <Button
+                            title={"MY-BOOKING"}
+                            icon={<AntDesign name="shoppingcart" size={40} color="white" />}
+                            color={'secondary'}
+                            iconPosition='top'
+                            onPress={async () => {
+                                this.props.navigation.navigate("Setting", {
+                                    screen: "ServiceBookingScreen"
+                                })
+                            }}
+                        />
                     </View>
-                    <Divider />
-                    {
-                        !this.state.isEdit && metaData && Object.entries(metaData).length && userData && userData.hasOwnProperty('userName') ? (
-                            <View style={styles.infoConteinr}>
-                                <View style={{
-                                    justifyContent:'space-around',
-                                    flexDirection:'row'
-                                }}>
-                                    <Text style={{
-                                        fontSize: 20,
-                                        padding: 4,
-                                    }}>Registration Details</Text>
-                                    <TouchableOpacity onPress={()=>{
-                                        this.setState({
-                                            isEdit:!this.state.isEdit
-                                        })
-                                    }}>
-                                        <AntDesign name="edit" size={24} color="black" />
-                                    </TouchableOpacity>
-                                </View>
-                                <Card containerStyle={{
-                                    // padding:0
-                                }}>
-                                    <View style={{
-                                        justifyContent: 'flex-start',
-                                        gap: 4
-                                    }}>
-                                        <Text style={{
-                                            fontSize: 10,
-                                            fontWeight: '100'
-                                        }}>Phone Number</Text>
-                                        <Text style={{
-                                            fontSize: 16,
-                                            fontWeight: '100'
-                                        }}>{`${userData.hasOwnProperty('userContactNumber') && userData.userContactNumber}`}</Text>
-                                    </View>
-                                    <Card.Divider />
-                                    <View style={{
-                                        justifyContent: 'flex-start',
-                                        gap: 4
-                                    }}>
-                                        <Text style={{
-                                            fontSize: 10,
-                                            fontWeight: '100'
-                                        }}>Email Address</Text>
-                                        <Text style={{
-                                            fontSize: 16,
-                                            fontWeight: '100'
-                                        }}>{`${userData.hasOwnProperty('userEmail') && userData.userEmail}`}</Text>
-                                    </View>
-                                    <Card.Divider />
-                                    <View style={{
-                                        justifyContent: 'flex-start',
-                                        gap: 4
-                                    }}>
-                                        <Text style={{
-                                            fontSize: 10,
-                                            fontWeight: '100'
-                                        }}>Address Details</Text>
-                                        <Text style={{
-                                            fontSize: 16,
-                                            fontWeight: '100'
-                                        }}>{addsData}</Text>
-                                    </View>
-                                </Card>
-
-                            </View>
-                        ) : (
-                            <View style={styles.infoConteinr}>
-                                <Input
-                                    placeholder="Enter State Name"
-                                    value={this.state.state}
-                                    onChangeText={(e) => this.setState({ state: e })}
-                                />
-                                <Input
-                                    placeholder="Enter Distrct Name"
-                                    value={this.state.district}
-                                    onChangeText={(e) => this.setState({ district: e })}
-                                />
-                                <Input
-                                    placeholder="Enter PIN Code"
-                                    value={this.state.pinCode}
-                                    onChangeText={(e) => this.setState({ pinCode: e })}
-                                    keyboardType='number-pad'
-                                />
-                                <Input
-                                    placeholder="Enter Town Name"
-                                    value={this.state.town}
-                                    onChangeText={(e) => this.setState({ town: e })}
-                                />
-                                <Input
-                                    placeholder="Enter Local Address"
-                                    value={this.state.localAddress}
-                                    onChangeText={(e) => this.setState({ localAddress: e })}
-                                    multiline
-                                />
-                                <Button
-                                    title={"UPDATE"}
-                                    size='lg'
-                                    color={'secondary'}
-                                    onPress={this.handleUpdateMetadata}
-                                />
-                                <Button
-                                    title={"CANCEL"}
-                                    size='lg'
-                                    color={'secondary'}
-                                    onPress={()=>{
-                                        this.setState({
-                                            isEdit:false
-                                        })
-                                    }}
-                                />
-                            </View>
-                        )
-                    }
-                </ScrollView>
-                {
-                    this.state.loading && (
-                        <Loader />
-                    )
-                }
-            </KeyboardAvoidingView>
+                    <View style={styles.btnWrapper}>
+                        <Button
+                            title={"LOGIN"}
+                            icon={<Entypo name="login" size={40} color="white" />}
+                            color={'secondary'}
+                            iconPosition='top'
+                            onPress={async () => {
+                                await AsyncStorage.clear()
+                                this.props.navigation.navigate("Profile", {
+                                    screen: "LoginScreen"
+                                })
+                            }}
+                        />
+                        <Button
+                            title={"LOGOUT"}
+                            icon={<SimpleLineIcons name="logout" size={40} color="white" />}
+                            color={'secondary'}
+                            iconPosition='top'
+                            onPress={async () => {
+                                await AsyncStorage.clear()
+                                this.props.navigation.navigate("Profile", {
+                                    screen: "LoginScreen"
+                                })
+                            }}
+                        />
+                    </View>
+                </View>
+            </ScrollView>
         )
     }
 }
@@ -318,14 +202,13 @@ const mapDispatchToProps = {
 };
 
 const styles = StyleSheet.create({
-    root: {
-        backgroundColor: colors.color_light_gray
+    btnContainer: {
+        height: sizes.height,
+        justifyContent: 'center',
+        gap: 20
     },
-    infoConteinr: {
-        marginTop: 8,
-        flex: 1,
-        flexGrow: 1,
-        gap: 8
+    btnWrapper: {
+        gap: 20
     }
 })
 

@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, TouchableOpacity, View, Image, ScrollView } from "react-native";
 import { colors, sizes } from "../styles/Theme";
 import tabsImages from "./TabsImages";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
     Card,
     Button,
@@ -412,20 +413,12 @@ export function SettingStackHeaderVendor(props) {
 
 const SupperAdminSetingHeaderNavList = [
     {
-        nav: "Earning",
-        label: "Platform Earning"
-    },
-    {
         nav: "UpdateProductStock",
         label: "Edit Properties"
     },
     {
         nav: "FeedBackScreen",
         label: "Update Booking"
-    },
-    {
-        nav: "Record",
-        label: "Record's"
     },
     {
         nav: "NotificationsScreen",
@@ -438,10 +431,6 @@ const SupperAdminSetingHeaderNavList = [
     {
         nav: "PropertyRegisterScreen",
         label: "Upload Properties"
-    },
-    {
-        nav: "ManageUser",
-        label: "Manage Users"
     }
 ]
 export function SettingStackHeaderSupperAdmin(props) {
@@ -454,7 +443,7 @@ export function SettingStackHeaderSupperAdmin(props) {
     const RenderTabs = () => {
         return (
             <Tab
-                disableIndicator
+                disableIndicator={true}
                 onChange={(e) => {
                     setNav(e)
                     const findNav = SupperAdminSetingHeaderNavList[e].nav

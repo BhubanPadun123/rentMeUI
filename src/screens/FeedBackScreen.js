@@ -156,7 +156,6 @@ class FeedBackScreen extends Component {
     };
 
     updateStatus = async () => {
-        console.log("ksjfdkdsf")
         const { selectedProduct, confirmCode, selectPId, orderList } = this.state;
         const { singleProductStatus, singleProductResponse } = this.props;
 

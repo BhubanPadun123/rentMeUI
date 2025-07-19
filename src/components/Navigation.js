@@ -415,159 +415,9 @@ function SupperAdminSettingStack() {
         </Stack.Navigator>
     )
 }
-function AdminSettingStack() {
-    return (
-        <Stack.Navigator>
-            <Stack.Screen
-                name="Record"
-                component={Record}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderAdmin route={"Record"} />
-                }}
-            />
-            <Stack.Screen
-                name="NotificationsScreen"
-                component={NotificationsScreen}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderAdmin route={"NotificationsScreen"} />,
-                }}
-            />
-            <Stack.Screen
-                name="ManageUser"
-                component={ManageUser}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderAdmin route={"ManageUser"} />
-                }}
-            />
-        </Stack.Navigator>
-    )
-}
-function StuffSettingStack() {
-    return (
-        <Stack.Navigator>
-            <Stack.Screen
-                name="NotificationsScreen"
-                component={NotificationsScreen}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderStuff route={"NotificationsScreen"} />,
-                }}
-            />
-            <Stack.Screen
-                name="Record"
-                component={Record}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderStuff route={"Record"} />
-                }}
-            />
-        </Stack.Navigator>
-    )
-}
-function VendorSettingStack() {
-    return (
-        <Stack.Navigator>
-            <Stack.Screen
-                name="Record"
-                component={Record}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"Record"} />
-                }}
-            />
-            <Stack.Screen
-                name="NotificationsScreen"
-                component={NotificationsScreen}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"NotificationsScreen"} />
-                }}
-            />
-            <Stack.Screen
-                name="ServiceBookingScreen"
-                component={ServiceBookingScreen}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"ServiceBookingScreen"} />
-                }}
-            />
-            <Stack.Screen
-                name="PropertyRegisterScreen"
-                component={PropertyRegisterScreen}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"PropertyRegisterScreen"} />
-                }}
-            />
-            <Stack.Screen
-                name="PropertyLocationScreen"
-                component={PropertyLocationScreen}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"PropertyLocationScreen"} />
-                }}
-            />
-            <Stack.Screen
-                name="FeedBackScreen"
-                component={FeedBackScreen}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"FeedBackScreen"} />
-                }}
-            />
-            <Stack.Screen
-                name="UpdateProductStock"
-                component={UpdateVendorStock}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"UpdateProductStock"} />
-                }}
-            />
-            <Stack.Screen
-                name="BookingHistoryScreen"
-                component={BookingHistoryScreen}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderVendor route={"BookingHistoryScreen"} />
-                }}
-            />
-        </Stack.Navigator>
-    )
-}
-function CustomerSettingStack() {
-    return (
-        <Stack.Navigator
-        >
-            <Stack.Screen
-                name="NotificationsScreen"
-                component={NotificationsScreen}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderCustomer route={"NotificationsScreen"} />,
-                }}
-            />
-            <Stack.Screen
-                name="ServiceBookingScreen"
-                component={ServiceBookingScreen}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderCustomer route={"ServiceBookingScreen"} />
-                }}
-            />
-            <Stack.Screen
-                name="BookingHistoryScreen"
-                component={BookingHistoryScreen}
-                options={{
-                    headerShown: true,
-                    header: () => <SettingStackHeaderCustomer route={"BookingHistoryScreen"} />
-                }}
-            />
-        </Stack.Navigator>
-    )
-}
+
+
+
 function HomeStack(props) {
     return (
         <Stack.Navigator>
@@ -660,23 +510,6 @@ function HomeStack(props) {
     );
 }
 
-function MapStack() {
-    return (
-        <Stack.Navigator>
-            <Stack.Screen
-                name="MapScreen"
-                component={MapScreen}
-                options={{ headerShown: false }}
-            />
-            <Stack.Screen
-                name="ServiceDetailScreen"
-                component={ServiceDetailScreen}
-                options={{ headerShown: true, title: "Booking Property List" }}
-            />
-        </Stack.Navigator>
-    );
-}
-
 class Navigation extends Component {
     constructor(props) {
         super(props);
@@ -701,26 +534,9 @@ class Navigation extends Component {
             this.setState({ user: JSON.parse(userInfo) });
         }
     }
-    findStack = (role) => {
-        switch (role) {
-            case "customer":
-                return CustomerSettingStack
-            case "supper_admin":
-                return SupperAdminSettingStack
-            case "admin":
-                return AdminSettingStack
-            case "stuff":
-                return StuffSettingStack
-            case "owner":
-                return VendorSettingStack
-            default:
-                return CustomerSettingStack
-        }
-    }
     render() {
         this.findUser()
         const { user } = this.state
-        const SettingStack = user && user?.userType ? this.findStack(user.userType) : CustomerSettingStack;
 
         return (
             <>
@@ -758,24 +574,26 @@ class Navigation extends Component {
                             />
                             <Tab.Screen
                                 name="Setting"
-                                component={SettingStack}
+                                component={SupperAdminSettingStack}
                                 options={{
                                     // tabBarButton: customTabButton,
-                                    unmountOnBlur: true
+                                    unmountOnBlur: true,
+                                    tabBarButton:()=> null
                                 }}
                             />
                             <Tab.Screen
                                 name="Books"
                                 component={BookStack}
                                 options={{
-                                    unmountOnBlur: true
+                                    unmountOnBlur: true,
+                                    tabBarButton:()=> null
                                 }}
                             />
                             <Tab.Screen
                                 name="Profile"
                                 component={AuthStack}
                                 options={{
-                                    unmountOnBlur: true
+                                    unmountOnBlur: true,
                                 }}
                             />
                         </Tab.Navigator>

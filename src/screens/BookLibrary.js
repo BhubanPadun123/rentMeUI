@@ -1,7 +1,8 @@
-import React,{Component} from "react";
+import React, { Component } from "react";
 import {
     Text,
-    Card
+    Card,
+    SearchBar
 } from "@rneui/themed"
 import {
     FlatList,
@@ -16,7 +17,6 @@ import {
 import { connect } from "react-redux";
 import CSkeleton from "../components/Skeletom";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import SearchBar from "../components/SearchBar";
 
 class BookLibrary extends Component {
     constructor(props) {
@@ -24,7 +24,8 @@ class BookLibrary extends Component {
         this.state = {
             loading: true,
             user: null,
-            product: []
+            product: [],
+            searchName:""
         }
     }
 
@@ -67,22 +68,24 @@ class BookLibrary extends Component {
                 item.productTitle.toLowerCase().includes(e.toLowerCase())
             );
         });
-        if(filterItem){
+        if (filterItem) {
             this.setState({
-                product:filterItem
+                product: filterItem,
+                searchName:e
             })
-        }else{
+        } else {
             this.setState({
-                allProduct
+                allProduct,
+                searchName:e
             })
         }
     }
-    handleViewBook=(book)=>{
-        if(!book) return
+    handleViewBook = (book) => {
+        if (!book) return
         console.log(book)
-        this.props.navigation.navigate("Home",{
-            screen:"ServiceDetailScreen",
-            params:{book}
+        this.props.navigation.navigate("Home", {
+            screen: "ServiceDetailScreen",
+            params: { book }
         })
     }
     render() {
@@ -93,17 +96,27 @@ class BookLibrary extends Component {
         return (
             <View style={styles.root}>
                 <View style={{
-                    paddingHorizontal:20,
-                    paddingTop:20
+                    paddingHorizontal: 20,
+                    paddingTop: 20
                 }}>
                     <SearchBar
-                        placeholder_text={"Search by book name.."}
-                        onSearch={(e) => this.handleSearch(e)}
+                        placeholder="Search By Book Name.."
+                        containerStyle={{
+                            padding: 0,
+                            margin: 0,
+                        }}
+                        inputStyle={{
+                            color:"white",
+                            fontWeight:'bold',
+                            fontSize:20
+                        }}
+                        value={this.state.searchName}
+                        onChangeText={this.handleSearch}
                     />
                 </View>
                 <View style={{
                     width: "100%",
-                    paddingBottom:80
+                    paddingBottom: 80
                 }}>
                     {
                         product && Array.isArray(product) && product.length > 0 && (
@@ -116,7 +129,7 @@ class BookLibrary extends Component {
                                     const metaData = item.item.hasOwnProperty('metaData') ? JSON.parse(item.item.metaData) : null
                                     const images = metaData && metaData.hasOwnProperty('images') ? JSON.parse(metaData.images) : []
                                     return (
-                                        <TouchableNativeFeedback onPress={()=> this.handleViewBook(item.item)} >
+                                        <TouchableNativeFeedback onPress={() => this.handleViewBook(item.item)} >
                                             <Card containerStyle={{
                                                 padding: 0,
                                                 width: "auto"
