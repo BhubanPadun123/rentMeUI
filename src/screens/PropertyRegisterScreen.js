@@ -2,8 +2,6 @@ import React, { Component } from "react";
 import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView } from "react-native";
 import Button from "../components/Button/Button";
 import InputBar from "../components/InputBar";
-import { getAuth } from "firebase/auth";
-import app from "../../firebaseConfig";
 import { Formik } from "formik";
 import ErrorHandler, { showTopMessage } from "../utils/ErrorHandler";
 import { colors } from "../styles/Theme";

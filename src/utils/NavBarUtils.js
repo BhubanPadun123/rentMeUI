@@ -11,7 +11,9 @@ import {
     Divider,
     Dialog,
     CheckBox,
-    ListItem
+    ListItem,
+    ButtonGroup,
+
 } from "@rneui/themed"
 import {
     FontAwesome5,
@@ -24,11 +26,28 @@ import {
     AntDesign,
     FontAwesome,
     Entypo,
-    Ionicons
+    Ionicons,
+    FontAwesome6
 } from "@expo/vector-icons"
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 //ICONS
+const tabIcons = (name) => {
+    switch (name) {
+        case "Home":
+            return <MaterialCommunityIcons name="home" size={24} color="gray" />
+        case "MyHome":
+            return <FontAwesome6 name="building-columns" size={24} color="gray" />
+        case "Add":
+            return <FontAwesome6 name="add" size={24} color="pink" />
+        case "MyBook":
+            return <Entypo name="book" size={24} color="gray" />
+        case "Profile":
+            return <FontAwesome name="user-o" size={24} color="gray" />
+        default:
+            return null
+    }
+}
 const iconPref = ({ route, ...props }) => {
     const hiddenRoutes = [
         "Profile"
@@ -40,39 +59,18 @@ const iconPref = ({ route, ...props }) => {
         tabBarIcon: ({ color }) => {
 
             return (
-                <Tab
-                    disableIndicator
-                    onChange={() => handleNav(route.name)}
-                    containerStyle={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: "center",
-                        display: 'flex',
-                        backgroundColor: "#826012",
-                        paddingTop: 4,
-                    }}
-                >
-                    <Tab.Item
-                        title={
-                            route.name === "Home" ?
-                                "Home" :
-                                route.name === "Setting" ?
-                                    "Room" :
-                                    route.name === "Books" ?
-                                        "Book" : "User"
-                        }
-                        titleStyle={{ color: 'white', fontSize: 10 }}
-                        icon={
-                            route.name === "Home" ?
-                                <MaterialCommunityIcons name="home" size={24} color="white" /> :
-                                route.name === "Setting" ?
-                                    <MaterialCommunityIcons name="view-dashboard" size={24} color="white" /> :
-                                    route.name === "Books" ?
-                                        <Ionicons name="newspaper-outline" size={24} color="white" />
-                                        : <FontAwesome name="user-o" size={24} color="white" />
-                        }
-                    />
-                </Tab>
+                <TouchableOpacity onPress={()=> handleNav(route.name)} style={{
+                    display:'flex',
+                    flexDirection:'column',
+                    justifyContent:'center',
+                    alignItems:'center'
+                }}>
+                    {tabIcons(route.name)}
+                    <Text style={{
+                        fontSize:10,
+                        fontWeight:'100'
+                    }}>{route.name}</Text>
+                </TouchableOpacity>
             )
         },
         tabBarActiveTintColor: "red",

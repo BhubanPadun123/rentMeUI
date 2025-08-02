@@ -14,7 +14,8 @@ import {
     ListItem,
     Card,
     Input,
-    Button
+    Button,
+    PricingCard
 } from "@rneui/themed"
 import { connect } from "react-redux";
 import * as Notifications from 'expo-notifications';
@@ -134,52 +135,329 @@ class UserProfileScreen extends Component {
         }
         return (
             <ScrollView>
+                <View style={{
+                    marginTop: 40,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <Text style={{
+                        fontSize: 20,
+                        fontWeight: '400'
+                    }}>Your Account</Text>
+                </View>
+                <View>
+                    <PricingCard
+                        title="Bhuban Padun"
+                        containerStyle={{
+                            padding: 0,
+                        }}
+                        wrapperStyle={{
+                            padding: 0,
+                            margin: 0,
+                            gap: 0,
+                            // height:30,
+                            display: 'flex',
+                            flexDirection: 'row',
+                            elevation: 4,
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}
+                        button={{
+                            title: "Edit",
+                            icon: <AntDesign name="edit" size={24} color="gray" />,
+                            size: "sm",
+                            style: {
+                                width: "auto",
+                                padding: 2
+                            },
+                            onPress:()=>{
+                                this.props.navigation.navigate("UpdateUser")
+                            }
+                        }}
+                    />
+                </View>
                 <View style={styles.btnContainer}>
-                    <View style={styles.btnWrapper}>
-                        <Button
-                            title={"HOME"}
-                            icon={<AntDesign name="home" size={40} color="white" />}
-                            color={'secondary'}
-                            iconPosition='top'
-                        />
-                        <Button
-                            title={"MY-BOOKING"}
-                            icon={<AntDesign name="shoppingcart" size={40} color="white" />}
-                            color={'secondary'}
-                            iconPosition='top'
-                            onPress={async () => {
-                                this.props.navigation.navigate("Setting", {
-                                    screen: "ServiceBookingScreen"
-                                })
-                            }}
-                        />
-                    </View>
-                    <View style={styles.btnWrapper}>
-                        <Button
-                            title={"LOGIN"}
-                            icon={<Entypo name="login" size={40} color="white" />}
-                            color={'secondary'}
-                            iconPosition='top'
-                            onPress={async () => {
-                                await AsyncStorage.clear()
-                                this.props.navigation.navigate("Profile", {
-                                    screen: "LoginScreen"
-                                })
-                            }}
-                        />
-                        <Button
-                            title={"LOGOUT"}
-                            icon={<SimpleLineIcons name="logout" size={40} color="white" />}
-                            color={'secondary'}
-                            iconPosition='top'
-                            onPress={async () => {
-                                await AsyncStorage.clear()
-                                this.props.navigation.navigate("Profile", {
-                                    screen: "LoginScreen"
-                                })
-                            }}
-                        />
-                    </View>
+                    <Card
+                        children={
+                            <View style={{
+                                gap:4
+                            }}>
+                                <ListItem
+                                    containerStyle={{
+                                        padding: 0,
+                                        borderWidth:1,
+                                        borderColor:'gray',
+                                        paddingHorizontal:4,
+                                        borderRadius:4
+                                    }}
+                                >
+                                    <ListItem.Content style={{
+                                        padding:0,
+                                        margin:0,
+                                        display:'flex',
+                                        flexDirection:'row',
+                                        justifyContent:'space-between',
+                                        alignItems:'center'
+                                    }}>
+                                        <ListItem.Title>My Favorites</ListItem.Title>
+                                        <Button 
+                                           icon={<AntDesign name="arrowright" size={24} color="black" />}
+                                           type='clear'
+                                           onPress={()=> this.props.navigation.navigate("MyFav")}
+                                        />
+                                    </ListItem.Content>
+                                </ListItem>
+                                <ListItem
+                                    containerStyle={{
+                                        padding: 0,
+                                        borderWidth:1,
+                                        borderColor:'gray',
+                                        paddingHorizontal:4,
+                                        borderRadius:4
+                                    }}
+                                >
+                                    <ListItem.Content style={{
+                                        padding:0,
+                                        margin:0,
+                                        display:'flex',
+                                        flexDirection:'row',
+                                        justifyContent:'space-between',
+                                        alignItems:'center'
+                                    }}>
+                                        <ListItem.Title>Update Location</ListItem.Title>
+                                        <Button 
+                                           icon={<AntDesign name="arrowright" size={24} color="black" />}
+                                           type='clear'
+                                           onPress={()=> this.props.navigation.navigate("UpdateLocation")}
+                                        />
+                                    </ListItem.Content>
+                                </ListItem>
+                                <ListItem
+                                    containerStyle={{
+                                        padding: 0,
+                                        borderWidth:1,
+                                        borderColor:'gray',
+                                        paddingHorizontal:4,
+                                        borderRadius:4
+                                    }}
+                                >
+                                    <ListItem.Content style={{
+                                        padding:0,
+                                        margin:0,
+                                        display:'flex',
+                                        flexDirection:'row',
+                                        justifyContent:'space-between',
+                                        alignItems:'center'
+                                    }}>
+                                        <ListItem.Title>Request Books or Rooms</ListItem.Title>
+                                        <Button 
+                                           icon={<AntDesign name="arrowright" size={24} color="black" />}
+                                           type='clear'
+                                           onPress={()=> this.props.navigation.navigate("Request")}
+                                        />
+                                    </ListItem.Content>
+                                </ListItem>
+                                <ListItem
+                                    containerStyle={{
+                                        padding: 0,
+                                        borderWidth:1,
+                                        borderColor:'gray',
+                                        paddingHorizontal:4,
+                                        borderRadius:4
+                                    }}
+                                >
+                                    <ListItem.Content style={{
+                                        padding:0,
+                                        margin:0,
+                                        display:'flex',
+                                        flexDirection:'row',
+                                        justifyContent:'space-between',
+                                        alignItems:'center'
+                                    }}>
+                                        <ListItem.Title>Privacy Policy</ListItem.Title>
+                                        <Button 
+                                           icon={<AntDesign name="arrowright" size={24} color="black" />}
+                                           type='clear'
+                                           onPress={()=> this.props.navigation.navigate("Privacy")}
+                                        />
+                                    </ListItem.Content>
+                                </ListItem>
+                                <ListItem
+                                    containerStyle={{
+                                        padding: 0,
+                                        borderWidth:1,
+                                        borderColor:'gray',
+                                        paddingHorizontal:4,
+                                        borderRadius:4
+                                    }}
+                                >
+                                    <ListItem.Content style={{
+                                        padding:0,
+                                        margin:0,
+                                        display:'flex',
+                                        flexDirection:'row',
+                                        justifyContent:'space-between',
+                                        alignItems:'center'
+                                    }}>
+                                        <ListItem.Title>Terms & Condition</ListItem.Title>
+                                        <Button 
+                                           icon={<AntDesign name="arrowright" size={24} color="black" />}
+                                           type='clear'
+                                           onPress={()=> this.props.navigation.navigate("TermAndCondition")}
+                                        />
+                                    </ListItem.Content>
+                                </ListItem>
+                                <ListItem
+                                    containerStyle={{
+                                        padding: 0,
+                                        borderWidth:1,
+                                        borderColor:'gray',
+                                        paddingHorizontal:4,
+                                        borderRadius:4
+                                    }}
+                                >
+                                    <ListItem.Content style={{
+                                        padding:0,
+                                        margin:0,
+                                        display:'flex',
+                                        flexDirection:'row',
+                                        justifyContent:'space-between',
+                                        alignItems:'center'
+                                    }}>
+                                        <ListItem.Title>Support us</ListItem.Title>
+                                        <Button 
+                                           icon={<AntDesign name="arrowright" size={24} color="black" />}
+                                           type='clear'
+                                           onPress={()=> this.props.navigation.navigate("SupportUs")}
+                                        />
+                                    </ListItem.Content>
+                                </ListItem>
+                                <ListItem
+                                    containerStyle={{
+                                        padding: 0,
+                                        borderWidth:1,
+                                        borderColor:'gray',
+                                        paddingHorizontal:4,
+                                        borderRadius:4
+                                    }}
+                                >
+                                    <ListItem.Content style={{
+                                        padding:0,
+                                        margin:0,
+                                        display:'flex',
+                                        flexDirection:'row',
+                                        justifyContent:'space-between',
+                                        alignItems:'center'
+                                    }}>
+                                        <ListItem.Title>FAQ</ListItem.Title>
+                                        <Button 
+                                           icon={<AntDesign name="arrowright" size={24} color="black" />}
+                                           type='clear'
+                                           onPress={()=> this.props.navigation.navigate("FAQ")}
+                                        />
+                                    </ListItem.Content>
+                                </ListItem>
+                                <ListItem
+                                    containerStyle={{
+                                        padding: 0,
+                                        borderWidth:1,
+                                        borderColor:'gray',
+                                        paddingHorizontal:4,
+                                        borderRadius:4
+                                    }}
+                                >
+                                    <ListItem.Content style={{
+                                        padding:0,
+                                        margin:0,
+                                        display:'flex',
+                                        flexDirection:'row',
+                                        justifyContent:'space-between',
+                                        alignItems:'center'
+                                    }}>
+                                        <ListItem.Title>Feedback</ListItem.Title>
+                                        <Button 
+                                           icon={<AntDesign name="arrowright" size={24} color="black" />}
+                                           type='clear'
+                                           onPress={()=> this.props.navigation.navigate("Feedback")}
+                                        />
+                                    </ListItem.Content>
+                                </ListItem>
+                                <ListItem
+                                    containerStyle={{
+                                        padding: 0,
+                                        borderWidth:1,
+                                        borderColor:'gray',
+                                        paddingHorizontal:4,
+                                        borderRadius:4
+                                    }}
+                                >
+                                    <ListItem.Content style={{
+                                        padding:0,
+                                        margin:0,
+                                        display:'flex',
+                                        flexDirection:'row',
+                                        justifyContent:'space-between',
+                                        alignItems:'center'
+                                    }}>
+                                        <ListItem.Title>Connect us</ListItem.Title>
+                                        <Button 
+                                           icon={<AntDesign name="arrowright" size={24} color="black" />}
+                                           type='clear'
+                                           onPress={()=> this.props.navigation.navigate("AboutUs")}
+                                        />
+                                    </ListItem.Content>
+                                </ListItem>
+                                <ListItem
+                                    containerStyle={{
+                                        padding: 0,
+                                        borderWidth:1,
+                                        borderColor:'gray',
+                                        paddingHorizontal:4,
+                                        borderRadius:4
+                                    }}
+                                >
+                                    <ListItem.Content style={{
+                                        padding:0,
+                                        margin:0,
+                                        display:'flex',
+                                        flexDirection:'row',
+                                        justifyContent:'space-between',
+                                        alignItems:'center'
+                                    }}>
+                                        <ListItem.Title>Invite</ListItem.Title>
+                                        <Button 
+                                           icon={<AntDesign name="arrowright" size={24} color="black" />}
+                                           type='clear'
+                                        />
+                                    </ListItem.Content>
+                                </ListItem>
+                                <ListItem
+                                    containerStyle={{
+                                        padding: 0,
+                                        borderWidth:1,
+                                        borderColor:'gray',
+                                        paddingHorizontal:4,
+                                        borderRadius:4
+                                    }}
+                                >
+                                    <ListItem.Content style={{
+                                        padding:0,
+                                        margin:0,
+                                        display:'flex',
+                                        flexDirection:'row',
+                                        justifyContent:'space-between',
+                                        alignItems:'center'
+                                    }}>
+                                        <ListItem.Title>Logout</ListItem.Title>
+                                        <Button 
+                                           icon={<AntDesign name="arrowright" size={24} color="black" />}
+                                           type='clear'
+                                        />
+                                    </ListItem.Content>
+                                </ListItem>
+                            </View>
+                        }
+                    />
                 </View>
             </ScrollView>
         )
@@ -204,7 +482,6 @@ const mapDispatchToProps = {
 const styles = StyleSheet.create({
     btnContainer: {
         height: sizes.height,
-        justifyContent: 'center',
         gap: 20
     },
     btnWrapper: {

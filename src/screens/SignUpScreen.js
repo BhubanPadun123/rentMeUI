@@ -12,8 +12,6 @@ import {
 import InputBar from "../components/InputBar";
 import Dropdown from "../components/SingleSelect";
 import TermsAndConditions from "../components/TermAndCondition";
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import app from "../../firebaseConfig";
 import { Formik } from "formik";
 import ErrorHandler, { showTopMessage } from "../utils/ErrorHandler";
 import { colors } from "../styles/Theme";
